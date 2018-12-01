@@ -9,7 +9,6 @@ RM := rm -rf
 # All of the sources participating in the build are defined here
 -include sources.mk
 -include startup/subdir.mk
--include src/subdir.mk
 -include Middlewares/STM32_USB_Host_Library/Core/Src/subdir.mk
 -include Middlewares/STM32_USB_Host_Library/Class/Template/Src/subdir.mk
 -include Middlewares/STM32_USB_Host_Library/Class/MTP/Src/subdir.mk
@@ -24,6 +23,7 @@ RM := rm -rf
 -include Drivers/HAL_Driver/Src/Legacy/subdir.mk
 -include Drivers/HAL_Driver/Src/subdir.mk
 -include Drivers/BSP/STM32F7xx_Nucleo_144/subdir.mk
+-include Applications/subdir.mk
 -include subdir.mk
 -include objects.mk
 

@@ -4,17 +4,26 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
-../Middlewares/FreeRTOS/Source/portable/GCC/ARM_CM7/port.c 
+../Applications/main.c \
+../Applications/stm32f7xx_it.c \
+../Applications/syscalls.c \
+../Applications/system_stm32f7xx.c 
 
 OBJS += \
-./Middlewares/FreeRTOS/Source/portable/GCC/ARM_CM7/port.o 
+./Applications/main.o \
+./Applications/stm32f7xx_it.o \
+./Applications/syscalls.o \
+./Applications/system_stm32f7xx.o 
 
 C_DEPS += \
-./Middlewares/FreeRTOS/Source/portable/GCC/ARM_CM7/port.d 
+./Applications/main.d \
+./Applications/stm32f7xx_it.d \
+./Applications/syscalls.d \
+./Applications/system_stm32f7xx.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes
-Middlewares/FreeRTOS/Source/portable/GCC/ARM_CM7/%.o: ../Middlewares/FreeRTOS/Source/portable/GCC/ARM_CM7/%.c
+Applications/%.o: ../Applications/%.c
 	@echo 'Building file: $<'
 	@echo 'Invoking: MCU GCC Compiler'
 	@echo $(PWD)

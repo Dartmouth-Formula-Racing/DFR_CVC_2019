@@ -1,8 +1,4 @@
-src/stm32f7xx_it.o: ../src/stm32f7xx_it.c \
- C:/Users/f002bc7/workspace/dfr_cvc/Drivers/HAL_Driver/Inc/stm32f7xx_hal.h \
- C:/Users/f002bc7/workspace/dfr_cvc/Drivers/HAL_Driver/Inc/stm32f7xx_hal_conf.h \
- C:/Users/f002bc7/workspace/dfr_cvc/Drivers/HAL_Driver/Inc/stm32f7xx_hal_rcc.h \
- C:/Users/f002bc7/workspace/dfr_cvc/Drivers/HAL_Driver/Inc/stm32f7xx_hal_def.h \
+Applications/main.o: ../Applications/main.c \
  C:/Users/f002bc7/workspace/dfr_cvc/Drivers/CMSIS/device/stm32f7xx.h \
  C:/Users/f002bc7/workspace/dfr_cvc/Drivers/CMSIS/device/stm32f767xx.h \
  C:/Users/f002bc7/workspace/dfr_cvc/Drivers/CMSIS/core/core_cm7.h \
@@ -11,6 +7,10 @@ src/stm32f7xx_it.o: ../src/stm32f7xx_it.c \
  C:/Users/f002bc7/workspace/dfr_cvc/Drivers/CMSIS/core/core_cmFunc.h \
  C:/Users/f002bc7/workspace/dfr_cvc/Drivers/CMSIS/core/core_cmSimd.h \
  C:/Users/f002bc7/workspace/dfr_cvc/Drivers/CMSIS/device/system_stm32f7xx.h \
+ C:/Users/f002bc7/workspace/dfr_cvc/Drivers/HAL_Driver/Inc/stm32f7xx_hal.h \
+ C:/Users/f002bc7/workspace/dfr_cvc/Drivers/HAL_Driver/Inc/stm32f7xx_hal_conf.h \
+ C:/Users/f002bc7/workspace/dfr_cvc/Drivers/HAL_Driver/Inc/stm32f7xx_hal_rcc.h \
+ C:/Users/f002bc7/workspace/dfr_cvc/Drivers/HAL_Driver/Inc/stm32f7xx_hal_def.h \
  C:/Users/f002bc7/workspace/dfr_cvc/Drivers/HAL_Driver/Inc/Legacy/stm32_hal_legacy.h \
  C:/Users/f002bc7/workspace/dfr_cvc/Drivers/HAL_Driver/Inc/stm32f7xx_hal_rcc_ex.h \
  C:/Users/f002bc7/workspace/dfr_cvc/Drivers/HAL_Driver/Inc/stm32f7xx_hal_gpio.h \
@@ -71,32 +71,7 @@ src/stm32f7xx_it.o: ../src/stm32f7xx_it.c \
  C:/Users/f002bc7/workspace/dfr_cvc/Drivers/HAL_Driver/Inc/stm32f7xx_hal_dfsdm.h \
  C:/Users/f002bc7/workspace/dfr_cvc/Drivers/HAL_Driver/Inc/stm32f7xx_hal_jpeg.h \
  C:/Users/f002bc7/workspace/dfr_cvc/Drivers/HAL_Driver/Inc/stm32f7xx_hal_mdios.h \
- C:/Users/f002bc7/workspace/dfr_cvc/Middlewares/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.h \
- C:/Users/f002bc7/workspace/dfr_cvc/Middlewares/FreeRTOS/Source/include/FreeRTOS.h \
- C:/Users/f002bc7/workspace/dfr_cvc/inc/FreeRTOSConfig.h \
- C:/Users/f002bc7/workspace/dfr_cvc/Middlewares/FreeRTOS/Source/include/projdefs.h \
- C:/Users/f002bc7/workspace/dfr_cvc/Middlewares/FreeRTOS/Source/include/portable.h \
- C:/Users/f002bc7/workspace/dfr_cvc/Middlewares/FreeRTOS/Source/include/deprecated_definitions.h \
- C:/Users/f002bc7/workspace/dfr_cvc/Middlewares/FreeRTOS/Source/portable/GCC/ARM_CM7/portmacro.h \
- C:/Users/f002bc7/workspace/dfr_cvc/Middlewares/FreeRTOS/Source/include/mpu_wrappers.h \
- C:/Users/f002bc7/workspace/dfr_cvc/Middlewares/FreeRTOS/Source/include/task.h \
- C:/Users/f002bc7/workspace/dfr_cvc/Middlewares/FreeRTOS/Source/include/list.h \
- C:/Users/f002bc7/workspace/dfr_cvc/Middlewares/FreeRTOS/Source/include/timers.h \
- C:/Users/f002bc7/workspace/dfr_cvc/Middlewares/FreeRTOS/Source/include/task.h \
- C:/Users/f002bc7/workspace/dfr_cvc/Middlewares/FreeRTOS/Source/include/queue.h \
- C:/Users/f002bc7/workspace/dfr_cvc/Middlewares/FreeRTOS/Source/include/semphr.h \
- C:/Users/f002bc7/workspace/dfr_cvc/Middlewares/FreeRTOS/Source/include/queue.h \
- C:/Users/f002bc7/workspace/dfr_cvc/Middlewares/FreeRTOS/Source/include/event_groups.h \
- C:/Users/f002bc7/workspace/dfr_cvc/Middlewares/FreeRTOS/Source/include/timers.h \
- C:/Users/f002bc7/workspace/dfr_cvc/inc/stm32f7xx_it.h
-
-C:/Users/f002bc7/workspace/dfr_cvc/Drivers/HAL_Driver/Inc/stm32f7xx_hal.h:
-
-C:/Users/f002bc7/workspace/dfr_cvc/Drivers/HAL_Driver/Inc/stm32f7xx_hal_conf.h:
-
-C:/Users/f002bc7/workspace/dfr_cvc/Drivers/HAL_Driver/Inc/stm32f7xx_hal_rcc.h:
-
-C:/Users/f002bc7/workspace/dfr_cvc/Drivers/HAL_Driver/Inc/stm32f7xx_hal_def.h:
+ C:/Users/f002bc7/workspace/dfr_cvc/Drivers/BSP/STM32F7xx_Nucleo_144/stm32f7xx_nucleo_144.h
 
 C:/Users/f002bc7/workspace/dfr_cvc/Drivers/CMSIS/device/stm32f7xx.h:
 
@@ -113,6 +88,14 @@ C:/Users/f002bc7/workspace/dfr_cvc/Drivers/CMSIS/core/core_cmFunc.h:
 C:/Users/f002bc7/workspace/dfr_cvc/Drivers/CMSIS/core/core_cmSimd.h:
 
 C:/Users/f002bc7/workspace/dfr_cvc/Drivers/CMSIS/device/system_stm32f7xx.h:
+
+C:/Users/f002bc7/workspace/dfr_cvc/Drivers/HAL_Driver/Inc/stm32f7xx_hal.h:
+
+C:/Users/f002bc7/workspace/dfr_cvc/Drivers/HAL_Driver/Inc/stm32f7xx_hal_conf.h:
+
+C:/Users/f002bc7/workspace/dfr_cvc/Drivers/HAL_Driver/Inc/stm32f7xx_hal_rcc.h:
+
+C:/Users/f002bc7/workspace/dfr_cvc/Drivers/HAL_Driver/Inc/stm32f7xx_hal_def.h:
 
 C:/Users/f002bc7/workspace/dfr_cvc/Drivers/HAL_Driver/Inc/Legacy/stm32_hal_legacy.h:
 
@@ -234,38 +217,4 @@ C:/Users/f002bc7/workspace/dfr_cvc/Drivers/HAL_Driver/Inc/stm32f7xx_hal_jpeg.h:
 
 C:/Users/f002bc7/workspace/dfr_cvc/Drivers/HAL_Driver/Inc/stm32f7xx_hal_mdios.h:
 
-C:/Users/f002bc7/workspace/dfr_cvc/Middlewares/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.h:
-
-C:/Users/f002bc7/workspace/dfr_cvc/Middlewares/FreeRTOS/Source/include/FreeRTOS.h:
-
-C:/Users/f002bc7/workspace/dfr_cvc/inc/FreeRTOSConfig.h:
-
-C:/Users/f002bc7/workspace/dfr_cvc/Middlewares/FreeRTOS/Source/include/projdefs.h:
-
-C:/Users/f002bc7/workspace/dfr_cvc/Middlewares/FreeRTOS/Source/include/portable.h:
-
-C:/Users/f002bc7/workspace/dfr_cvc/Middlewares/FreeRTOS/Source/include/deprecated_definitions.h:
-
-C:/Users/f002bc7/workspace/dfr_cvc/Middlewares/FreeRTOS/Source/portable/GCC/ARM_CM7/portmacro.h:
-
-C:/Users/f002bc7/workspace/dfr_cvc/Middlewares/FreeRTOS/Source/include/mpu_wrappers.h:
-
-C:/Users/f002bc7/workspace/dfr_cvc/Middlewares/FreeRTOS/Source/include/task.h:
-
-C:/Users/f002bc7/workspace/dfr_cvc/Middlewares/FreeRTOS/Source/include/list.h:
-
-C:/Users/f002bc7/workspace/dfr_cvc/Middlewares/FreeRTOS/Source/include/timers.h:
-
-C:/Users/f002bc7/workspace/dfr_cvc/Middlewares/FreeRTOS/Source/include/task.h:
-
-C:/Users/f002bc7/workspace/dfr_cvc/Middlewares/FreeRTOS/Source/include/queue.h:
-
-C:/Users/f002bc7/workspace/dfr_cvc/Middlewares/FreeRTOS/Source/include/semphr.h:
-
-C:/Users/f002bc7/workspace/dfr_cvc/Middlewares/FreeRTOS/Source/include/queue.h:
-
-C:/Users/f002bc7/workspace/dfr_cvc/Middlewares/FreeRTOS/Source/include/event_groups.h:
-
-C:/Users/f002bc7/workspace/dfr_cvc/Middlewares/FreeRTOS/Source/include/timers.h:
-
-C:/Users/f002bc7/workspace/dfr_cvc/inc/stm32f7xx_it.h:
+C:/Users/f002bc7/workspace/dfr_cvc/Drivers/BSP/STM32F7xx_Nucleo_144/stm32f7xx_nucleo_144.h:

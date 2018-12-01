@@ -1,4 +1,4 @@
-src/main.o: ../src/main.c \
+Applications/system_stm32f7xx.o: ../Applications/system_stm32f7xx.c \
  C:/Users/f002bc7/workspace/dfr_cvc/Drivers/CMSIS/device/stm32f7xx.h \
  C:/Users/f002bc7/workspace/dfr_cvc/Drivers/CMSIS/device/stm32f767xx.h \
  C:/Users/f002bc7/workspace/dfr_cvc/Drivers/CMSIS/core/core_cm7.h \
@@ -70,8 +70,7 @@ src/main.o: ../src/main.c \
  C:/Users/f002bc7/workspace/dfr_cvc/Drivers/HAL_Driver/Inc/stm32f7xx_hal_hcd.h \
  C:/Users/f002bc7/workspace/dfr_cvc/Drivers/HAL_Driver/Inc/stm32f7xx_hal_dfsdm.h \
  C:/Users/f002bc7/workspace/dfr_cvc/Drivers/HAL_Driver/Inc/stm32f7xx_hal_jpeg.h \
- C:/Users/f002bc7/workspace/dfr_cvc/Drivers/HAL_Driver/Inc/stm32f7xx_hal_mdios.h \
- C:/Users/f002bc7/workspace/dfr_cvc/Drivers/BSP/STM32F7xx_Nucleo_144/stm32f7xx_nucleo_144.h
+ C:/Users/f002bc7/workspace/dfr_cvc/Drivers/HAL_Driver/Inc/stm32f7xx_hal_mdios.h
 
 C:/Users/f002bc7/workspace/dfr_cvc/Drivers/CMSIS/device/stm32f7xx.h:
 
@@ -216,5 +215,3 @@ C:/Users/f002bc7/workspace/dfr_cvc/Drivers/HAL_Driver/Inc/stm32f7xx_hal_dfsdm.h:
 C:/Users/f002bc7/workspace/dfr_cvc/Drivers/HAL_Driver/Inc/stm32f7xx_hal_jpeg.h:
 
 C:/Users/f002bc7/workspace/dfr_cvc/Drivers/HAL_Driver/Inc/stm32f7xx_hal_mdios.h:
-
-C:/Users/f002bc7/workspace/dfr_cvc/Drivers/BSP/STM32F7xx_Nucleo_144/stm32f7xx_nucleo_144.h:

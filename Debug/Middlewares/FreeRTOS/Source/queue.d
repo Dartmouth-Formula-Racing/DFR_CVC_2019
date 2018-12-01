@@ -1,7 +1,7 @@
 Middlewares/FreeRTOS/Source/queue.o: \
  ../Middlewares/FreeRTOS/Source/queue.c \
  C:/Users/f002bc7/workspace/dfr_cvc/Middlewares/FreeRTOS/Source/include/FreeRTOS.h \
- C:/Users/f002bc7/workspace/dfr_cvc/inc/FreeRTOSConfig.h \
+ C:/Users/f002bc7/workspace/dfr_cvc/Applications/inc/FreeRTOSConfig.h \
  C:/Users/f002bc7/workspace/dfr_cvc/Middlewares/FreeRTOS/Source/include/projdefs.h \
  C:/Users/f002bc7/workspace/dfr_cvc/Middlewares/FreeRTOS/Source/include/portable.h \
  C:/Users/f002bc7/workspace/dfr_cvc/Middlewares/FreeRTOS/Source/include/deprecated_definitions.h \
@@ -13,7 +13,7 @@ Middlewares/FreeRTOS/Source/queue.o: \
 
 C:/Users/f002bc7/workspace/dfr_cvc/Middlewares/FreeRTOS/Source/include/FreeRTOS.h:
 
-C:/Users/f002bc7/workspace/dfr_cvc/inc/FreeRTOSConfig.h:
+C:/Users/f002bc7/workspace/dfr_cvc/Applications/inc/FreeRTOSConfig.h:
 
 C:/Users/f002bc7/workspace/dfr_cvc/Middlewares/FreeRTOS/Source/include/projdefs.h:
 

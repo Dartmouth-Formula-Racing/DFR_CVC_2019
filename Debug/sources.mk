@@ -15,6 +15,7 @@ C_DEPS :=
 
 # Every subdirectory with source files must be described here
 SUBDIRS := \
+Applications \
 Drivers/BSP/STM32F7xx_Nucleo_144 \
 Drivers/HAL_Driver/Src/Legacy \
 Drivers/HAL_Driver/Src \
@@ -29,6 +30,5 @@ Middlewares/STM32_USB_Host_Library/Class/MSC/Src \
 Middlewares/STM32_USB_Host_Library/Class/MTP/Src \
 Middlewares/STM32_USB_Host_Library/Class/Template/Src \
 Middlewares/STM32_USB_Host_Library/Core/Src \
-src \
 startup \
 

@@ -1,6 +1,6 @@
 Middlewares/FreeRTOS/Source/list.o: ../Middlewares/FreeRTOS/Source/list.c \
  C:/Users/f002bc7/workspace/dfr_cvc/Middlewares/FreeRTOS/Source/include/FreeRTOS.h \
- C:/Users/f002bc7/workspace/dfr_cvc/inc/FreeRTOSConfig.h \
+ C:/Users/f002bc7/workspace/dfr_cvc/Applications/inc/FreeRTOSConfig.h \
  C:/Users/f002bc7/workspace/dfr_cvc/Middlewares/FreeRTOS/Source/include/projdefs.h \
  C:/Users/f002bc7/workspace/dfr_cvc/Middlewares/FreeRTOS/Source/include/portable.h \
  C:/Users/f002bc7/workspace/dfr_cvc/Middlewares/FreeRTOS/Source/include/deprecated_definitions.h \
@@ -10,7 +10,7 @@ Middlewares/FreeRTOS/Source/list.o: ../Middlewares/FreeRTOS/Source/list.c \
 
 C:/Users/f002bc7/workspace/dfr_cvc/Middlewares/FreeRTOS/Source/include/FreeRTOS.h:
 
-C:/Users/f002bc7/workspace/dfr_cvc/inc/FreeRTOSConfig.h:
+C:/Users/f002bc7/workspace/dfr_cvc/Applications/inc/FreeRTOSConfig.h:
 
 C:/Users/f002bc7/workspace/dfr_cvc/Middlewares/FreeRTOS/Source/include/projdefs.h:
 
