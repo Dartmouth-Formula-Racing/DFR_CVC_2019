@@ -15,8 +15,9 @@ C_DEPS :=
 
 # Every subdirectory with source files must be described here
 SUBDIRS := \
-HAL_Driver/Src/Legacy \
-HAL_Driver/Src \
+Drivers/BSP/STM32F7xx_Nucleo_144 \
+Drivers/HAL_Driver/Src/Legacy \
+Drivers/HAL_Driver/Src \
 Middlewares/FreeRTOS/Source/CMSIS_RTOS \
 Middlewares/FreeRTOS/Source \
 Middlewares/FreeRTOS/Source/portable/GCC/ARM_CM7 \
@@ -28,7 +29,6 @@ Middlewares/STM32_USB_Host_Library/Class/MSC/Src \
 Middlewares/STM32_USB_Host_Library/Class/MTP/Src \
 Middlewares/STM32_USB_Host_Library/Class/Template/Src \
 Middlewares/STM32_USB_Host_Library/Core/Src \
-Utilities/STM32F7xx_Nucleo_144 \
 src \
 startup \
 

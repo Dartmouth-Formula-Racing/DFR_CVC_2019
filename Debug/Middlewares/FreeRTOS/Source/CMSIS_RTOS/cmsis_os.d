@@ -17,7 +17,7 @@ Middlewares/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.o: \
  C:/Users/f002bc7/workspace/dfr_cvc/Middlewares/FreeRTOS/Source/include/queue.h \
  C:/Users/f002bc7/workspace/dfr_cvc/Middlewares/FreeRTOS/Source/include/event_groups.h \
  C:/Users/f002bc7/workspace/dfr_cvc/Middlewares/FreeRTOS/Source/include/timers.h \
- C:/Users/f002bc7/workspace/dfr_cvc/CMSIS/core/cmsis_gcc.h
+ C:/Users/f002bc7/workspace/dfr_cvc/Drivers/CMSIS/core/cmsis_gcc.h
 
 ../Middlewares/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.h:
 
@@ -53,4 +53,4 @@ C:/Users/f002bc7/workspace/dfr_cvc/Middlewares/FreeRTOS/Source/include/event_gro
 
 C:/Users/f002bc7/workspace/dfr_cvc/Middlewares/FreeRTOS/Source/include/timers.h:
 
-C:/Users/f002bc7/workspace/dfr_cvc/CMSIS/core/cmsis_gcc.h:
+C:/Users/f002bc7/workspace/dfr_cvc/Drivers/CMSIS/core/cmsis_gcc.h:

@@ -10,7 +10,6 @@ RM := rm -rf
 -include sources.mk
 -include startup/subdir.mk
 -include src/subdir.mk
--include Utilities/STM32F7xx_Nucleo_144/subdir.mk
 -include Middlewares/STM32_USB_Host_Library/Core/Src/subdir.mk
 -include Middlewares/STM32_USB_Host_Library/Class/Template/Src/subdir.mk
 -include Middlewares/STM32_USB_Host_Library/Class/MTP/Src/subdir.mk
@@ -22,8 +21,9 @@ RM := rm -rf
 -include Middlewares/FreeRTOS/Source/portable/GCC/ARM_CM7/subdir.mk
 -include Middlewares/FreeRTOS/Source/CMSIS_RTOS/subdir.mk
 -include Middlewares/FreeRTOS/Source/subdir.mk
--include HAL_Driver/Src/Legacy/subdir.mk
--include HAL_Driver/Src/subdir.mk
+-include Drivers/HAL_Driver/Src/Legacy/subdir.mk
+-include Drivers/HAL_Driver/Src/subdir.mk
+-include Drivers/BSP/STM32F7xx_Nucleo_144/subdir.mk
 -include subdir.mk
 -include objects.mk
 
