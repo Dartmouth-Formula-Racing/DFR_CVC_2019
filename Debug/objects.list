@@ -1,3 +1,5 @@
+"Applications/cvc_tasks.o"
+"Applications/demo.o"
 "Applications/main.o"
 "Applications/stm32f7xx_it.o"
 "Applications/syscalls.o"
