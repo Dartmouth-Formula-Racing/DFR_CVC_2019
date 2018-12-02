@@ -18,6 +18,10 @@
 static void CPU_CACHE_Enable(void);
 static void SystemClock_Config(void);
 
+static void LED_Display(uint8_t LedStatus);
+/* Private Variables ----------------------------------------------------*/
+uint8_t ubKeyNumber = 0x0;
+
 
 /**
   * @brief	 Main program
@@ -39,28 +43,40 @@ int main(void)
 
 	/* Configure LED1 and LED3 */
 	BSP_LED_Init(LED1);
+	BSP_LED_Init(LED2);
 	BSP_LED_Init(LED3);
 
-	/* Configure the CAN peripheral */
-	//CAN_Config();
+	/* Configure User push-button */
+	BSP_PB_Init(BUTTON_USER, BUTTON_MODE_GPIO);
 
-	/* Use CAN_Polling function */
-	if(CAN_Polling() == HAL_OK)
-	{
-		/* If Passed, turn on LED1 */
-		BSP_LED_On(LED1);
-	}
-	else
-	{
-		/* If Failed, turn on LED3 */
-		BSP_LED_On(LED3);
-	}
+	/* Configure the CAN peripheral */
+	CAN_Config();
+
 
 	/* Infinite loop */
 	while(1)
 	{
-	}
+		while(BSP_PB_GetState(BUTTON_USER) == 0x01)
+		{
+			if (ubKeyNumber == 0x3)
+			{
+				ubKeyNumber = 0x00;
+			}
+			else
+			{
+				LED_Display(++ubKeyNumber);
 
+				demo_transmit_func(ubKeyNumber);
+
+				HAL_Delay(10);
+
+				while (BSP_PB_GetState(BUTTON_USER) != 0x00)
+				{
+				}
+
+			}
+		}
+	}
 
 }
 
@@ -138,4 +154,32 @@ static void SystemClock_Config(void)
 	{
 		while(1) { ; }
 	}
+}
+
+/**
+  * @brief	Turns on/off the dedicated LED
+  * @param	LedStatus: LED number from 1 to 3
+  * @retval	None
+  */
+static void LED_Display(uint8_t LedStatus)
+{
+	BSP_LED_Off(LED1);
+	BSP_LED_Off(LED2);
+	BSP_LED_Off(LED3);
+
+	switch(LedStatus)
+	{
+		case (1):
+			BSP_LED_On(LED1);
+			break;
+		case (2):
+			BSP_LED_On(LED2);
+			break;
+		case (3):
+			BSP_LED_On(LED3);
+			break;
+		default:
+			break;
+	}
+
 }

@@ -36,6 +36,7 @@
 void CAN_Config(void);
 HAL_StatusTypeDef CAN_Polling(void);
 void Error_Handler(void);
+void demo_transmit_func(uint8_t ubKeyNumber);
 
 
 
