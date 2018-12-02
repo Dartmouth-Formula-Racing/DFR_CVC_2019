@@ -20,7 +20,17 @@
 #define CANx_RELEASE_RESET()		__HAL_RCC_CAN1_RELEASE_RESET()
 
 /* Definition for CANx Pins */
+#define CANx_TX_PIN					GPIO_PIN_12
+#define CANx_TX_GPIO_PORT			GPIOA
+#define CANx_TX_AF					GPIO_AF9_CAN1
 
+#define CANx_RX_PIN					GPIO_PIN_11
+#define CANx_RX_GPIO_PORT			GPIOA
+#define CANx_RX_AF					GPIO_AF9_CAN1
+
+/* Definition for CAN's NVIC */
+#define CANx_RX_IRQn				CAN1_RX0_IRQn
+#define CANx_RX_IRQHandler			CAN1_RX0_IRQHandler
 
 
 
