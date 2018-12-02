@@ -4,18 +4,24 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
+../Applications/cvc_tasks.c \
+../Applications/demo.c \
 ../Applications/main.c \
 ../Applications/stm32f7xx_it.c \
 ../Applications/syscalls.c \
 ../Applications/system_stm32f7xx.c 
 
 OBJS += \
+./Applications/cvc_tasks.o \
+./Applications/demo.o \
 ./Applications/main.o \
 ./Applications/stm32f7xx_it.o \
 ./Applications/syscalls.o \
 ./Applications/system_stm32f7xx.o 
 
 C_DEPS += \
+./Applications/cvc_tasks.d \
+./Applications/demo.d \
 ./Applications/main.d \
 ./Applications/stm32f7xx_it.d \
 ./Applications/syscalls.d \
