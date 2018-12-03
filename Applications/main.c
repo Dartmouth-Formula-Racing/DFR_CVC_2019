@@ -181,5 +181,11 @@ static void LED_Display(uint8_t LedStatus)
 		default:
 			break;
 	}
+}
 
+
+void Special_LED_Disp(uint8_t RxData[])
+{
+    LED_Display(RxData[0]);
+    ubKeyNumber = RxData[0];
 }

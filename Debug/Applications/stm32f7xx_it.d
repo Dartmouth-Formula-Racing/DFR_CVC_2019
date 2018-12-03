@@ -88,7 +88,8 @@ Applications/stm32f7xx_it.o: ../Applications/stm32f7xx_it.c \
  C:/Users/f002ccx/DFR_CVC/Middlewares/FreeRTOS/Source/include/queue.h \
  C:/Users/f002ccx/DFR_CVC/Middlewares/FreeRTOS/Source/include/event_groups.h \
  C:/Users/f002ccx/DFR_CVC/Middlewares/FreeRTOS/Source/include/timers.h \
- C:/Users/f002ccx/DFR_CVC/Applications/inc/stm32f7xx_it.h
+ C:/Users/f002ccx/DFR_CVC/Applications/inc/stm32f7xx_it.h \
+ ../Applications/cvc_can.h
 
 C:/Users/f002ccx/DFR_CVC/Drivers/HAL_Driver/Inc/stm32f7xx_hal.h:
 
@@ -269,3 +270,5 @@ C:/Users/f002ccx/DFR_CVC/Middlewares/FreeRTOS/Source/include/event_groups.h:
 C:/Users/f002ccx/DFR_CVC/Middlewares/FreeRTOS/Source/include/timers.h:
 
 C:/Users/f002ccx/DFR_CVC/Applications/inc/stm32f7xx_it.h:
+
+../Applications/cvc_can.h:

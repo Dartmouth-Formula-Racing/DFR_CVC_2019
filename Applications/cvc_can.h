@@ -38,6 +38,7 @@ HAL_StatusTypeDef CAN_Polling(void);
 void Error_Handler(void);
 void demo_transmit_func(uint8_t ubKeyNumber);
 
+void Special_LED_Display(uint8_t RxData[]);
 
 
 #endif /* CVC_CAN_H_ */
