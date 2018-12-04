@@ -32,6 +32,37 @@
 #define CANx_RX_IRQn				CAN1_RX0_IRQn
 #define CANx_RX_IRQHandler			CAN1_RX0_IRQHandler
 
+/* Structures */
+typedef struct bamocar_data_16_s
+{
+	uint8_t		reg_ID;
+	uint16_t	data;
+} bamocar_data_16_t;
+
+typedef union CAN_data_u
+{
+	uint64_t	_64;
+	uint32_t	_32[2];
+	uint16_t	_16[4];
+	uint8_t		_8[8];
+	float		_float[2];
+	double		_double;
+
+	bamocar_data_16_t	bamocar_data_16;
+
+} CAN_data_t;
+
+
+typedef struct CAN_msg_s
+{
+	uint32_t	msg_ID;		// Message ID
+	uint32_t	msg_type;	// STD or EXT
+	uint32_t 	reg_ID;		// reg_ID (for bamocar messages)
+	CAN_data_t	data;		// Message data
+
+
+} CAN_msg_t;
+
 /* Function Prototypes */
 void CAN_Config(void);
 HAL_StatusTypeDef CAN_Polling(void);

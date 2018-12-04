@@ -8,11 +8,9 @@
   ******************************************************************************
 */
 
-
 #include "stm32f7xx.h"
 #include "stm32f7xx_nucleo_144.h"
 #include "cvc_can.h"
-
 
 /* Private Function Prototypes ------------------------------------------*/
 static void CPU_CACHE_Enable(void);
@@ -40,7 +38,6 @@ int main(void)
 	/* Configure the system clock to 216 MHz */
 	SystemClock_Config();
 
-
 	/* Configure LED1 and LED3 */
 	BSP_LED_Init(LED1);
 	BSP_LED_Init(LED2);
@@ -51,7 +48,6 @@ int main(void)
 
 	/* Configure the CAN peripheral */
 	CAN_Config();
-
 
 	/* Infinite loop */
 	while(1)
@@ -73,13 +69,10 @@ int main(void)
 				while (BSP_PB_GetState(BUTTON_USER) != 0x00)
 				{
 				}
-
 			}
 		}
 	}
-
 }
-
 
 
 /**
@@ -156,6 +149,7 @@ static void SystemClock_Config(void)
 	}
 }
 
+
 /**
   * @brief	Turns on/off the dedicated LED
   * @param	LedStatus: LED number from 1 to 3
@@ -184,6 +178,11 @@ static void LED_Display(uint8_t LedStatus)
 }
 
 
+/**
+  * @brief	Turns on LEDs based on RxData
+  * @param	RxData
+  * @retval	None
+  */
 void Special_LED_Disp(uint8_t RxData[])
 {
     LED_Display(RxData[0]);

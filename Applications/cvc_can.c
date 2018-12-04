@@ -38,9 +38,9 @@ void CAN_Config(void)
 	CanHandle.Init.TransmitFifoPriority = DISABLE;
 	CanHandle.Init.Mode = CAN_MODE_NORMAL;
 	CanHandle.Init.SyncJumpWidth = CAN_SJW_1TQ;
-	CanHandle.Init.TimeSeg1 = CAN_BS1_6TQ;
+	CanHandle.Init.TimeSeg1 = CAN_BS1_7TQ;
 	CanHandle.Init.TimeSeg2 = CAN_BS2_2TQ;
-	CanHandle.Init.Prescaler = 6;
+	CanHandle.Init.Prescaler = 9;
 
 	if (HAL_CAN_Init(&CanHandle) != HAL_OK)
 	{
