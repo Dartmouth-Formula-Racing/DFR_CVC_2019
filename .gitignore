@@ -25,7 +25,10 @@
 *.log
 *.sql
 *.sqlite
+<<<<<<< HEAD
 *.xml
+=======
+>>>>>>> Alex
 
 # OS generated files #
 ######################

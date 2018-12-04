@@ -15,11 +15,13 @@
 #include <cmsis_os.h>
 #endif
 #include "stm32f7xx_it.h"
+#include "cvc_can.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
+extern CAN_HandleTypeDef	CanHandle;
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
 
@@ -39,4 +41,14 @@ void SysTick_Handler(void)
 #ifdef USE_RTOS_SYSTICK
 	osSystickHandler();
 #endif
+}
+
+/**
+  * @brief	This function handles CAN1 RX0 interrupt requests
+  * @param	None
+  * @retval	None
+  */
+void CANx_RX_IRQHandler(void)
+{
+	HAL_CAN_IRQHandler(&CanHandle);
 }
