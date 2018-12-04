@@ -83,7 +83,16 @@ Applications/main.o: ../Applications/main.c \
  C:/Users/f002bc7/workspace/dfr_cvc/Middlewares/FreeRTOS/Source/include/task.h \
  C:/Users/f002bc7/workspace/dfr_cvc/Middlewares/FreeRTOS/Source/include/list.h \
  C:/Users/f002bc7/workspace/dfr_cvc/Applications/inc/demo.h \
- C:/Users/f002bc7/workspace/dfr_cvc/Middlewares/FreeRTOS/Source/include/FreeRTOS.h
+ C:/Users/f002bc7/workspace/dfr_cvc/Middlewares/FreeRTOS/Source/include/FreeRTOS.h \
+ C:/Users/f002bc7/workspace/dfr_cvc/Applications/inc/main.h \
+ C:/Users/f002bc7/workspace/dfr_cvc/Drivers/HAL_Driver/Inc/stm32f7xx_ll_bus.h \
+ C:/Users/f002bc7/workspace/dfr_cvc/Drivers/HAL_Driver/Inc/stm32f7xx_ll_rcc.h \
+ C:/Users/f002bc7/workspace/dfr_cvc/Drivers/HAL_Driver/Inc/stm32f7xx_ll_system.h \
+ C:/Users/f002bc7/workspace/dfr_cvc/Drivers/HAL_Driver/Inc/stm32f7xx_ll_utils.h \
+ C:/Users/f002bc7/workspace/dfr_cvc/Drivers/HAL_Driver/Inc/stm32f7xx_ll_gpio.h \
+ C:/Users/f002bc7/workspace/dfr_cvc/Drivers/HAL_Driver/Inc/stm32f7xx_ll_exti.h \
+ C:/Users/f002bc7/workspace/dfr_cvc/Drivers/HAL_Driver/Inc/stm32f7xx_ll_usart.h \
+ C:/Users/f002bc7/workspace/dfr_cvc/Drivers/HAL_Driver/Inc/stm32f7xx_ll_pwr.h
 
 C:/Users/f002bc7/workspace/dfr_cvc/Drivers/CMSIS/device/stm32f7xx.h:
 
@@ -254,3 +263,21 @@ C:/Users/f002bc7/workspace/dfr_cvc/Middlewares/FreeRTOS/Source/include/list.h:
 C:/Users/f002bc7/workspace/dfr_cvc/Applications/inc/demo.h:
 
 C:/Users/f002bc7/workspace/dfr_cvc/Middlewares/FreeRTOS/Source/include/FreeRTOS.h:
+
+C:/Users/f002bc7/workspace/dfr_cvc/Applications/inc/main.h:
+
+C:/Users/f002bc7/workspace/dfr_cvc/Drivers/HAL_Driver/Inc/stm32f7xx_ll_bus.h:
+
+C:/Users/f002bc7/workspace/dfr_cvc/Drivers/HAL_Driver/Inc/stm32f7xx_ll_rcc.h:
+
+C:/Users/f002bc7/workspace/dfr_cvc/Drivers/HAL_Driver/Inc/stm32f7xx_ll_system.h:
+
+C:/Users/f002bc7/workspace/dfr_cvc/Drivers/HAL_Driver/Inc/stm32f7xx_ll_utils.h:
+
+C:/Users/f002bc7/workspace/dfr_cvc/Drivers/HAL_Driver/Inc/stm32f7xx_ll_gpio.h:
+
+C:/Users/f002bc7/workspace/dfr_cvc/Drivers/HAL_Driver/Inc/stm32f7xx_ll_exti.h:
+
+C:/Users/f002bc7/workspace/dfr_cvc/Drivers/HAL_Driver/Inc/stm32f7xx_ll_usart.h:
+
+C:/Users/f002bc7/workspace/dfr_cvc/Drivers/HAL_Driver/Inc/stm32f7xx_ll_pwr.h:

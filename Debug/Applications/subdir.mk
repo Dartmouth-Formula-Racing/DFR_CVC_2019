@@ -6,6 +6,7 @@
 C_SRCS += \
 ../Applications/cvc_tasks.c \
 ../Applications/demo.c \
+../Applications/hal_msp.c \
 ../Applications/main.c \
 ../Applications/stm32f7xx_it.c \
 ../Applications/syscalls.c \
@@ -14,6 +15,7 @@ C_SRCS += \
 OBJS += \
 ./Applications/cvc_tasks.o \
 ./Applications/demo.o \
+./Applications/hal_msp.o \
 ./Applications/main.o \
 ./Applications/stm32f7xx_it.o \
 ./Applications/syscalls.o \
@@ -22,6 +24,7 @@ OBJS += \
 C_DEPS += \
 ./Applications/cvc_tasks.d \
 ./Applications/demo.d \
+./Applications/hal_msp.d \
 ./Applications/main.d \
 ./Applications/stm32f7xx_it.d \
 ./Applications/syscalls.d \

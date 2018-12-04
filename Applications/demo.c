@@ -11,6 +11,8 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
+extern UART_HandleTypeDef UartHandle;
+
 void demoTask(void * parameters)	{
 
 	/* Initialize board LED */
@@ -22,5 +24,9 @@ void demoTask(void * parameters)	{
 		vTaskDelay((TickType_t) 1000/portTICK_PERIOD_MS);
 
 		BSP_LED_Toggle(LED_BLUE);
+		uint8_t demoMessage[] = "\n\r toggled \n\r";
+		uint8_t ubSizeToSend = sizeof(demoMessage);
+
+		HAL_UART_Transmit(&UartHandle, (uint8_t*)demoMessage, ubSizeToSend, 1000);
 	}
 }
