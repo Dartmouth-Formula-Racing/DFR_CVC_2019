@@ -11,6 +11,7 @@
 /* Includes ------------------------------------------------------------------------*/
 #include "stm32f7xx_hal.h"
 
+/* Defines ------------------------------------------------------------------------*/
 /* Definition for CANx clock resources */
 #define CANx						CAN1
 #define CANx_CLK_ENABLE() 			__HAL_RCC_CAN1_CLK_ENABLE()
@@ -32,7 +33,11 @@
 #define CANx_RX_IRQn				CAN1_RX0_IRQn
 #define CANx_RX_IRQHandler			CAN1_RX0_IRQHandler
 
-/* Structures */
+/* Definitions for Queues */
+#define CAN_Rx_QUEUE_LENGTH			100U
+#define CAN_Tx_QUEUE_LENGTH			100U
+
+/* Type Definitions ------------------------------------------------------------------------*/
 typedef struct bamocar_data_16_s
 {
 	uint8_t		reg_ID;
@@ -63,13 +68,13 @@ typedef struct CAN_msg_s
 
 } CAN_msg_t;
 
-/* Function Prototypes */
-void CAN_Config(void);
+/* Function Prototypes ------------------------------------------------------------------------*/
+void CAN_Init(void)	;
 HAL_StatusTypeDef CAN_Polling(void);
 void Error_Handler(void);
-void demo_transmit_func(uint8_t ubKeyNumber);
-
-void Special_LED_Display(uint8_t RxData[]);
+void CAN_Demo_Task(void * parameters);
+void CAN_Rx_Task(void * parameters);
+void CAN_Tx_Task(void * parameters);
 
 
 #endif /* CVC_CAN_H_ */

@@ -7,15 +7,19 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "cvc_tasks.h"
-
+#include "demo.h"
+#include "cvc_can.h"
 /* Defines -------------------------------------------------------------------*/
-#define TASKLIST_SIZE 	1
+#define TASKLIST_SIZE 	3
 
 /* Private Variables ---------------------------------------------------------*/
 
 /* list of all program tasks */
 static task_t taskList[] = {
-		{demoTask, "demo", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 1, NULL},		/* demo blinky task */
+		//{demoTask, "demo", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY, NULL},		/* demo blinky task */
+		{CAN_Demo_Task,"CAN_demo", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 1, NULL},	/* CAN demo task */
+		{CAN_Rx_Task,"canRx", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 3, NULL},		/* CAN Rx task */
+		{CAN_Tx_Task,"canTx", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 2, NULL},		/* CAN Tx task */
 };
 
 /* Public Functions ----------------------------------------------------------*/
@@ -25,6 +29,9 @@ static task_t taskList[] = {
  */
 BaseType_t taskCreateAll()	{
 	BaseType_t status = pdPASS;
+
+	configASSERT(TASKLIST_SIZE == sizeof(taskList)/sizeof(task_t));
+
 	for (int i=0; i<TASKLIST_SIZE; i++)	{
 		status = xTaskCreate(taskList[i].function,
 										taskList[i].name,
@@ -33,7 +40,6 @@ BaseType_t taskCreateAll()	{
 										taskList[i].priority,
 										taskList[i].handle);
 		if (status != pdPASS)	{
-			printf("taskCreate Error: %l\r\n", status);
 			return status;
 		}
 	}

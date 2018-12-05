@@ -16,5 +16,6 @@
 
 /* Function Declarations -----------------------------------------------------*/
 void demoTask(void * parameters);
+void LED_Display(uint8_t LedStatus);
 
 #endif /* INC_DEMO_H_ */

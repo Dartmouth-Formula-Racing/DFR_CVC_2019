@@ -7,7 +7,22 @@
 
 /* Includes ------------------------------------------------------------------------*/
 #include "cvc_can.h"
+#include "FreeRTOS.h"
+#include "task.h"
+#include "demo.h"
+#include "queue.h"
 
+/* Private TypeDefs ---------------------------------------------------------------*/
+/* Struct to hold messages used in CAN message queues */
+typedef struct queue_msg_s
+{
+	union
+	{
+		CAN_TxHeaderTypeDef	Tx_header;
+		CAN_RxHeaderTypeDef	Rx_header;
+	};
+	CAN_data_t data;
+} queue_msg_t;
 
 /* Private Variables ---------------------------------------------------------------*/
 CAN_HandleTypeDef		CanHandle;
@@ -17,13 +32,135 @@ uint8_t					TxData[8];
 uint8_t					RxData[8];
 uint32_t 				TxMailbox;
 
+static CAN_msg_t		demo_message;	// CAN message received through demo
+
+static QueueHandle_t RxQueue = NULL;
+static QueueHandle_t TxQueue = NULL;
+//static QueueHandle_t testQueue = NULL;
+
+/* Private Function Prototypes ---------------------------------------------------------------*/
+static void CAN_Config(void);
+
+/* Task Functions ---------------------------------------------------------------*/
+/**
+ * @brief 	Reads CAN messages from data table and blinks corresponding LED, sends CAN messages to CAN_Tx_Task
+ */
+void CAN_Demo_Task(void * parameters)
+{
+	uint8_t LED_send = 0U;
+	queue_msg_t Tx_msg;
+
+	while (1)
+	{
+		/* Delay task for 1 seconds */
+		vTaskDelay((TickType_t) 1000/portTICK_PERIOD_MS);
+
+		/* Build CAN message */
+		Tx_msg.Tx_header = TxHeader;
+		Tx_msg.data._8[0] = LED_send;
+		Tx_msg.data._8[1] = 0xAD;
+
+		/* Add CAN message to TxQueue */
+		xQueueSend(TxQueue, &Tx_msg, 0U);
+
+		/* Increment LED_send */
+		LED_send = (LED_send % 3)+1;
+
+		/* send to test queue */
+		//xQueueSend(testQueue, &LED_send, 0U);
+
+		/* Read received data from data table and turn on corresponding LED */
+		LED_Display(demo_message.data._8[0]);
+	}
+
+}
+
+/**
+ * @brief	Reads incoming CAN messages from RxQueue and adds to data table
+ *
+ */
+void CAN_Rx_Task(void * parameters)
+{
+	queue_msg_t Rx_msg;
+
+	while(1)
+	{
+		/* Read all messages from queue and store in data table */
+		//while (uxQueueMessagesWaiting(RxQueue) > 0)
+		//{
+			/* get message from queue */
+			xQueueReceive( RxQueue, &Rx_msg, portMAX_DELAY );
+
+			/* store message in data table */
+			demo_message.data = Rx_msg.data;
+			demo_message.msg_ID = Rx_msg.Rx_header.StdId;
+			demo_message.msg_type = Rx_msg.Rx_header.IDE;
+		//}
+	}
+}
+
+/**
+ * @brief 	Reads outgoing CAN messages from TxQueue and sends to CAN bus
+ */
+void CAN_Tx_Task(void * parameters)
+{
+	queue_msg_t Tx_msg;
+	while(1)
+	{
+		/* Read all messages from queue and send to bus */
+		//while (uxQueueMessagesWaiting(TxQueue) > 0)
+		//{
+			/* get message from test queue */
+			uint8_t LED_receive;
+			//xQueueReceive(testQueue, &LED_receive, portMAX_DELAY);
+			//LED_Display(LED_receive);
+
+			/* get message from queue */
+			xQueueReceive( TxQueue, &Tx_msg, portMAX_DELAY );
+
+			if (HAL_CAN_AddTxMessage(&CanHandle, &Tx_msg.Tx_header, Tx_msg.data._8, &TxMailbox) != HAL_OK)
+			{
+				/* Transmission request error */
+			}
+
+		//}
+	}
+}
+
+/* Non-Task Functions ---------------------------------------------------------------*/
+
+/**
+ * @brief	Initialize CAN
+ */
+void CAN_Init(void)
+{
+	/* Configure the CAN peripheral */
+	CAN_Config();
+
+	/* Initialize Tx and Rx Queues */
+	RxQueue = xQueueCreate(CAN_Rx_QUEUE_LENGTH, sizeof(queue_msg_t));
+	if (RxQueue == NULL)
+	{
+		Error_Handler();
+	}
+
+	TxQueue = xQueueCreate(CAN_Tx_QUEUE_LENGTH, sizeof(queue_msg_t));
+	if (TxQueue == NULL)
+	{
+		Error_Handler();
+	}
+
+	//testQueue = xQueueCreate(1U, sizeof(uint8_t));
+
+}
+
 
 /**
   * @brief		Configures the CAN
   * @param		None
   * @retval		None
   */
-void CAN_Config(void)
+static void CAN_Config(void)
 {
 	CAN_FilterTypeDef  sFilterConfig;
 
@@ -91,22 +228,6 @@ void CAN_Config(void)
 }
 
 
-void demo_transmit_func(uint8_t ubKeyNumber)
-{
-	/* Set the data to be transmitted */
-	TxData[0] = ubKeyNumber;
-	TxData[1] = 0xAD;
-
-	/* Start Transmission process */
-	if (HAL_CAN_AddTxMessage(&CanHandle, &TxHeader, TxData, &TxMailbox) != HAL_OK)
-	{
-		/* Transmission request error */
-		Error_Handler();
-	}
-}
-
-
-
 /**
   * @brief  Rx Fifo 0 message pending callback
   * @param  hcan: pointer to a CAN_HandleTypeDef structure that contains
@@ -119,14 +240,16 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
   if (HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &RxHeader, RxData) != HAL_OK)
   {
     /* Reception Error */
-    Error_Handler();
   }
 
-  /* Display LEDx */
-  if ((RxHeader.StdId == 0x321) && (RxHeader.IDE == CAN_ID_STD) && (RxHeader.DLC == 2))
-  {
-	Special_LED_Disp(RxData);
+  /* Add message to RxQueue */
+  queue_msg_t Rx_msg;
+  Rx_msg.Rx_header = RxHeader;
+  for (int i=0; i<sizeof(RxData); i++)	{
+	  Rx_msg.data._8[i] = RxData[i];
   }
+  xQueueSendFromISR(RxQueue, &Rx_msg, NULL);
+
 }
 
 
@@ -279,9 +402,9 @@ void HAL_CAN_MspInit(CAN_HandleTypeDef *hcan)
 
   HAL_GPIO_Init(CANx_RX_GPIO_PORT, &GPIO_InitStruct);
 
-  /*##-3- Configure the NVIC #################################################*/
+  /*##-3- Configure the NVIC (Interrupt) #################################################*/
   /* NVIC configuration for CAN1 Reception complete interrupt */
-  HAL_NVIC_SetPriority(CANx_RX_IRQn, 1, 0);
+  HAL_NVIC_SetPriority(CANx_RX_IRQn, configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY, configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY);
   HAL_NVIC_EnableIRQ(CANx_RX_IRQn);
 }
 
