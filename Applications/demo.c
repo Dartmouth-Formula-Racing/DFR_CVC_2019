@@ -24,9 +24,9 @@ void demoTask(void * parameters)	{
 		vTaskDelay((TickType_t) 1000/portTICK_PERIOD_MS);
 
 		BSP_LED_Toggle(LED_BLUE);
-		//uint8_t demoMessage[] = "\n\r toggled \n\r";
+		uint8_t demoMessage[] = "\n\r toggled \n\r";
 		//uint8_t ubSizeToSend = sizeof(demoMessage);
 
-		UserButton_Callback();
+		console_write("\n\r toggled \n\r");
 	}
 }

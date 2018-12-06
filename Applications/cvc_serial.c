@@ -8,12 +8,17 @@
 /* Includes ------------------------------------------------------------------*/
 #include "cvc_serial.h"
 #include "stm32f7xx_nucleo_144.h"
+#include "string.h"
+#include "stm32f7xx_it.h"
+
+/* Constants -----------------------------------------------------------------*/
+#define MAX_STRING_LENGTH		100U
 
 /* Private variables ---------------------------------------------------------*/
 __IO uint8_t ubButtonPress = 0;
 __IO uint8_t ubSend = 0;
-const uint8_t aStringToSend[] = "STM32F7xx USART LL API Example : TX in IT mode\r\nConfiguration UART 115200 bps, 8 data bit/1 stop bit/No parity/No HW flow control\r\n";
-uint8_t ubSizeToSend = sizeof(aStringToSend);
+static uint8_t aStringToSend[MAX_STRING_LENGTH];
+static uint8_t ubSizeToSend;
 
 
 /* Private function prototypes -----------------------------------------------*/
@@ -26,6 +31,21 @@ void     LED_Blinking(uint32_t Period);
 void     UserButton_Init(void);
 
 /* Private functions ---------------------------------------------------------*/
+void console_write(char * message)	{
+	uint8_t messageSize = strlen(message)+1;
+
+	/* Start transfer only if not already ongoing and message does not exceed max size */
+	if (ubSend == 0 && messageSize <= MAX_STRING_LENGTH)
+	{
+		ubSizeToSend = messageSize;
+		for (int i=0; i<ubSizeToSend; i++) aStringToSend[i] = message[i];
+		/* Start USART transmission : Will initiate TXE interrupt after TDR register is empty */
+		LL_USART_TransmitData8(USARTx_INSTANCE, aStringToSend[ubSend++]);
+
+		/* Enable TXE interrupt */
+		LL_USART_EnableIT_TXE(USARTx_INSTANCE);
+	}
+}
 
 /**
   * @brief  This function configures USARTx Instance.
@@ -66,7 +86,7 @@ void Configure_USART(void)
   /* (2) NVIC Configuration for USART interrupts */
   /*  - Set priority for USARTx_IRQn */
   /*  - Enable USARTx_IRQn */
-  NVIC_SetPriority(USARTx_IRQn, 0);
+  NVIC_SetPriority(USARTx_IRQn, MAX_IRQ_PRIORITY);
   NVIC_EnableIRQ(USARTx_IRQn);
 
   /* (3) Enable USART peripheral clock and clock source ***********************/
@@ -191,81 +211,9 @@ void UserButton_Init(void)
   USER_BUTTON_EXTI_FALLING_TRIG_ENABLE();
 
   /* Configure NVIC for USER_BUTTON_EXTI_IRQn */
-  NVIC_SetPriority(USER_BUTTON_EXTI_IRQn, 3);
+  NVIC_SetPriority(USER_BUTTON_EXTI_IRQn, MAX_IRQ_PRIORITY+3);
   NVIC_EnableIRQ(USER_BUTTON_EXTI_IRQn);
 }
-
-/**
-  * @brief  System Clock Configuration
-  *         The system Clock is configured as follow :
-  *            System Clock source            = PLL (HSE)
-  *            SYSCLK(Hz)                     = 216000000
-  *            HCLK(Hz)                       = 216000000
-  *            AHB Prescaler                  = 1
-  *            APB1 Prescaler                 = 4
-  *            APB2 Prescaler                 = 2
-  *            HSI Frequency(Hz)              = 8000000
-  *            PLL_M                          = 8
-  *            PLL_N                          = 432
-  *            PLL_P                          = 2
-  *            VDD(V)                         = 3.3
-  *            Main regulator output voltage  = Scale1 mode
-  *            Flash Latency(WS)              = 7
-  * @param  None
-  * @retval None
-  */
-
-//void SystemClock_Config(void)
-//{
-//  /* Enable HSE clock */
-//  LL_RCC_HSE_EnableBypass();
-//  LL_RCC_HSE_Enable();
-//  while(LL_RCC_HSE_IsReady() != 1)
-//  {
-//  };
-//
-//  /* Set FLASH latency */
-//  LL_FLASH_SetLatency(LL_FLASH_LATENCY_7);
-//
-//  /* Enable PWR clock */
-//  LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_PWR);
-//
-//  /* Activation OverDrive Mode */
-//  LL_PWR_EnableOverDriveMode();
-//  while(LL_PWR_IsActiveFlag_OD() != 1)
-//  {
-//  };
-//
-//  /* Activation OverDrive Switching */
-//  LL_PWR_EnableOverDriveSwitching();
-//  while(LL_PWR_IsActiveFlag_ODSW() != 1)
-//  {
-//  };
-//
-//  /* Main PLL configuration and activation */
-//  LL_RCC_PLL_ConfigDomain_SYS(LL_RCC_PLLSOURCE_HSE, LL_RCC_PLLM_DIV_8, 432, LL_RCC_PLLP_DIV_2);
-//  LL_RCC_PLL_Enable();
-//  while(LL_RCC_PLL_IsReady() != 1)
-//  {
-//  };
-//
-//  /* Sysclk activation on the main PLL */
-//  LL_RCC_SetAHBPrescaler(LL_RCC_SYSCLK_DIV_1);
-//  LL_RCC_SetSysClkSource(LL_RCC_SYS_CLKSOURCE_PLL);
-//  while(LL_RCC_GetSysClkSource() != LL_RCC_SYS_CLKSOURCE_STATUS_PLL)
-//  {
-//  };
-//
-//  /* Set APB1 & APB2 prescaler */
-//  LL_RCC_SetAPB1Prescaler(LL_RCC_APB1_DIV_4);
-//  LL_RCC_SetAPB2Prescaler(LL_RCC_APB2_DIV_2);
-//
-//  /* Set systick to 1ms */
-//  SysTick_Config(216000000 / 1000);
-//
-//  /* Update CMSIS variable (which can be updated also through SystemCoreClockUpdate function) */
-//  SystemCoreClock = 216000000;
-//}
 
 
 /******************************************************************************/
@@ -316,15 +264,13 @@ void USART_TXEmpty_Callback(void)
   */
 void USART_CharTransmitComplete_Callback(void)
 {
-  if(ubSend == sizeof(aStringToSend))
+  if(ubSend == ubSizeToSend)
   {
     ubSend = 0;
 
     /* Disable TC interrupt */
     LL_USART_DisableIT_TC(USARTx_INSTANCE);
 
-    /* Turn LED1 On at end of transfer : Tx sequence completed successfully */
-    LED_On();
   }
 }
 

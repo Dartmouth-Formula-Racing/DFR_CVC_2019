@@ -89,6 +89,12 @@ void UserButton_Callback(void);
 void USART_TXEmpty_Callback(void);
 void USART_CharTransmitComplete_Callback(void);
 void Error_Callback(void);
+void console_write(char * message);
+void Configure_USART(void);
+void LED_Init(void);
+void LED_On(void);
+void LED_Off(void);
+void UserButton_Init(void);
 
 
 #endif /* INC_CVC_SERIAL_H_ */

@@ -42,8 +42,11 @@
 #endif 
 
 /* Includes ------------------------------------------------------------------*/
+#include "FreeRTOSConfig.h"
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
+#define MAX_IRQ_PRIORITY		configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY
+
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */
 

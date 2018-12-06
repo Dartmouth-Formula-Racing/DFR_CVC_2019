@@ -12,7 +12,6 @@
 #include "stm32f7xx.h"
 #include "stm32f7xx_nucleo_144.h"
 #include "cvc_tasks.h"
-#include "main.h"
 #include "cvc_serial.h"
 
 /* Private function prototypes -----------------------------------------------*/
