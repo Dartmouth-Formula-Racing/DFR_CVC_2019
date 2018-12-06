@@ -21,15 +21,6 @@ static uint8_t aStringToSend[MAX_STRING_LENGTH];
 static uint8_t ubSizeToSend;
 
 
-/* Private function prototypes -----------------------------------------------*/
-//void     SystemClock_Config(void);
-void     Configure_USART(void);
-void     LED_Init(void);
-void     LED_On(void);
-void     LED_Off(void);
-void     LED_Blinking(uint32_t Period);
-void     UserButton_Init(void);
-
 /* Private functions ---------------------------------------------------------*/
 void console_write(char * message)	{
 	uint8_t messageSize = strlen(message)+1;
@@ -128,93 +119,6 @@ void Configure_USART(void)
   LL_USART_Enable(USARTx_INSTANCE);
 }
 
-/**
-  * @brief  Initialize LED1.
-  * @param  None
-  * @retval None
-  */
-void LED_Init(void)
-{
-  /* Enable the LED1 Clock */
-  LED1_GPIO_CLK_ENABLE();
-
-  /* Configure IO in output push-pull mode to drive external LED1 */
-  LL_GPIO_SetPinMode(LED1_GPIO_PORT, LED1_PIN, LL_GPIO_MODE_OUTPUT);
-  /* Reset value is LL_GPIO_OUTPUT_PUSHPULL */
-  //LL_GPIO_SetPinOutputType(LED1_GPIO_PORT, LED1_PIN, LL_GPIO_OUTPUT_PUSHPULL);
-  /* Reset value is LL_GPIO_SPEED_FREQ_LOW */
-  //LL_GPIO_SetPinSpeed(LED1_GPIO_PORT, LED1_PIN, LL_GPIO_SPEED_FREQ_LOW);
-  /* Reset value is LL_GPIO_PULL_NO */
-  //LL_GPIO_SetPinPull(LED1_GPIO_PORT, LED1_PIN, LL_GPIO_PULL_NO);
-}
-
-/**
-  * @brief  Turn-on LED1.
-  * @param  None
-  * @retval None
-  */
-void LED_On(void)
-{
-  /* Turn LED1 on */
-  LL_GPIO_SetOutputPin(LED1_GPIO_PORT, LED1_PIN);
-}
-
-/**
-  * @brief  Turn-off LED1.
-  * @param  None
-  * @retval None
-  */
-void LED_Off(void)
-{
-  /* Turn LED1 off */
-  LL_GPIO_ResetOutputPin(LED1_GPIO_PORT, LED1_PIN);
-}
-
-/**
-  * @brief  Set LED1 to Blinking mode for an infinite loop (toggle period based on value provided as input parameter).
-  * @param  Period : Period of time (in ms) between each toggling of LED
-  *   This parameter can be user defined values. Pre-defined values used in that example are :
-  *     @arg LED_BLINK_FAST : Fast Blinking
-  *     @arg LED_BLINK_SLOW : Slow Blinking
-  *     @arg LED_BLINK_ERROR : Error specific Blinking
-  * @retval None
-  */
-void LED_Blinking(uint32_t Period)
-{
-  /* Toggle IO in an infinite loop */
-  while (1)
-  {
-    LL_GPIO_TogglePin(LED1_GPIO_PORT, LED1_PIN);
-    LL_mDelay(Period);
-  }
-}
-
-/**
-  * @brief  Configures User push-button in GPIO or EXTI Line Mode.
-  * @param  None
-  * @retval None
-  */
-void UserButton_Init(void)
-{
-  /* Enable the BUTTON Clock */
-  USER_BUTTON_GPIO_CLK_ENABLE();
-
-  /* Configure GPIO for BUTTON */
-  LL_GPIO_SetPinMode(USER_BUTTON_GPIO_PORT, USER_BUTTON_PIN, LL_GPIO_MODE_INPUT);
-  LL_GPIO_SetPinPull(USER_BUTTON_GPIO_PORT, USER_BUTTON_PIN, LL_GPIO_PULL_NO);
-
-  /* Connect External Line to the GPIO*/
-  USER_BUTTON_SYSCFG_SET_EXTI();
-
-  /* Enable a rising trigger EXTI_Line15_10 Interrupt */
-  USER_BUTTON_EXTI_LINE_ENABLE();
-  USER_BUTTON_EXTI_FALLING_TRIG_ENABLE();
-
-  /* Configure NVIC for USER_BUTTON_EXTI_IRQn */
-  NVIC_SetPriority(USER_BUTTON_EXTI_IRQn, MAX_IRQ_PRIORITY+3);
-  NVIC_EnableIRQ(USER_BUTTON_EXTI_IRQn);
-}
-
 
 /******************************************************************************/
 /*   IRQ HANDLER TREATMENT Functions                                          */
@@ -294,12 +198,12 @@ void Error_Callback(void)
   if (isr_reg & LL_USART_ISR_NE)
   {
     /* case Noise Error flag is raised : ... */
-    LED_Blinking(LED_BLINK_FAST);
+	BSP_LED_On(LED3);
   }
   else
   {
-    /* Unexpected IT source : Set LED to Blinking mode to indicate error occurs */
-    LED_Blinking(LED_BLINK_ERROR);
+    /* Unexpected IT source : Set LED 3 to indicate error occurs */
+    BSP_LED_On(LED3);
   }
 }
 
@@ -331,7 +235,5 @@ void assert_failed(uint8_t *file, uint32_t line)
 /**
   * @}
   */
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
 
 
