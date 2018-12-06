@@ -13,19 +13,13 @@
 #include "stm32f7xx_nucleo_144.h"
 #include "cvc_tasks.h"
 #include "main.h"
+#include "cvc_serial.h"
 
 /* Private function prototypes -----------------------------------------------*/
 static void SystemClock_Config(void);
 static void CPU_CACHE_Enable(void);
 static void Error_Handler(void);
 
-/* Private variables ---------------------------------------------------------*/
-/* UART handler declaration */
-UART_HandleTypeDef UartHandle;
-
-/* Buffer used for transmission */
-uint8_t aTxStartMessage[] = "\n\r ****UART-Hyperterminal TXRX communication (TX based on HAL polling API, RX based on IT LL API) ****\n\r Enter characters using keyboard ...\n\r";
-uint8_t ubSizeToSend = sizeof(aTxStartMessage);
 
 
 /* Private functions ---------------------------------------------------------*/
@@ -40,37 +34,20 @@ int main(void)
 	/* Configure the system clock to 216 MHz */
 	SystemClock_Config();
 
-	/*##-1- Configure the UART peripheral using HAL services ###################*/
-	  /* Put the USART peripheral in the Asynchronous mode (UART Mode) */
-	  /* UART configured as follows:
-	      - Word Length = 8 Bits (7 data bit + 1 parity bit) :
-		                  BE CAREFUL : Program 7 data bits + 1 parity bit in PC HyperTerminal
-	      - Stop Bit    = One Stop bit
-	      - Parity      = ODD parity
-	      - BaudRate    = 9600 baud
-	      - Hardware flow control disabled (RTS and CTS signals) */
-	  UartHandle.Instance        = USARTx;
+	/* Initialize LED1 */
+	LED_Init();
 
-	  UartHandle.Init.BaudRate   = 9600;
-	  UartHandle.Init.WordLength = UART_WORDLENGTH_8B;
-	  UartHandle.Init.StopBits   = UART_STOPBITS_1;
-	  UartHandle.Init.Parity     = UART_PARITY_ODD;
-	  UartHandle.Init.HwFlowCtl  = UART_HWCONTROL_NONE;
-	  UartHandle.Init.Mode       = UART_MODE_TX_RX;
+	/* Set LED1 Off */
+	LED_Off();
 
-	  if(HAL_UART_Init(&UartHandle) != HAL_OK)
-	  {
-	    /* Initialization Error */
-	    Error_Handler();
-	  }
+	/* Initialize button in EXTI mode */
+	UserButton_Init();
 
-	  if(HAL_UART_Transmit(&UartHandle, (uint8_t*)aTxStartMessage, ubSizeToSend, 1000)!= HAL_OK)
-	      {
-	        /* Transfer error in transmission process */
-	        Error_Handler();
-	      }
+	/* Configure USARTx (USART IP configuration and related GPIO initialization) */
+	Configure_USART();
+
 	/* Create all tasks */
-	BaseType_t status = taskCreateAll();
+	taskCreateAll();
 
 	/* Start RTOS Scheduler */
 	vTaskStartScheduler();
