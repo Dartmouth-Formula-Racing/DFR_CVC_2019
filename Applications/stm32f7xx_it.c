@@ -17,6 +17,7 @@
 #endif
 #include "stm32f7xx_it.h"
 #include "cvc_serial.h"
+#include "cvc_tim.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -99,6 +100,28 @@ void USARTx_IRQHandler(void)
   }
 
 }
+
+
+/**
+* @brief  This function handles TIM1 capture/compare interrupt.
+* @param  None
+* @retval None
+*/
+void TIM1_CC_IRQHandler(void)
+{
+  /* Check whether CC1 interrupt is pending */
+  if(LL_TIM_IsActiveFlag_CC1(TIM1) == 1)
+  {
+    /* Clear the update interrupt flag*/
+    LL_TIM_ClearFlag_CC1(TIM1);
+
+    /* TIM1 capture/compare interrupt processing(function defined in main.c) */
+    TimerCaptureCompare_Callback();
+  }
+}
+
+
+
 
 /**
   * @}

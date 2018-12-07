@@ -85,7 +85,6 @@
 
 /* Exported functions ------------------------------------------------------- */
 /* IRQ Handler treatment functions */
-void UserButton_Callback(void);
 void USART_TXEmpty_Callback(void);
 void USART_CharTransmitComplete_Callback(void);
 void Error_Callback(void);

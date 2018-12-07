@@ -13,6 +13,7 @@
 #include "stm32f7xx_nucleo_144.h"
 #include "cvc_tasks.h"
 #include "cvc_serial.h"
+#include "cvc_tim.h"
 
 /* Private function prototypes -----------------------------------------------*/
 static void SystemClock_Config(void);
@@ -48,13 +49,21 @@ int main(void)
 	Configure_USART();
 
 	/* Create all tasks */
-	taskCreateAll();
+	//taskCreateAll();
 
 	/* Start RTOS Scheduler */
-	vTaskStartScheduler();
+	//vTaskStartScheduler();
 
-	/* Function should never reach this point once scheduler is started */
-	for(;;);
+	/* Configure TIM1 in input capture mode */
+	Configure_TIMInputCapture();
+
+	/* Configure TIM2 in PWM output mode */
+	Configure_TIMPWMOutput();
+
+	/* Infinite loop */
+	while (1)
+	{
+	}
 }
 
 
