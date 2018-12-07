@@ -89,6 +89,8 @@
  extern uint32_t SystemCoreClock;
 #endif
 
+#include "stm32f7xx_hal.h"
+
 #define configUSE_PREEMPTION              1
 #define configUSE_IDLE_HOOK               0
 #define configUSE_TICK_HOOK               0
@@ -109,6 +111,8 @@
 #define configUSE_APPLICATION_TASK_TAG    0
 #define configUSE_COUNTING_SEMAPHORES     1
 #define configGENERATE_RUN_TIME_STATS     0
+#define configNUM_THREAD_LOCAL_STORAGE_POINTERS	3 /* FreeRTOS+FAT requires 3 pointers if a CWD is supported. */
+
 
 /* Co-routine definitions. */
 #define configUSE_CO_ROUTINES           0
@@ -164,6 +168,11 @@ header file. */
    standard names. */
 #define vPortSVCHandler    SVC_Handler
 #define xPortPendSVHandler PendSV_Handler
+
+ /* Defines the port and pin used to detect if an SD card is present.
+  * The CVC defines this pin as PG0 */
+ #define configSD_DETECT_PIN			GPIO_PIN_0
+ #define configSD_DETECT_GPIO_PORT		GPIOG
 
 /* IMPORTANT: This define MUST be commented when used with STM32Cube firmware, 
               to prevent overwriting SysTick_Handler defined within STM32Cube HAL */
