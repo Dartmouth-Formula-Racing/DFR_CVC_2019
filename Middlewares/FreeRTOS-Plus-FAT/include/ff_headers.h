@@ -61,7 +61,6 @@ extern "C" {
 #include "semphr.h"
 
 #include "FreeRTOSFATConfig.h"
-#include "FreeRTOSFATConfigDefaults.h"
 #include "ff_error.h"
 #include "ff_ioman.h"
 #include "ff_fat.h"
