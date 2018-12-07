@@ -143,6 +143,15 @@ typedef enum
                                                                     {__HAL_RCC_GPIOB_CLK_ENABLE();   }} while(0)	
 #define LEDx_GPIO_CLK_DISABLE(__INDEX__)  do { if((__INDEX__) == 0) {__HAL_RCC_GPIOB_CLK_DISABLE();} else\
                                                                     {__HAL_RCC_GPIOB_CLK_DISABLE();   }} while(0)	
+
+/**
+  * @brief Toggle periods for various blinking modes
+  */
+
+#define LED_BLINK_FAST  200
+#define LED_BLINK_SLOW  500
+#define LED_BLINK_ERROR 1000
+
 /**
   * @}
   */ 
@@ -161,6 +170,13 @@ typedef enum
 #define USER_BUTTON_GPIO_CLK_DISABLE()           __HAL_RCC_GPIOC_CLK_DISABLE()
 #define USER_BUTTON_EXTI_LINE                    GPIO_PIN_13
 #define USER_BUTTON_EXTI_IRQn                    EXTI15_10_IRQn
+#define USER_BUTTON_EXTI_LINE_ENABLE()          LL_EXTI_EnableIT_0_31(USER_BUTTON_EXTI_LINE)
+#define USER_BUTTON_EXTI_FALLING_TRIG_ENABLE()  LL_EXTI_EnableFallingTrig_0_31(USER_BUTTON_EXTI_LINE)
+#define USER_BUTTON_SYSCFG_SET_EXTI()           do {                                                                     \
+                                                  LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_SYSCFG);                  \
+                                                  LL_SYSCFG_SetEXTISource(LL_SYSCFG_EXTI_PORTC, LL_SYSCFG_EXTI_LINE13);  \
+                                                } while(0)
+#define USER_BUTTON_IRQHANDLER                  EXTI15_10_IRQHandler
 
 #define BUTTONx_GPIO_CLK_ENABLE(__INDEX__)      USER_BUTTON_GPIO_CLK_ENABLE()
 #define BUTTONx_GPIO_CLK_DISABLE(__INDEX__)     USER_BUTTON_GPIO_CLK_DISABLE() 
