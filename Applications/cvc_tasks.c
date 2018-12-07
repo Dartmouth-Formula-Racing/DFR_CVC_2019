@@ -27,13 +27,12 @@ BaseType_t taskCreateAll()	{
 	BaseType_t status = pdPASS;
 	for (int i=0; i<TASKLIST_SIZE; i++)	{
 		status = xTaskCreate(taskList[i].function,
-										taskList[i].name,
-										taskList[i].stackSize,
-										taskList[i].parameters,
-										taskList[i].priority,
-										taskList[i].handle);
+							 taskList[i].name,
+							 taskList[i].stackSize,
+							 taskList[i].parameters,
+							 taskList[i].priority,
+							 taskList[i].handle);
 		if (status != pdPASS)	{
-			printf("taskCreate Error: %l\r\n", status);
 			return status;
 		}
 	}

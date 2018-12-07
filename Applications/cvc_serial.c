@@ -21,7 +21,7 @@ static uint8_t aStringToSend[MAX_STRING_LENGTH];
 static uint8_t ubSizeToSend;
 
 
-/* Private functions ---------------------------------------------------------*/
+/* Public Functions ---------------------------------------------------------*/
 void console_write(char * message)	{
 	uint8_t messageSize = strlen(message)+1;
 
@@ -123,23 +123,6 @@ void Configure_USART(void)
 /******************************************************************************/
 /*   IRQ HANDLER TREATMENT Functions                                          */
 /******************************************************************************/
-/**
-  * @brief  Function to manage Button push
-  * @param  None
-  * @retval None
-  */
-void UserButton_Callback(void)
-{
-  /* Start transfer only if not already ongoing */
-  if (ubSend == 0)
-  {
-    /* Start USART transmission : Will initiate TXE interrupt after TDR register is empty */
-    LL_USART_TransmitData8(USARTx_INSTANCE, aStringToSend[ubSend++]);
-
-    /* Enable TXE interrupt */
-    LL_USART_EnableIT_TXE(USARTx_INSTANCE);
-  }
-}
 
 /**
   * @brief  Function called for achieving next TX Byte sending

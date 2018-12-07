@@ -33,17 +33,6 @@ int main(void)
 	/* Configure the system clock to 216 MHz */
 	SystemClock_Config();
 
-	/* Initialize LEDs */
-	BSP_LED_Init(LED1);
-	BSP_LED_Init(LED2);
-	BSP_LED_Init(LED3);
-
-	/* Set LED1 Off */
-	BSP_LED_Off(LED1);
-
-	/* Initialize button in EXTI mode */
-	BSP_PB_Init(BUTTON_USER, BUTTON_MODE_EXTI);
-
 	/* Configure USARTx (USART IP configuration and related GPIO initialization) */
 	Configure_USART();
 
