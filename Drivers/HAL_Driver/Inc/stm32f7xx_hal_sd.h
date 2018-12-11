@@ -95,6 +95,18 @@ typedef enum
   * @}
   */
 
+/** @defgroup SD_Exported_Types_Group3 SD Transfer state enumeration structure
+  * @{
+  */
+typedef enum
+{
+  SD_TRANSFER_OK    = 0,  /*!< Transfer success      */
+  SD_TRANSFER_BUSY  = 1,  /*!< Transfer is occurring */
+  SD_TRANSFER_ERROR = 2   /*!< Transfer failed       */
+
+}HAL_SD_TransferStateTypedef;
+
+
 /** @defgroup SD_Exported_Types_Group3 SD Handle Structure definition   
   * @{
   */

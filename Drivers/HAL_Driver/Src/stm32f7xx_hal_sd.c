@@ -326,7 +326,10 @@ HAL_StatusTypeDef HAL_SD_Init(SD_HandleTypeDef *hsd)
   hsd->State = HAL_SD_STATE_BUSY;
 
   /* Initialize the Card parameters */
-  HAL_SD_InitCard(hsd);
+  if (HAL_SD_InitCard(hsd) != HAL_OK)
+  {
+	  return HAL_ERROR;
+  }
 
   /* Initialize the error code */
   hsd->ErrorCode = HAL_DMA_ERROR_NONE;
@@ -2185,6 +2188,9 @@ static void SD_DMATransmitCplt(DMA_HandleTypeDef *hdma)
 {
   SD_HandleTypeDef* hsd = (SD_HandleTypeDef* )(hdma->Parent);
   
+  /* Set write complete flag */
+  BSP_SD_WriteCpltCallback();
+
   /* Enable DATAEND Interrupt */
   __HAL_SD_ENABLE_IT(hsd, (SDMMC_IT_DATAEND));
 }
@@ -2199,6 +2205,9 @@ static void SD_DMAReceiveCplt(DMA_HandleTypeDef *hdma)
   SD_HandleTypeDef* hsd = (SD_HandleTypeDef* )(hdma->Parent);
   uint32_t errorstate = HAL_SD_ERROR_NONE;
   
+  /* set read complete flag */
+  BSP_SD_ReadCpltCallback();
+
   /* Send stop command in multiblock write */
   if(hsd->Context == (SD_CONTEXT_READ_MULTIPLE_BLOCK | SD_CONTEXT_DMA))
   {

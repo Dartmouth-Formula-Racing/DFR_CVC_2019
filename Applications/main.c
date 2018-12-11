@@ -13,6 +13,7 @@
 #include "stm32f7xx_nucleo_144.h"
 #include "cvc_tasks.h"
 #include "cvc_serial.h"
+#include "ff_test.h"
 
 /* Private function prototypes -----------------------------------------------*/
 static void SystemClock_Config(void);
@@ -36,11 +37,14 @@ int main(void)
 	/* Configure USARTx (USART IP configuration and related GPIO initialization) */
 	Configure_USART();
 
+	/* test FatFs */
+	function_test_main();
+
 	/* Create all tasks */
-	taskCreateAll();
+	//taskCreateAll();
 
 	/* Start RTOS Scheduler */
-	vTaskStartScheduler();
+	//vTaskStartScheduler();
 
 	/* Function should never reach this point once scheduler is started */
 	for(;;);
