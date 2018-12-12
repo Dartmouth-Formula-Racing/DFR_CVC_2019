@@ -50,6 +50,7 @@ void SysTick_Handler(void)
 /*  file (startup_stm32f7xx.s).                                               */
 /******************************************************************************/
 
+#if USE_PRINTF == 0
 /**
   * Brief   This function handles USARTx Instance interrupt request.
   * Param   None
@@ -81,6 +82,8 @@ void USARTx_IRQHandler(void)
   }
 
 }
+
+#endif /* USE_PRINTF == 0 */
 
 /**
   * @}
