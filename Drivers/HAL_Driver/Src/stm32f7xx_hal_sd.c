@@ -2187,12 +2187,14 @@ HAL_StatusTypeDef HAL_SD_Abort_IT(SD_HandleTypeDef *hsd)
 static void SD_DMATransmitCplt(DMA_HandleTypeDef *hdma)     
 {
   SD_HandleTypeDef* hsd = (SD_HandleTypeDef* )(hdma->Parent);
-  
-  /* Set write complete flag */
-  BSP_SD_WriteCpltCallback();
+  uint32_t errorstate = HAL_SD_ERROR_NONE;
+
+  /* DO NOT SEND STOP COMMAND FROM HERE
+   * - stop command is sent from SDMMC IRQ enabled below
+   */
 
   /* Enable DATAEND Interrupt */
-  __HAL_SD_ENABLE_IT(hsd, (SDMMC_IT_DATAEND));
+  __HAL_SD_ENABLE_IT(hsd, (SDMMC_IT_DATAEND));	// Commented to fix MULTIWRITE BUG
 }
 
 /**
@@ -2204,9 +2206,6 @@ static void SD_DMAReceiveCplt(DMA_HandleTypeDef *hdma)
 {
   SD_HandleTypeDef* hsd = (SD_HandleTypeDef* )(hdma->Parent);
   uint32_t errorstate = HAL_SD_ERROR_NONE;
-  
-  /* set read complete flag */
-  BSP_SD_ReadCpltCallback();
 
   /* Send stop command in multiblock write */
   if(hsd->Context == (SD_CONTEXT_READ_MULTIPLE_BLOCK | SD_CONTEXT_DMA))

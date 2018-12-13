@@ -129,7 +129,9 @@ uint8_t BSP_SD_GetCardInfo(BSP_SD_CardInfo *pCardInfo)
   */
 uint8_t BSP_SD_WriteBlocks_DMA(uint8_t *pData, uint32_t WriteAddr, uint32_t NumOfBlocks)
 {
-	return HAL_SD_WriteBlocks_DMA(&SDHandle, pData, WriteAddr, NumOfBlocks);
+	HAL_StatusTypeDef ret = HAL_SD_WriteBlocks_DMA(&SDHandle, pData, WriteAddr, NumOfBlocks);
+
+	return ret;
 }
 /**
   * @brief  Reads block(s) from a specified address in the SD card, in polling mode.
@@ -388,8 +390,6 @@ void SDIO_IRQHandler(void)
 
 void DMA2_Stream6_IRQHandler(void)
 {
-BaseType_t xHigherPriorityTaskWoken = 0;
-
 	/* DMA SDIO-TX interrupt handler. */
 	HAL_DMA_IRQHandler (SDHandle.hdmatx);
 }

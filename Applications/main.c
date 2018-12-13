@@ -38,12 +38,6 @@ int main(void)
 	/* Configure USARTx (USART IP configuration and related GPIO initialization) */
 	Configure_USART();
 
-	/* Output a message on Hyperterminal using printf function */
-	char buff[50];
-
-	sprintf(buff, "testing sprintf with printf %d", 1);
-	printf("%s\n", buff);
-
 	/* test FatFs */
 	function_test_main();
 

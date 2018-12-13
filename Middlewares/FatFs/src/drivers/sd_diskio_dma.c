@@ -341,8 +341,8 @@ DRESULT SD_ioctl(BYTE lun, BYTE cmd, void *buff)
     prototype
    ===============================================================================
   */
-//void BSP_SD_WriteCpltCallback(uint32_t SdCard)
-void BSP_SD_WriteCpltCallback(void)
+
+void HAL_SD_TxCpltCallback(SD_HandleTypeDef *hsd)
 {
   WriteStatus = 1;
 }
@@ -360,8 +360,7 @@ void BSP_SD_WriteCpltCallback(void)
     prototype
    ===============================================================================
   */
-//void BSP_SD_ReadCpltCallback(uint32_t SdCard)
-void BSP_SD_ReadCpltCallback(void)
+void HAL_SD_RxCpltCallback(SD_HandleTypeDef *hsd)
 {
   ReadStatus = 1;
 }
