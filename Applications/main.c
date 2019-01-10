@@ -13,7 +13,10 @@
 #include "stm32f7xx_nucleo_144.h"
 #include "cvc_tasks.h"
 #include "cvc_can.h"
+#include "cvc_spi.h"
 
+/* Uncomment this line to use the board as master, if not it is used as slave */
+//#define MASTER_BOARD
 
 /* Private function prototypes -----------------------------------------------*/
 static void SystemClock_Config(void);
@@ -52,10 +55,31 @@ int main(void)
 	CAN_Init();
 
 	/* Create all tasks */
-	BaseType_t status = taskCreateAll();
+	//BaseType_t status = taskCreateAll();
 
 	/* Start RTOS Scheduler */
-	vTaskStartScheduler();
+	//vTaskStartScheduler();
+
+	  /* Initialize LED1 */
+	  LED_Init();
+
+	  /* Configure the SPI1 parameters */
+	  Configure_SPI();
+
+	#ifdef MASTER_BOARD
+	  /* Initialize User push-button in EXTI mode */
+	  UserButton_Init();
+
+	  /* Wait for User push-button press to start transfer */
+	  WaitForUserButtonPress();
+	#endif
+
+	  /* Enable the SPI1 peripheral */
+	  Activate_SPI();
+
+	  /* Wait for the end of the transfer and check received data */
+	  /* LED blinking FAST during waiting time */
+	  WaitAndCheckEndOfTransfer();
 
 	/* Function should never reach this point once scheduler is started */
 	/* Infinite loop */
@@ -156,6 +180,12 @@ static void SystemClock_Config(void)
   {
     Error_Handler();
   }
+
+  /* Set systick to 1ms */
+  SysTick_Config(216000000 / 1000);
+
+  /* Update CMSIS variable (which can be updated also through SystemCoreClockUpdate function) */
+  SystemCoreClock = 216000000;
 }
 
 /**
