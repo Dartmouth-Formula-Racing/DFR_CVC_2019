@@ -37,6 +37,115 @@ __IO uint8_t ubButtonPress = 0;
 
 
 /**
+  * @brief	Read new data from RxBuffer into PLC_Read
+  * @param	RxBuffer pointer, buffer length
+  * @retval	None
+  */
+void read_SPI_Rx_Buffer(uint8_t	*RxBuffer, uint16_t Buffer_Length)
+{
+	int i;
+	for (i=0; i<Buffer_Length; i++)
+	{
+		PLC_Read.bytes[i] = RxBuffer[i];
+	}
+}
+
+
+/**
+  * @brief	Write data from PLC_Write to TxBuffer
+  * @param	TxBuffer pointer, buffer length
+  * @retval	None
+  */
+void write_SPI_Tx_Buffer(uint8_t *TxBuffer, uint16_t Buffer_Length)
+{
+	int i;
+	for (i=0; i<Buffer_Length; i++)
+	{
+		TxBuffer[i] = PLC_Write.bytes[i];
+	}
+}
+
+
+/**
+  * @brief	Set SPI_inputs_vector values using PLC_Read data
+  * @param	None
+  * @retval	None
+  */
+void SPI_PLC_Set_Inputs(void)
+{
+	SPI_inputs_vector.ICE_enable 					= CLT_Read.bit.IN1;
+	SPI_inputs_vector.Motor_enable 					= CLT_Read.bit.IN2;
+	SPI_inputs_vector.Ready_to_drive 				= CLT_Read.bit.IN3;
+	SPI_inputs_vector.Dash_BRB_press 				= !CLT_Read.bit.IN4;
+	SPI_inputs_vector.IMD_safety_circuit_fault 		= CLT_Read.bit.IN5;
+	SPI_inputs_vector.BMS_safety_circuit_fault 		= CLT_Read.bit.IN6;
+	SPI_inputs_vector.Bamocar_safety_circuit_fault 	= CLT_Read.bit.IN7;
+
+}
+
+
+/**
+  * @brief	Set PLC_Write values using SPI_ouputs_vector values
+  * @param	None
+  * @retval	None
+  */
+void SPI_PLC_Set_Outputs(void)
+{
+	VNI_Write.bit.OUT1 = SPI_outputs_vector.safety;
+	VNI_Write.bit.OUT2 = SPI_outputs_vector.ready_to_drive;
+	VNI_Write.bit.OUT3 = SPI_outputs_vector.rfg;
+	VNI_Write.bit.OUT4 = SPI_outputs_vector.ignition_kill;
+	VNI_Write.bit.OUT5 = SPI_outputs_vector.downshift_solenoid;
+	VNI_Write.bit.OUT6 = SPI_outputs_vector.upshift_solenoid;
+	VNI_Write.bit.OUT7 = 0;
+	VNI_Write.bit.OUT8 = 0;
+
+	set_SPI_check_bit_outputs(&PLC_Write);
+}
+
+
+/**
+  * @brief	Set special output bits for PLC_Write
+  * @param	None
+  * @retval	None
+  */
+void set_SPI_check_bit_outputs(volatile VNI_Write_u_t *WriteValue)
+{
+	WriteValue->bit.SPARE= 0;
+
+	WriteValue->bit.P0	=
+	(
+		  WriteValue->bit.IN1
+		+ WriteValue->bit.IN2
+		+ WriteValue->bit.IN3
+		+ WriteValue->bit.IN4
+		+ WriteValue->bit.IN5
+		+ WriteValue->bit.IN6
+		+ WriteValue->bit.IN7
+		+ WriteValue->bit.IN8
+	);
+
+	WriteValue->bit.P1 	=
+	(
+		  WriteValue->bit.IN2
+		+ WriteValue->bit.IN4
+		+ WriteValue->bit.IN6
+		+ WriteValue->bit.IN8
+	);
+
+	WriteValue->bit.P2 	=
+	(
+		  WriteValue->bit.IN1
+		+ WriteValue->bit.IN3
+		+ WriteValue->bit.IN5
+		+ WriteValue->bit.IN7
+	);
+
+	WriteValue->bit.nP0 = !(WriteValue->bit.P0);
+}
+
+
+/**
   * @brief  This function configures SPI1.
   * @note  This function is used to :
   *        -1- Enables GPIO clock and configures the SPI1 pins.
