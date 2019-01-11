@@ -81,6 +81,33 @@ void     WaitForUserButtonPress(void);
 
 /* Typedefs ----------------------------------------------------------*/
 
+volatile typedef struct SPI_inputs_vector_s
+{
+	uint8_t ICE_enable;						// PLC input 1
+	uint8_t Motor_enable;					// PLC input 2
+	uint8_t Ready_to_drive;					// PLC input 3
+	uint8_t Dash_BRB_press;					// PLC input 4
+	uint8_t	IMD_safety_circuit_fault;		// PLC input 5
+	uint8_t BMS_safety_circuit_fault;		// PLC input 6
+	uint8_t Bamocar_safety_circuit_fault;	// PLC input 7
+	//extra input							// PLC input 8
+
+} SPI_inputs_vector_t;
+
+volatile typedef struct SPI_outputs_vector_s
+{
+	uint8_t	safety;					// PLC output 1
+	uint8_t	ready_to_drive;			// PLC output 2
+	uint8_t	rfg;					// PLC output 3
+	uint8_t ignition_kill;			// PLC output 4
+	uint8_t	downshift_solenoid;		// PLC output 5
+	uint8_t upshift_solenoid;		// PLC output 6
+	//extra output					// PLC output 7
+	//extra output					// PLC output 8
+
+} SPI_outputs_vector_t;
+
+
 typedef struct CLT_Read_s
 {
 	int	High	:	1;	//This is bit 0
@@ -169,8 +196,21 @@ typedef union VNI_Write_u
 	VNI_Write_t	bit;
 } VNI_Write_u_t;
 
+typedef enum SPI_io_states_t
+{
+	wait_for_CLT,
+	wait_for_VNI,
+	wait_for_next_transmission
+
+} SPI_io_states_t;
 
 extern volatile	CLT_Read_u_t CLT_Read;
+extern volatile uint16_t	CLT_Write;	//random 16 bits to initiate transfer with CLT
 extern volatile VNI_Read_u_t VNI_Read;
+
+extern volatile SPI_inputs_vector_t		SPI_inputs_vector;
+extern volatile SPI_outputs_vector_t	SPI_outputs_vector;
+
+extern volatile SPI_io_states_t SPI_io_state;
 
 #endif /* INC_CVC_SPI_H_ */

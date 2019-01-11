@@ -181,11 +181,6 @@ static void SystemClock_Config(void)
     Error_Handler();
   }
 
-  /* Set systick to 1ms */
-  SysTick_Config(216000000 / 1000);
-
-  /* Update CMSIS variable (which can be updated also through SystemCoreClockUpdate function) */
-  SystemCoreClock = 216000000;
 }
 
 /**

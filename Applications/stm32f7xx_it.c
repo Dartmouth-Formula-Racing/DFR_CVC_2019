@@ -64,6 +64,8 @@ void CANx_RX_IRQHandler(void)
   */
 void USER_BUTTON_IRQHANDLER(void)
 {
+
+
   /* Manage Flags */
   if(LL_EXTI_IsActiveFlag_0_31(USER_BUTTON_EXTI_LINE) != RESET)
   {
@@ -81,6 +83,8 @@ void USER_BUTTON_IRQHANDLER(void)
   */
 void SPI1_IRQHandler(void)
 {
+
+
   /* Check RXNE flag value in ISR register */
   if(LL_SPI_IsActiveFlag_RXNE(SPI1))
   {

@@ -14,6 +14,7 @@
 /* Buffer used for transmission */
 uint8_t aTxBuffer[] = "**** SPI_TwoBoards_FullDuplex_IT communication **** SPI_TwoBoards_FullDuplex_IT communication **** SPI_TwoBoards_FullDuplex_IT communication ****";
 uint8_t ubNbDataToTransmit = sizeof(aTxBuffer);
+uint16_t TxBuffer[];
 __IO uint8_t ubTransmitIndex = 0;
 
 /* Buffer used for reception */
@@ -32,9 +33,67 @@ void     LED_Off(void);
 /* Temporary Variables -----------------------------------------------------------*/
 __IO uint8_t ubButtonPress = 0;
 
+/* External Variables ------------------------------------------------------------*/
+volatile CLT_Read_u_t	CLT_Read;
+volatile uint16_t		CLT_Write;
+
+volatile VNI_Read_u_t	VNI_Read;
+volatile VNI_Write_u_t	VNI_Write;
+
 /* Functions ---------------------------------------------------------------------*/
 
+/**
+ *
+ *
+ */
+void initiate_SPI_transmission(void)
+{
+	LL_GPIO_ResetOutputPin(GPIOD, LL_GPIO_PIN_15);
+	LL_SPI_TransmitData16(SPI1, CLT_Write);
+	SPI_io_state = wait_for_CLT;
+}
 
+void SPI_routine(void)
+{
+	switch(SPI_io_state)
+	{
+		case(wait_for_CLT):
+
+			LL_GPIO_SetOutputPin(GPIOD, LL_GPIO_PIN_15);
+
+			//add_to_SPI_input_buffer();
+
+			//SPI1_SR = SPI1->SR;
+
+			//CLT_Read = debounced_SPI_input();
+
+			SPI_PLC_Set_Inputs();
+
+			SPI_PLC_Set_Outputs();
+
+			LL_GPIO_ResetOutputPin(GPIOD, LL_GPIO_PIN_14);
+			LL_SPI_TransmitData15(SPI1, VNI_Write.word);
+			SPI_io_state = wait_for_VNI;
+			break;
+
+		case(wait_for_VNI):
+
+			LL_GPIO_Set_OutputPin(GPIOD, LL_GPIO_PIN_14);
+
+			VNI_Read.word = SPI1->DR;
+
+			//SPI1_SR = SPI1->SR;
+
+			SPI_io_state = wait_for_next_transmission;
+			break;
+
+		case(wait_for_next_transmission):
+
+		default:
+
+			break;
+	}
+}
 
 /**
   * @brief	Read new data from RxBuffer into PLC_Read
@@ -91,16 +150,16 @@ void SPI_PLC_Set_Inputs(void)
   */
 void SPI_PLC_Set_Outputs(void)
 {
-	VNI_Write.bit.OUT1 = SPI_outputs_vector.safety;
-	VNI_Write.bit.OUT2 = SPI_outputs_vector.ready_to_drive;
-	VNI_Write.bit.OUT3 = SPI_outputs_vector.rfg;
-	VNI_Write.bit.OUT4 = SPI_outputs_vector.ignition_kill;
-	VNI_Write.bit.OUT5 = SPI_outputs_vector.downshift_solenoid;
-	VNI_Write.bit.OUT6 = SPI_outputs_vector.upshift_solenoid;
-	VNI_Write.bit.OUT7 = 0;
-	VNI_Write.bit.OUT8 = 0;
+	VNI_Write.bit.IN1 = SPI_outputs_vector.safety;
+	VNI_Write.bit.IN2 = SPI_outputs_vector.ready_to_drive;
+	VNI_Write.bit.IN3 = SPI_outputs_vector.rfg;
+	VNI_Write.bit.IN4 = SPI_outputs_vector.ignition_kill;
+	VNI_Write.bit.IN5 = SPI_outputs_vector.downshift_solenoid;
+	VNI_Write.bit.IN6 = SPI_outputs_vector.upshift_solenoid;
+	VNI_Write.bit.IN7 = 0;
+	VNI_Write.bit.IN8 = 0;
 
-	set_SPI_check_bit_outputs(&PLC_Write);
+	set_SPI_check_bit_outputs(&VNI_Write);
 }
 
 
