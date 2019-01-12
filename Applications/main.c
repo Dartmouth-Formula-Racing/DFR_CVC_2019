@@ -66,13 +66,13 @@ int main(void)
 	  /* Configure the SPI1 parameters */
 	  Configure_SPI();
 
-	#ifdef MASTER_BOARD
+
 	  /* Initialize User push-button in EXTI mode */
 	  UserButton_Init();
 
 	  /* Wait for User push-button press to start transfer */
 	  WaitForUserButtonPress();
-	#endif
+
 
 	  /* Enable the SPI1 peripheral */
 	  Activate_SPI();

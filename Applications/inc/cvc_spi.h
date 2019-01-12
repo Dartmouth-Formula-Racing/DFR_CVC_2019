@@ -59,24 +59,8 @@
 /* Uncomment this line to use the board as master, if not it is used as slave */
 //#define MASTER_BOARD
 
-/* Function prototypes -----------------------------------------------*/
-void Configure_SPI(void);
-void Activate_SPI(void);
 
-void UserButton_Callback(void);
-void SPI1_Rx_Callback(void);
-void SPI1_Tx_Callback(void);
-void SPI1_TransferError_Callback(void);
 
-void LED_Init(void);
-
-void WaitAndCheckEndOfTransfer(void);
-uint8_t Buffercmp8(uint8_t* pBuffer1, uint8_t* pBuffer2, uint8_t BufferLength);
-
-#ifdef MASTER_BOARD
-void     UserButton_Init(void);
-void     WaitForUserButtonPress(void);
-#endif
 
 
 /* Typedefs ----------------------------------------------------------*/
@@ -208,9 +192,46 @@ extern volatile	CLT_Read_u_t CLT_Read;
 extern volatile uint16_t	CLT_Write;	//random 16 bits to initiate transfer with CLT
 extern volatile VNI_Read_u_t VNI_Read;
 
+
+
 extern volatile SPI_inputs_vector_t		SPI_inputs_vector;
 extern volatile SPI_outputs_vector_t	SPI_outputs_vector;
 
 extern volatile SPI_io_states_t SPI_io_state;
+
+
+/* Function prototypes -----------------------------------------------*/
+void Configure_SPI(void);
+void Activate_SPI(void);
+
+void initiate_SPI_transmission(void);
+void SPI_routine(void);
+void add_to_SPI_input_buffer(uint16_t new_data);
+
+
+void set_SPI_check_bit_outputs(volatile VNI_Write_u_t *WriteValue);
+
+void SPI_PLC_Set_Inputs(void);
+void SPI_PLC_Set_Outputs(void);
+void set_SPI_check_bit_outputs(volatile VNI_Write_u_t *WriteValue);
+
+
+CLT_Read_u_t debounce_SPI_input(void);
+
+void UserButton_Callback(void);
+void SPI1_Rx_Callback(void);
+void SPI1_Tx_Callback(void);
+void SPI1_TransferError_Callback(void);
+
+void LED_Init(void);
+
+void WaitAndCheckEndOfTransfer(void);
+uint8_t Buffercmp8(uint8_t* pBuffer1, uint8_t* pBuffer2, uint8_t BufferLength);
+
+
+void     UserButton_Init(void);
+void     WaitForUserButtonPress(void);
+
+
 
 #endif /* INC_CVC_SPI_H_ */

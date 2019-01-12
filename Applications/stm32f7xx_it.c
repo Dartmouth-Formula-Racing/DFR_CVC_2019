@@ -65,6 +65,8 @@ void CANx_RX_IRQHandler(void)
 void USER_BUTTON_IRQHANDLER(void)
 {
 
+	initiate_SPI_transmission();
+
 
   /* Manage Flags */
   if(LL_EXTI_IsActiveFlag_0_31(USER_BUTTON_EXTI_LINE) != RESET)
@@ -84,23 +86,24 @@ void USER_BUTTON_IRQHANDLER(void)
 void SPI1_IRQHandler(void)
 {
 
+	SPI_routine();
 
   /* Check RXNE flag value in ISR register */
-  if(LL_SPI_IsActiveFlag_RXNE(SPI1))
-  {
+ // if(LL_SPI_IsActiveFlag_RXNE(SPI1))
+  //{
     /* Call function Slave Reception Callback */
-    SPI1_Rx_Callback();
-  }
+   // SPI1_Rx_Callback();
+  //}
   /* Check RXNE flag value in ISR register */
-  else if(LL_SPI_IsActiveFlag_TXE(SPI1))
-  {
+  //else if(LL_SPI_IsActiveFlag_TXE(SPI1))
+  //{
     /* Call function Slave Reception Callback */
-    SPI1_Tx_Callback();
-  }
+   // SPI1_Tx_Callback();
+  //}
   /* Check STOP flag value in ISR register */
-  else if(LL_SPI_IsActiveFlag_OVR(SPI1))
-  {
+  //else if(LL_SPI_IsActiveFlag_OVR(SPI1))
+  //{
     /* Call Error function */
-    SPI1_TransferError_Callback();
-  }
+  //  SPI1_TransferError_Callback();
+  //}
 }

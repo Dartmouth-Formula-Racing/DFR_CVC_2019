@@ -8,13 +8,15 @@
 /* Includes ------------------------------------------------------------------*/
 #include "cvc_spi.h"
 
+/* Defines -------------------------------------------------------------------*/
+#define		SPI_BUFFER_SIZE 	5
+
 /* Uncomment this line to use the board as master, if not it is used as slave */
 //#define MASTER_BOARD
 
 /* Buffer used for transmission */
 uint8_t aTxBuffer[] = "**** SPI_TwoBoards_FullDuplex_IT communication **** SPI_TwoBoards_FullDuplex_IT communication **** SPI_TwoBoards_FullDuplex_IT communication ****";
 uint8_t ubNbDataToTransmit = sizeof(aTxBuffer);
-uint16_t TxBuffer[];
 __IO uint8_t ubTransmitIndex = 0;
 
 /* Buffer used for reception */
@@ -25,20 +27,26 @@ __IO uint8_t ubReceiveIndex = 0;
 
 /* Temporary function prototypes -------------------------------------------------*/
 void LED_Blinking(uint32_t Period);
-#ifdef MASTER_BOARD
-void     LED_Off(void);
-#endif
+
+void LED_Off(void);
+
 
 
 /* Temporary Variables -----------------------------------------------------------*/
 __IO uint8_t ubButtonPress = 0;
 
 /* External Variables ------------------------------------------------------------*/
-volatile CLT_Read_u_t	CLT_Read;
-volatile uint16_t		CLT_Write;
+volatile CLT_Read_u_t			CLT_Read;
+volatile uint16_t				CLT_Write;
 
-volatile VNI_Read_u_t	VNI_Read;
-volatile VNI_Write_u_t	VNI_Write;
+volatile VNI_Read_u_t			VNI_Read;
+volatile VNI_Write_u_t			VNI_Write;
+
+volatile SPI_io_states_t		SPI_io_state = wait_for_next_transmission;
+
+volatile SPI_inputs_vector_t	SPI_inputs_vector;
+volatile SPI_outputs_vector_t	SPI_outputs_vector;
+
 
 /* Functions ---------------------------------------------------------------------*/
 
@@ -53,6 +61,8 @@ void initiate_SPI_transmission(void)
 	SPI_io_state = wait_for_CLT;
 }
 
+volatile uint32_t SPI1_SR = 0;
+
 void SPI_routine(void)
 {
 	switch(SPI_io_state)
@@ -61,28 +71,28 @@ void SPI_routine(void)
 
 			LL_GPIO_SetOutputPin(GPIOD, LL_GPIO_PIN_15);
 
-			//add_to_SPI_input_buffer();
+			add_to_SPI_input_buffer((uint16_t)SPI1->DR);
 
-			//SPI1_SR = SPI1->SR;
+			SPI1_SR = SPI1->SR;
 
-			//CLT_Read = debounced_SPI_input();
+			CLT_Read = debounce_SPI_input();
 
 			SPI_PLC_Set_Inputs();
 
 			SPI_PLC_Set_Outputs();
 
 			LL_GPIO_ResetOutputPin(GPIOD, LL_GPIO_PIN_14);
-			LL_SPI_TransmitData15(SPI1, VNI_Write.word);
+			LL_SPI_TransmitData16(SPI1, VNI_Write.word);
 			SPI_io_state = wait_for_VNI;
 			break;
 
 		case(wait_for_VNI):
 
-			LL_GPIO_Set_OutputPin(GPIOD, LL_GPIO_PIN_14);
+			LL_GPIO_SetOutputPin(GPIOD, LL_GPIO_PIN_14);
 
 			VNI_Read.word = SPI1->DR;
 
-			//SPI1_SR = SPI1->SR;
+			SPI1_SR = SPI1->SR;
 
 			SPI_io_state = wait_for_next_transmission;
 			break;
@@ -95,34 +105,48 @@ void SPI_routine(void)
 	}
 }
 
-/**
-  * @brief	Read new data from RxBuffer into PLC_Read
-  * @param	RxBuffer pointer, buffer length
-  * @retval	None
-  */
-void read_SPI_Rx_Buffer(uint8_t	*RxBuffer, uint16_t Buffer_Length)
+
+int SPI_buffer_index = 0;
+
+CLT_Read_u_t CLT_read_buffer[SPI_BUFFER_SIZE] = {0};
+
+void add_to_SPI_input_buffer(uint16_t new_data)
 {
-	int i;
-	for (i=0; i<Buffer_Length; i++)
+	CLT_read_buffer[SPI_buffer_index].word = new_data;
+	SPI_buffer_index++;
+
+	if(SPI_buffer_index >= SPI_BUFFER_SIZE)
 	{
-		PLC_Read.bytes[i] = RxBuffer[i];
+		SPI_buffer_index = 0;
 	}
 }
 
 
-/**
-  * @brief	Write data from PLC_Write to TxBuffer
-  * @param	TxBuffer pointer, buffer length
-  * @retval	None
-  */
-void write_SPI_Tx_Buffer(uint8_t *TxBuffer, uint16_t Buffer_Length)
+int i;
+
+CLT_Read_u_t all_ones;
+CLT_Read_u_t all_zeroes;
+CLT_Read_u_t Or_temp;
+CLT_Read_u_t debounced_data = {0};
+
+CLT_Read_u_t debounce_SPI_input(void)
 {
-	int i;
-	for (i=0; i<Buffer_Length; i++)
+	all_ones.word = 0xFFFF;
+	Or_temp.word = 0;
+
+	for(i=0; i<SPI_BUFFER_SIZE; i++)
 	{
-		TxBuffer[i] = PLC_Write.bytes[i];
+		all_ones.word &= CLT_read_buffer[i].word;
+		Or_temp.word |= CLT_read_buffer[i].word;
 	}
+	all_zeroes.word = ~Or_temp.word;
+
+	debounced_data.word = (all_ones.word & (~all_zeroes.word)) | ((~all_zeroes.word) & debounced_data.word);
+
+	return debounced_data;
 }
+
+
 
 
 /**
@@ -240,6 +264,22 @@ void Configure_SPI(void)
   LL_GPIO_SetPinSpeed(GPIOA, LL_GPIO_PIN_7, LL_GPIO_SPEED_FREQ_HIGH);
   LL_GPIO_SetPinPull(GPIOA, LL_GPIO_PIN_7, LL_GPIO_PULL_DOWN);
 
+  /* Configure SPI_CS1 PD15 CLT01-38SQ7 */
+  LL_GPIO_SetPinMode(GPIOD, LL_GPIO_PIN_15, LL_GPIO_MODE_OUTPUT);
+  LL_GPIO_SetPinSpeed(GPIOD, LL_GPIO_PIN_15, LL_GPIO_SPEED_FREQ_LOW);
+  LL_GPIO_SetPinPull(GPIOD, LL_GPIO_PIN_15, LL_GPIO_PULL_NO);
+
+  /* Configure SPI_CS2 PD14 VNI8200XP */
+  LL_GPIO_SetPinMode(GPIOD, LL_GPIO_PIN_14, LL_GPIO_MODE_OUTPUT);
+  LL_GPIO_SetPinSpeed(GPIOD, LL_GPIO_PIN_14, LL_GPIO_SPEED_FREQ_LOW);
+  LL_GPIO_SetPinPull(GPIOD, LL_GPIO_PIN_14, LL_GPIO_PULL_NO);
+
+  /* Configure OUT_EN PE9 VNI8200XP */
+  LL_GPIO_SetPinMode(GPIOE, LL_GPIO_PIN_9, LL_GPIO_MODE_OUTPUT);
+  LL_GPIO_SetPinSpeed(GPIOE, LL_GPIO_PIN_9, LL_GPIO_SPEED_FREQ_LOW);
+  LL_GPIO_SetPinPull(GPIOE, LL_GPIO_PIN_9, LL_GPIO_PULL_NO);
+
+
   /* (2) Configure NVIC for SPI1 transfer complete/error interrupts **********/
   /* Set priority for SPI1_IRQn */
   NVIC_SetPriority(SPI1_IRQn, 0);
@@ -257,22 +297,19 @@ void Configure_SPI(void)
   LL_SPI_SetClockPhase(SPI1, LL_SPI_PHASE_2EDGE);
   LL_SPI_SetClockPolarity(SPI1, LL_SPI_POLARITY_HIGH);
   /* Reset value is LL_SPI_MSB_FIRST */
-  //LL_SPI_SetTransferBitOrder(SPI1, LL_SPI_MSB_FIRST);
-  LL_SPI_SetDataWidth(SPI1, LL_SPI_DATAWIDTH_8BIT);
+  LL_SPI_SetTransferBitOrder(SPI1, LL_SPI_MSB_FIRST);
+  LL_SPI_SetDataWidth(SPI1, LL_SPI_DATAWIDTH_16BIT);
   LL_SPI_SetNSSMode(SPI1, LL_SPI_NSS_SOFT);
-  LL_SPI_SetRxFIFOThreshold(SPI1, LL_SPI_RX_FIFO_TH_QUARTER);
-#ifdef MASTER_BOARD
+  LL_SPI_SetRxFIFOThreshold(SPI1, LL_SPI_RX_FIFO_TH_HALF);
+
   LL_SPI_SetMode(SPI1, LL_SPI_MODE_MASTER);
-#else
-  /* Reset value is LL_SPI_MODE_SLAVE */
-  //LL_SPI_SetMode(SPI1, LL_SPI_MODE_SLAVE);
-#endif /* MASTER_BOARD */
+
 
   /* Configure SPI1 transfer interrupts */
   /* Enable RXNE  Interrupt             */
   LL_SPI_EnableIT_RXNE(SPI1);
   /* Enable TXE   Interrupt             */
-  LL_SPI_EnableIT_TXE(SPI1);
+  //LL_SPI_EnableIT_TXE(SPI1);
   /* Enable Error Interrupt             */
   LL_SPI_EnableIT_ERR(SPI1);
 }
@@ -412,7 +449,7 @@ void UserButton_Callback(void)
 }
 
 
-#ifdef MASTER_BOARD
+
 /**
   * @brief  Turn-off LED1.
   * @param  None
@@ -423,7 +460,7 @@ void LED_Off(void)
   /* Turn LED1 off */
   LL_GPIO_ResetOutputPin(LED1_GPIO_PORT, LED1_PIN);
 }
-#endif
+
 
 /**
   * @brief  Set LED1 to Blinking mode for an infinite loop (toggle period based on value provided as input parameter).
@@ -464,7 +501,7 @@ void LED_Init(void)
   //LL_GPIO_SetPinPull(LED1_GPIO_PORT, LED1_PIN, LL_GPIO_PULL_NO);
 }
 
-#ifdef MASTER_BOARD
+
 /**
   * @brief  Configures User push-button in GPIO or EXTI Line Mode.
   * @param  None
@@ -507,4 +544,4 @@ void WaitForUserButtonPress(void)
   /* Ensure that LED1 is turned Off */
   LED_Off();
 }
-#endif
+
