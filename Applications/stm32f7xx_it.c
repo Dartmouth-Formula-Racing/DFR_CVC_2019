@@ -85,25 +85,27 @@ void USER_BUTTON_IRQHANDLER(void)
   */
 void SPI1_IRQHandler(void)
 {
+	if(LL_SPI_IsActiveFlag_RXNE(SPI1))
+	{
+		SPI_routine();
+	}
 
-	SPI_routine();
-
-  /* Check RXNE flag value in ISR register */
- // if(LL_SPI_IsActiveFlag_RXNE(SPI1))
-  //{
-    /* Call function Slave Reception Callback */
-   // SPI1_Rx_Callback();
-  //}
-  /* Check RXNE flag value in ISR register */
-  //else if(LL_SPI_IsActiveFlag_TXE(SPI1))
-  //{
-    /* Call function Slave Reception Callback */
-   // SPI1_Tx_Callback();
-  //}
-  /* Check STOP flag value in ISR register */
-  //else if(LL_SPI_IsActiveFlag_OVR(SPI1))
-  //{
-    /* Call Error function */
-  //  SPI1_TransferError_Callback();
-  //}
+//  /* Check RXNE flag value in ISR register */
+// if(LL_SPI_IsActiveFlag_RXNE(SPI1))
+//  {
+//    /* Call function Slave Reception Callback */
+//    SPI1_Rx_Callback();
+//  }
+//  /* Check RXNE flag value in ISR register */
+//  else if(LL_SPI_IsActiveFlag_TXE(SPI1))
+//  {
+//    /* Call function Slave Reception Callback */
+//    SPI1_Tx_Callback();
+//  }
+//  /* Check STOP flag value in ISR register */
+//  else if(LL_SPI_IsActiveFlag_OVR(SPI1))
+//  {
+//    /* Call Error function */
+//    SPI1_TransferError_Callback();
+//  }
 }

@@ -26,6 +26,8 @@ static void CPU_CACHE_Enable(void);
 /* Private Variables ----------------------------------------------------*/
 uint8_t ubKeyNumber = 0x0;
 
+/* External Variables -------------------------------------------------------*/
+volatile SPI_outputs_vector_t SPI_outputs_vector;
 
 /**
   * @brief	 Main program
@@ -66,6 +68,15 @@ int main(void)
 	  /* Configure the SPI1 parameters */
 	  Configure_SPI();
 
+	  SPI_outputs_vector.safety = 1;
+	  SPI_outputs_vector.downshift_solenoid = 0;
+	  SPI_outputs_vector.ignition_kill = 1;
+	  SPI_outputs_vector.upshift_solenoid = 0;
+	  SPI_outputs_vector.ready_to_drive = 0;
+	  SPI_outputs_vector.rfg = 1;
+
+	  /* Enable the SPI1 peripheral */
+	  Activate_SPI();
 
 	  /* Initialize User push-button in EXTI mode */
 	  UserButton_Init();
@@ -74,8 +85,6 @@ int main(void)
 	  WaitForUserButtonPress();
 
 
-	  /* Enable the SPI1 peripheral */
-	  Activate_SPI();
 
 	  /* Wait for the end of the transfer and check received data */
 	  /* LED blinking FAST during waiting time */
