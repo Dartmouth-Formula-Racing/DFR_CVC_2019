@@ -24,6 +24,15 @@ typedef struct queue_msg_s
 	CAN_data_t data;
 } queue_msg_t;
 
+/* Struct to hold CAN input map */
+typedef struct input_map_s
+{
+	input_index_t index;	/* index in inputs array */
+	uint8_t start_byte;		/* input start byte */
+	uint8_t start_bit;		/* input start bit */
+	uint8_t size;			/* input size in bytes */
+} input_map_t;
+
 /* Private Variables ---------------------------------------------------------------*/
 CAN_HandleTypeDef		CanHandle;
 CAN_TxHeaderTypeDef		TxHeader;
@@ -31,6 +40,77 @@ CAN_RxHeaderTypeDef		RxHeader;
 uint8_t					TxData[8];
 uint8_t					RxData[8];
 uint32_t 				TxMailbox;
+
+/* CAN message dictionary */
+static CAN_msg_t CAN_dict[]	=
+{
+		// ATHENA ECU MSGS messages
+		{0x200, STD, 0, 0, "ATHENA1"}, //ATHENA 1 (0)
+		{0x310, STD, 0, 0, "ATHENA2"}, //ATHENA 1 (1)
+		{0x312, STD, 0, 0, "ATHENA3"}, //ATHENA 1 (2)
+
+		// EMUS BMS messages
+		{0x1B6, STD, 0, 0, "EMUS1"}, // EMUS BMS (3)
+		{0x1B7, STD, 0, 0, "EMUS2"}, // EMSU BMS (4)
+		{0x1BA, STD, 0, 0, "EMUS3"}, // EMSU BMS (5)
+
+		// BAMOCAR messages
+		{0x180, STD, 0x30, 0, "BAMO1"}, // BAMOCAR 1 - Motor RPM (6)
+		{0x180, STD, 0x5F, 0, "BAMO2"}, // BAMOCAR 2 - Motor Current // change to reg 27..? (7)
+		{0x180, STD, 0xA0, 0, "BAMO3"}, // BAMOCAR 3 - Motor Torque (8)
+		{0x180, STD, 0x8A, 0, "BAMO4"}, // BAMOCAR 4 - Motor Voltage (9)
+		{0x180, STD, 0xE1, 0, "BAMO5"}, // BAMOCAR 5 - BAMOCAR D_OUT2 (10)
+		{0x180, STD, 0x8F, 0, "BAMO6"}, // BAMOCAR 6 - BAMOCAR_Fault (11)
+		{0x180, STD, 0xEB, 0, "BAMO7"}, // BAMOCAR 7 - BAMOCAR Bus Voltage (12)
+		{0x180, STD, 0xE0, 0, "BAMO8"}, // BAMOCAR 8 - BAMOCAR D_OUT 1 (13)
+};
+
+/* CAN message input maps */
+input_map_t ATHENA1_map =
+{
+		{ENG_REV_COUNT, 0, 0, 2},
+		{ENG_RPM, 2, 0, 2},
+		{ENG_TPS, 4, 0, 1},
+		{ENG_MAP, 6, 0, 2}
+};
+
+input_map_t ATHENA2_map =
+{
+		{ENG_TEMP, 0, 0, 1},
+		{AIR_TEMP, 1, 0, 1},
+		{OIL_TEMP, 2, 0, 1},
+		{KL15_BATT_VOLTAGE, 3, 0, 1},
+		{KL30_BATT_VOLTAGE, 4, 0, 1},
+		{BARO, 6, 0, 2},
+};
+
+input_map_t ATHENA3_map =
+{
+		{FLAG_OVERHEAT, 4, 5, 1},
+		{ACTIVE_MAP, 5, 0, 1},
+};
+
+input_map_t EMUS1_map =
+{
+		{MIN_CELL_VOLTAGE, 0, 0, 1},
+		{MAX_CELL_VOLTAGE, 1, 0, 1},
+		{AVG_CELL_VOLTAGE, 2, 0, 1},
+		{TOTAL_VOLTAGE, 3, 0, 4},		// bytes in the following order: 5, 3, 6, 4
+};
+
+input_map_t EMUS2_map =
+{
+		{MIN_CELL_TEMP, 0, 0, 1},
+		{MAX_CELL_TEMP, 1, 0, 1},
+		{AVG_CELL_TEMP, 2, 0, 1},
+};
+
+input_map_t EMUS3_map =
+{
+		{BATT_CURRENT, 0, 0, 2},
+		{BATT_CHARGE, 2, 0, 2},
+		{BATT_SOC, 6, 0, 1},
+};
 
 static CAN_msg_t		demo_message;	// CAN message received through demo
 
@@ -85,17 +165,34 @@ void CAN_Rx_Task(void * parameters)
 
 	while(1)
 	{
-		/* Read all messages from queue and store in data table */
-		//while (uxQueueMessagesWaiting(RxQueue) > 0)
-		//{
-			/* get message from queue */
-			xQueueReceive( RxQueue, &Rx_msg, portMAX_DELAY );
+		/* get message from queue */
+		xQueueReceive( RxQueue, &Rx_msg, portMAX_DELAY );
 
-			/* store message in data table */
-			demo_message.data = Rx_msg.data;
-			demo_message.msg_ID = Rx_msg.Rx_header.StdId;
-			demo_message.msg_type = Rx_msg.Rx_header.IDE;
-		//}
+		/* filter messages */
+		uint8_t done = 0;
+		uint8_t i = 0;
+		while(i < sizeof(CAN_dict)/sizeof(CAN_msg_t) && !done)
+		{
+			if (Rx_msg.Rx_header.StdId == CAN_dict[i].msg_ID)
+			{
+				if ((Rx_msg.Rx_header.StdId == 0x180) && (Rx_msg.data._8[0] == CAN_dict[i].reg_ID))
+				{
+					// process as Bamocar message
+					done = 1;
+				}
+				else
+				{
+					// process as regular (not Bamocar) message
+					done = 1;
+				}
+			}
+			i++;
+		}
+
+		/* store message in data table */
+		demo_message.data = Rx_msg.data;
+		demo_message.msg_ID = Rx_msg.Rx_header.StdId;
+		demo_message.msg_type = Rx_msg.Rx_header.IDE;
 	}
 }
 
@@ -251,103 +348,6 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
   xQueueSendFromISR(RxQueue, &Rx_msg, NULL);
 
 }
-
-
-
-/**
-  * @brief  Configures the CAN, transmit and receive by polling
-  * @param  None
-  * @retval PASSED if the reception is well done, FAILED in other case
-  */
-HAL_StatusTypeDef CAN_Polling(void)
-{
-  CAN_FilterTypeDef  sFilterConfig;
-
-  /*##-1- Configure the CAN peripheral #######################################*/
-  CanHandle.Instance = CANx;
-
-  CanHandle.Init.TimeTriggeredMode = DISABLE;
-  CanHandle.Init.AutoBusOff = DISABLE;
-  CanHandle.Init.AutoWakeUp = DISABLE;
-  CanHandle.Init.AutoRetransmission = ENABLE;
-  CanHandle.Init.ReceiveFifoLocked = DISABLE;
-  CanHandle.Init.TransmitFifoPriority = DISABLE;
-  CanHandle.Init.Mode = CAN_MODE_LOOPBACK;
-  CanHandle.Init.SyncJumpWidth = CAN_SJW_1TQ;
-  CanHandle.Init.TimeSeg1 = CAN_BS1_6TQ;
-  CanHandle.Init.TimeSeg2 = CAN_BS2_2TQ;
-  CanHandle.Init.Prescaler = 6;
-
-  if(HAL_CAN_Init(&CanHandle) != HAL_OK)
-  {
-    /* Initialization Error */
-    Error_Handler();
-  }
-  /*##-2- Configure the CAN Filter ###########################################*/
-  sFilterConfig.FilterBank = 0;
-  sFilterConfig.FilterMode = CAN_FILTERMODE_IDMASK;
-  sFilterConfig.FilterScale = CAN_FILTERSCALE_32BIT;
-  sFilterConfig.FilterIdHigh = 0x0000;
-  sFilterConfig.FilterIdLow = 0x0000;
-  sFilterConfig.FilterMaskIdHigh = 0x0000;
-  sFilterConfig.FilterMaskIdLow = 0x0000;
-  sFilterConfig.FilterFIFOAssignment = CAN_RX_FIFO0;
-  sFilterConfig.FilterActivation = ENABLE;
-  sFilterConfig.SlaveStartFilterBank = 14;
-
-  if(HAL_CAN_ConfigFilter(&CanHandle, &sFilterConfig) != HAL_OK)
-  {
-    /* Filter configuration Error */
-    Error_Handler();
-  }
-  /*##-3- Start the CAN peripheral ###########################################*/
-  if (HAL_CAN_Start(&CanHandle) != HAL_OK)
-  {
-    /* Start Error */
-    Error_Handler();
-  }
-  /*##-4- Start the Transmission process #####################################*/
-  TxHeader.StdId = 0x11;
-  TxHeader.RTR = CAN_RTR_DATA;
-  TxHeader.IDE = CAN_ID_STD;
-  TxHeader.DLC = 2;
-  TxHeader.TransmitGlobalTime = DISABLE;
-  TxData[0] = 0xCA;
-  TxData[1] = 0xFE;
-
-  /* Request transmission */
-  if(HAL_CAN_AddTxMessage(&CanHandle, &TxHeader, TxData, &TxMailbox) != HAL_OK)
-  {
-    /* Transmission request Error */
-    Error_Handler();
-  }
-
-  /* Wait transmission complete */
-  while(HAL_CAN_GetTxMailboxesFreeLevel(&CanHandle) != 3) {}
-  /*##-5- Start the Reception process ########################################*/
-  if(HAL_CAN_GetRxFifoFillLevel(&CanHandle, CAN_RX_FIFO0) != 1)
-  {
-    /* Reception Missing */
-    Error_Handler();
-  }
-  if(HAL_CAN_GetRxMessage(&CanHandle, CAN_RX_FIFO0, &RxHeader, RxData) != HAL_OK)
-  {
-    /* Reception Error */
-    Error_Handler();
-  }
-  if((RxHeader.StdId != 0x11)                     ||
-     (RxHeader.RTR != CAN_RTR_DATA)               ||
-     (RxHeader.IDE != CAN_ID_STD)                 ||
-     (RxHeader.DLC != 2)                          ||
-     ((RxData[0]<<8 | RxData[1]) != 0xCAFE))
-  {
-    /* Rx message Error */
-    return HAL_ERROR;
-  }
-  return HAL_OK; /* Test Passed */
-}
-
-
 
 
 /**
