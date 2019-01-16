@@ -177,7 +177,7 @@ void SPI_PLC_Set_Outputs(void)
 	VNI_Write.bit.IN7 = 0;
 	VNI_Write.bit.IN8 = 0;
 
-	set_SPI_check_bit_outputs(&VNI_Write);
+	set_SPI_parity_check_bit_outputs(&VNI_Write);
 }
 
 
@@ -186,7 +186,7 @@ void SPI_PLC_Set_Outputs(void)
   * @param	None
   * @retval	None
   */
-void set_SPI_check_bit_outputs(volatile VNI_Write_u_t *WriteValue)
+void set_SPI_parity_check_bit_outputs(volatile VNI_Write_u_t *WriteValue)
 {
 	WriteValue->bit.SPARE= 0;
 

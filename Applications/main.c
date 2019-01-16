@@ -58,39 +58,39 @@ int main(void)
 
 
 
-	  /* Initialize LED1 */
-	  LED_Init();
+	/* Initialize LED1 */
+	LED_Init();
 
-	  /* Configure the SPI1 parameters */
-	  Configure_SPI();
+	/* Configure the SPI1 parameters */
+	Configure_SPI();
 
-	  SPI_outputs_vector.safety = 1;
-	  SPI_outputs_vector.downshift_solenoid = 0;
-	  SPI_outputs_vector.ignition_kill = 1;
-	  SPI_outputs_vector.upshift_solenoid = 0;
-	  SPI_outputs_vector.ready_to_drive = 0;
-	  SPI_outputs_vector.rfg = 1;
+	SPI_outputs_vector.safety = 1;
+	SPI_outputs_vector.downshift_solenoid = 0;
+	SPI_outputs_vector.ignition_kill = 1;
+	SPI_outputs_vector.upshift_solenoid = 0;
+	SPI_outputs_vector.ready_to_drive = 0;
+	SPI_outputs_vector.rfg = 1;
 
-	  /* Enable the SPI1 peripheral */
-	  Activate_SPI();
+	/* Enable the SPI1 peripheral */
+	Activate_SPI();
 
-	  /* Initialize User push-button in EXTI mode */
-	  //UserButton_Init();
+	/* Initialize User push-button in EXTI mode */
+	//UserButton_Init();
 
-	  /* Wait for User push-button press to start transfer */
-	  //WaitForUserButtonPress();
-
-
-	  /* Create all tasks */
-	  BaseType_t status = taskCreateAll();
-
-	  /* Start RTOS Scheduler */
-	  vTaskStartScheduler();
+	/* Wait for User push-button press to start transfer */
+	//WaitForUserButtonPress();
 
 
-	  /* Wait for the end of the transfer and check received data */
-	  /* LED blinking FAST during waiting time */
-	  //WaitAndCheckEndOfTransfer();
+	/* Create all tasks */
+	BaseType_t status = taskCreateAll();
+
+	/* Start RTOS Scheduler */
+	vTaskStartScheduler();
+
+
+	/* Wait for the end of the transfer and check received data */
+	/* LED blinking FAST during waiting time */
+	//WaitAndCheckEndOfTransfer();
 
 	/* Function should never reach this point once scheduler is started */
 	/* Infinite loop */
