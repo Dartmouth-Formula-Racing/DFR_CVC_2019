@@ -65,9 +65,6 @@ void CANx_RX_IRQHandler(void)
 void USER_BUTTON_IRQHANDLER(void)
 {
 
-	initiate_SPI_transmission();
-
-
   /* Manage Flags */
   if(LL_EXTI_IsActiveFlag_0_31(USER_BUTTON_EXTI_LINE) != RESET)
   {

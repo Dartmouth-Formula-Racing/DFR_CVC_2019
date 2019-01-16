@@ -20,21 +20,13 @@
   */
 void _10_ms_Task(void * parameters)
 {
-	vTaskDelay((TickType_t) 10/portTICK_PERIOD_MS);
+	while(1)
+	{
+		vTaskDelay((TickType_t) 10/portTICK_PERIOD_MS);
 
 
-/*
-	SPI_outputs_vector.safety = 1;
-	SPI_outputs_vector.ready_to_drive = 0;
-	SPI_outputs_vector.rfg = 0;
-	SPI_outputs_vector.ignition_kill = 1;
-	SPI_outputs_vector.downshift_solenoid = 0;
-	SPI_outputs_vector.upshift_solenoid = 0;
-
-	SPI_Routine();
-
-*/
-
+		initiate_SPI_transmission();
+	}
 }
 
 

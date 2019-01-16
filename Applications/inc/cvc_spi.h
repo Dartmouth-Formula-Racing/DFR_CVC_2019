@@ -36,6 +36,7 @@
 #include "stm32f7xx_ll_pwr.h"
 
 #include "stm32f7xx_it.h"
+#include "FreeRTOS.h"
 
 
 /**

@@ -56,11 +56,7 @@ int main(void)
 	/* Initialize CAN */
 	CAN_Init();
 
-	/* Create all tasks */
-	//BaseType_t status = taskCreateAll();
 
-	/* Start RTOS Scheduler */
-	//vTaskStartScheduler();
 
 	  /* Initialize LED1 */
 	  LED_Init();
@@ -79,16 +75,22 @@ int main(void)
 	  Activate_SPI();
 
 	  /* Initialize User push-button in EXTI mode */
-	  UserButton_Init();
+	  //UserButton_Init();
 
 	  /* Wait for User push-button press to start transfer */
-	  WaitForUserButtonPress();
+	  //WaitForUserButtonPress();
 
+
+	  /* Create all tasks */
+	  BaseType_t status = taskCreateAll();
+
+	  /* Start RTOS Scheduler */
+	  vTaskStartScheduler();
 
 
 	  /* Wait for the end of the transfer and check received data */
 	  /* LED blinking FAST during waiting time */
-	  WaitAndCheckEndOfTransfer();
+	  //WaitAndCheckEndOfTransfer();
 
 	/* Function should never reach this point once scheduler is started */
 	/* Infinite loop */

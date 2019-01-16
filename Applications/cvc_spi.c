@@ -292,10 +292,15 @@ void Configure_SPI(void)
   LL_GPIO_SetOutputPin(GPIOE, GPIO_PIN_9);
 
   /* (2) Configure NVIC for SPI1 transfer complete/error interrupts **********/
+
+  NVIC_SetPriorityGrouping(NVIC_PRIORITYGROUP_4); //for free rtos on stm32
+
   /* Set priority for SPI1_IRQn */
-  NVIC_SetPriority(SPI1_IRQn, 0);
+  NVIC_SetPriority(SPI1_IRQn, configMAX_SYSCALL_INTERRUPT_PRIORITY);
   /* Enable SPI1_IRQn           */
   NVIC_EnableIRQ(SPI1_IRQn);
+
+
 
   /* (3) Configure SPI1 functional parameters ********************************/
 
