@@ -36,7 +36,9 @@ void _10_ms_Task(void * parameters)
   */
 void _50_ms_Task(void * parameters)
 {
-	vTaskDelay((TickType_t) 50/portTICK_PERIOD_MS);
-
+	while(1)
+	{
+		vTaskDelay((TickType_t) 50/portTICK_PERIOD_MS);
+	}
 
 }
