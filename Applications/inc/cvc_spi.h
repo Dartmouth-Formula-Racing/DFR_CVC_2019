@@ -214,7 +214,7 @@ void set_SPI_check_bit_outputs(volatile VNI_Write_u_t *WriteValue);
 
 void SPI_PLC_Set_Inputs(void);
 void SPI_PLC_Set_Outputs(void);
-void set_SPI_check_bit_outputs(volatile VNI_Write_u_t *WriteValue);
+void set_SPI_parity_check_bit_outputs(volatile VNI_Write_u_t *WriteValue);
 
 
 CLT_Read_u_t debounce_SPI_input(void);
@@ -225,9 +225,6 @@ void SPI1_Tx_Callback(void);
 void SPI1_TransferError_Callback(void);
 
 void LED_Init(void);
-
-void WaitAndCheckEndOfTransfer(void);
-uint8_t Buffercmp8(uint8_t* pBuffer1, uint8_t* pBuffer2, uint8_t BufferLength);
 
 
 void     UserButton_Init(void);

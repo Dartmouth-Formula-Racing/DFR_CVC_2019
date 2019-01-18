@@ -90,7 +90,6 @@ int main(void)
 
 	/* Wait for the end of the transfer and check received data */
 	/* LED blinking FAST during waiting time */
-	//WaitAndCheckEndOfTransfer();
 
 	/* Function should never reach this point once scheduler is started */
 	/* Infinite loop */

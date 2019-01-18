@@ -320,7 +320,6 @@ void Configure_SPI(void)
 
   LL_SPI_SetMode(SPI1, LL_SPI_MODE_MASTER);
 
-
   /* Configure SPI1 transfer interrupts */
   /* Enable RXNE  Interrupt             */
   LL_SPI_EnableIT_RXNE(SPI1);
@@ -343,65 +342,6 @@ void Activate_SPI(void)
   LL_SPI_Enable(SPI1);
 }
 
-
-
-/**
-  * @brief  Wait end of transfer and check if received Data are well.
-  * @param  None
-  * @retval None
-  */
-void WaitAndCheckEndOfTransfer(void)
-{
-  /* 1 - Wait end of transmission */
-  while (ubTransmitIndex != ubNbDataToTransmit)
-  {
-  }
-  /* Disable TXE Interrupt */
-  LL_SPI_DisableIT_TXE(SPI1);
-
-  /* 2 - Wait end of reception */
-  while (ubNbDataToReceive > ubReceiveIndex)
-  {
-  }
-  /* Disable RXNE Interrupt */
-  LL_SPI_DisableIT_RXNE(SPI1);
-
-  /* 3 - Compare Transmit data to receive data */
-  if(Buffercmp8((uint8_t*)aTxBuffer, (uint8_t*)aRxBuffer, ubNbDataToTransmit))
-  {
-    /* Processing Error */
-    LED_Blinking(LED_BLINK_ERROR);
-  }
-  else
-  {
-    /* Turn On Led if data are well received */
-	LL_GPIO_SetOutputPin(LED1_GPIO_PORT, LED1_PIN);
-  }
-}
-
-/**
-* @brief Compares two 8-bit buffers and returns the comparison result.
-* @param pBuffer1: pointer to the source buffer to be compared to.
-* @param pBuffer2: pointer to the second source buffer to be compared to the first.
-* @param BufferLength: buffer's length.
-* @retval   0: Comparison is OK (the two Buffers are identical)
-*           Value different from 0: Comparison is NOK (Buffers are different)
-*/
-uint8_t Buffercmp8(uint8_t* pBuffer1, uint8_t* pBuffer2, uint8_t BufferLength)
-{
-  while (BufferLength--)
-  {
-    if (*pBuffer1 != *pBuffer2)
-    {
-      return 1;
-    }
-
-    pBuffer1++;
-    pBuffer2++;
-  }
-
-  return 0;
-}
 
 
 
