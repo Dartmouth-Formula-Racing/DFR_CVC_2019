@@ -13,6 +13,37 @@
 #include "queue.h"
 
 /* Private TypeDefs ---------------------------------------------------------------*/
+
+/* bamocar data struct */
+typedef struct bamocar_data_16_s
+{
+	uint8_t		reg_ID;
+	uint16_t	data;
+} bamocar_data_16_t;
+
+/* CAN data union */
+typedef union CAN_data_u
+{
+	uint64_t	_64;
+	uint32_t	_32[2];
+	uint16_t	_16[4];
+	uint8_t		_8[8];
+	float		_float[2];
+	double		_double;
+
+	bamocar_data_16_t	bamocar_data_16;
+
+} CAN_data_t;
+
+/* Struct to hold CAN input map (follows big endian) */
+typedef struct input_map_s
+{
+	input_index_t 	index;			/* index in inputs array */
+	uint8_t 		start_byte;		/* input start byte (MSB) in CAN data field */
+	uint8_t 		start_bit;		/* input start bit */
+	uint8_t 		size;			/* input size in bytes */
+} input_map_t;
+
 /* Struct to hold messages used in CAN message queues */
 typedef struct queue_msg_s
 {
@@ -24,14 +55,31 @@ typedef struct queue_msg_s
 	CAN_data_t data;
 } queue_msg_t;
 
-/* Struct to hold CAN input map */
-typedef struct input_map_s
+/* Prototype that all CAN parser functions must use */
+typedef void (*CAN_parser_t)(queue_msg_t q_msg, uint8_t CAN_idx);
+
+/* CAN message type for use in CAN dictionary */
+typedef struct CAN_msg_s
 {
-	input_index_t index;	/* index in inputs array */
-	uint8_t start_byte;		/* input start byte */
-	uint8_t start_bit;		/* input start bit */
-	uint8_t size;			/* input size in bytes */
-} input_map_t;
+	uint32_t		msg_ID;			// Message ID
+	uint32_t		msg_type;		// STD or EXT
+	uint32_t 		reg_ID;			// reg_ID (for bamocar messages)
+	CAN_data_t		data;			// Message data
+	char 			name[10];		// internal message name
+	input_map_t *   input_map;		// input_map for data
+	uint8_t			num_inputs;		// number of inputs
+	CAN_parser_t	parser;			// parser function
+
+} CAN_msg_t;
+
+
+
+/* Private Function Prototypes ---------------------------------------------------------------*/
+static void CAN_Config(void);
+static void CAN_parser_std(queue_msg_t q_msg, uint8_t CAN_idx);
+static void CAN_parser_EMUS1(queue_msg_t q_msg, uint8_t CAN_idx);
+static void CAN_parser_BAMO(queue_msg_t q_msg, uint8_t CAN_idx);
+
 
 /* Private Variables ---------------------------------------------------------------*/
 CAN_HandleTypeDef		CanHandle;
@@ -41,32 +89,9 @@ uint8_t					TxData[8];
 uint8_t					RxData[8];
 uint32_t 				TxMailbox;
 
-/* CAN message dictionary */
-static CAN_msg_t CAN_dict[]	=
-{
-		// ATHENA ECU MSGS messages
-		{0x200, STD, 0, 0, "ATHENA1"}, //ATHENA 1 (0)
-		{0x310, STD, 0, 0, "ATHENA2"}, //ATHENA 1 (1)
-		{0x312, STD, 0, 0, "ATHENA3"}, //ATHENA 1 (2)
-
-		// EMUS BMS messages
-		{0x1B6, STD, 0, 0, "EMUS1"}, // EMUS BMS (3)
-		{0x1B7, STD, 0, 0, "EMUS2"}, // EMSU BMS (4)
-		{0x1BA, STD, 0, 0, "EMUS3"}, // EMSU BMS (5)
-
-		// BAMOCAR messages
-		{0x180, STD, 0x30, 0, "BAMO1"}, // BAMOCAR 1 - Motor RPM (6)
-		{0x180, STD, 0x5F, 0, "BAMO2"}, // BAMOCAR 2 - Motor Current // change to reg 27..? (7)
-		{0x180, STD, 0xA0, 0, "BAMO3"}, // BAMOCAR 3 - Motor Torque (8)
-		{0x180, STD, 0x8A, 0, "BAMO4"}, // BAMOCAR 4 - Motor Voltage (9)
-		{0x180, STD, 0xE1, 0, "BAMO5"}, // BAMOCAR 5 - BAMOCAR D_OUT2 (10)
-		{0x180, STD, 0x8F, 0, "BAMO6"}, // BAMOCAR 6 - BAMOCAR_Fault (11)
-		{0x180, STD, 0xEB, 0, "BAMO7"}, // BAMOCAR 7 - BAMOCAR Bus Voltage (12)
-		{0x180, STD, 0xE0, 0, "BAMO8"}, // BAMOCAR 8 - BAMOCAR D_OUT 1 (13)
-};
 
 /* CAN message input maps */
-input_map_t ATHENA1_map =
+input_map_t ATHENA1_map[] =
 {
 		{ENG_REV_COUNT, 0, 0, 2},
 		{ENG_RPM, 2, 0, 2},
@@ -74,7 +99,7 @@ input_map_t ATHENA1_map =
 		{ENG_MAP, 6, 0, 2}
 };
 
-input_map_t ATHENA2_map =
+input_map_t ATHENA2_map[] =
 {
 		{ENG_TEMP, 0, 0, 1},
 		{AIR_TEMP, 1, 0, 1},
@@ -84,32 +109,49 @@ input_map_t ATHENA2_map =
 		{BARO, 6, 0, 2},
 };
 
-input_map_t ATHENA3_map =
+input_map_t ATHENA3_map[] =
 {
 		{FLAG_OVERHEAT, 4, 5, 1},
 		{ACTIVE_MAP, 5, 0, 1},
 };
 
-input_map_t EMUS1_map =
-{
-		{MIN_CELL_VOLTAGE, 0, 0, 1},
-		{MAX_CELL_VOLTAGE, 1, 0, 1},
-		{AVG_CELL_VOLTAGE, 2, 0, 1},
-		{TOTAL_VOLTAGE, 3, 0, 4},		// bytes in the following order: 5, 3, 6, 4
-};
-
-input_map_t EMUS2_map =
+input_map_t EMUS2_map[] =
 {
 		{MIN_CELL_TEMP, 0, 0, 1},
 		{MAX_CELL_TEMP, 1, 0, 1},
 		{AVG_CELL_TEMP, 2, 0, 1},
 };
 
-input_map_t EMUS3_map =
+input_map_t EMUS3_map[] =
 {
 		{BATT_CURRENT, 0, 0, 2},
 		{BATT_CHARGE, 2, 0, 2},
 		{BATT_SOC, 6, 0, 1},
+};
+
+
+/* CAN message dictionary */
+static CAN_msg_t CAN_dict[]	=
+{
+		// ATHENA ECU MSGS messages
+		{0x200, STD, 0, 0, "ATHENA1", ATHENA1_map, 4, CAN_parser_std},	// ATHENA 1 (0)
+		{0x310, STD, 0, 0, "ATHENA2", ATHENA2_map, 6, CAN_parser_std},	// ATHENA 1 (1)
+		{0x312, STD, 0, 0, "ATHENA3", ATHENA3_map, 2, CAN_parser_std},	// ATHENA 1 (2)
+
+		// EMUS BMS messages
+		{0x1B6, STD, 0, 0, "EMUS1", NULL, 0, CAN_parser_EMUS1}, 		// EMUS BMS (3)
+		{0x1B7, STD, 0, 0, "EMUS2", EMUS2_map, 3, CAN_parser_std}, 		// EMSU BMS (4)
+		{0x1BA, STD, 0, 0, "EMUS3", EMUS3_map, 3, CAN_parser_std}, 		// EMSU BMS (5)
+
+		// BAMOCAR messages
+		{0x180, STD, 0x30, 0, "BAMO1", NULL, 0, CAN_parser_BAMO}, 		// BAMOCAR 1 - Motor RPM (6)
+		{0x180, STD, 0x5F, 0, "BAMO2", NULL, 0, CAN_parser_BAMO}, 		// BAMOCAR 2 - Motor Current // change to reg 27..? (7)
+		{0x180, STD, 0xA0, 0, "BAMO3", NULL, 0, CAN_parser_BAMO}, 		// BAMOCAR 3 - Motor Torque (8)
+		{0x180, STD, 0x8A, 0, "BAMO4", NULL, 0, CAN_parser_BAMO}, 		// BAMOCAR 4 - Motor Voltage (9)
+		{0x180, STD, 0xE1, 0, "BAMO5", NULL, 0, CAN_parser_BAMO}, 		// BAMOCAR 5 - BAMOCAR D_OUT2 (10)
+		{0x180, STD, 0x8F, 0, "BAMO6", NULL, 0, CAN_parser_BAMO}, 		// BAMOCAR 6 - BAMOCAR_Fault (11)
+		{0x180, STD, 0xEB, 0, "BAMO7", NULL, 0, CAN_parser_BAMO}, 		// BAMOCAR 7 - BAMOCAR Bus Voltage (12)
+		{0x180, STD, 0xE0, 0, "BAMO8", NULL, 0, CAN_parser_BAMO}, 		// BAMOCAR 8 - BAMOCAR D_OUT 1 (13)
 };
 
 static CAN_msg_t		demo_message;	// CAN message received through demo
@@ -118,8 +160,7 @@ static QueueHandle_t RxQueue = NULL;
 static QueueHandle_t TxQueue = NULL;
 //static QueueHandle_t testQueue = NULL;
 
-/* Private Function Prototypes ---------------------------------------------------------------*/
-static void CAN_Config(void);
+
 
 /* Task Functions ---------------------------------------------------------------*/
 /**
@@ -171,28 +212,26 @@ void CAN_Rx_Task(void * parameters)
 		/* filter messages */
 		uint8_t done = 0;
 		uint8_t i = 0;
+
+		/* search through CAN dictionary until message is found */
 		while(i < sizeof(CAN_dict)/sizeof(CAN_msg_t) && !done)
 		{
 			if (Rx_msg.Rx_header.StdId == CAN_dict[i].msg_ID)
 			{
-				if ((Rx_msg.Rx_header.StdId == 0x180) && (Rx_msg.data._8[0] == CAN_dict[i].reg_ID))
+				if (Rx_msg.Rx_header.StdId != 0x180)
 				{
-					// process as Bamocar message
+					CAN_dict[i].parser(Rx_msg, i);	// call message parser
 					done = 1;
 				}
-				else
+				else if (Rx_msg.data._8[0] == CAN_dict[i].reg_ID)
 				{
-					// process as regular (not Bamocar) message
+					CAN_dict[i].parser(Rx_msg, i);
 					done = 1;
 				}
 			}
 			i++;
 		}
 
-		/* store message in data table */
-		demo_message.data = Rx_msg.data;
-		demo_message.msg_ID = Rx_msg.Rx_header.StdId;
-		demo_message.msg_type = Rx_msg.Rx_header.IDE;
 	}
 }
 
@@ -204,27 +243,112 @@ void CAN_Tx_Task(void * parameters)
 	queue_msg_t Tx_msg;
 	while(1)
 	{
-		/* Read all messages from queue and send to bus */
-		//while (uxQueueMessagesWaiting(TxQueue) > 0)
-		//{
-			/* get message from test queue */
-			uint8_t LED_receive;
-			//xQueueReceive(testQueue, &LED_receive, portMAX_DELAY);
-			//LED_Display(LED_receive);
+		/* get message from queue */
+		xQueueReceive( TxQueue, &Tx_msg, portMAX_DELAY );
 
-			/* get message from queue */
-			xQueueReceive( TxQueue, &Tx_msg, portMAX_DELAY );
-
-			if (HAL_CAN_AddTxMessage(&CanHandle, &Tx_msg.Tx_header, Tx_msg.data._8, &TxMailbox) != HAL_OK)
-			{
-				/* Transmission request error */
-			}
-
-		//}
+		if (HAL_CAN_AddTxMessage(&CanHandle, &Tx_msg.Tx_header, Tx_msg.data._8, &TxMailbox) != HAL_OK)
+		{
+			/* Transmission request error */
+		}
 	}
 }
 
 /* Non-Task Functions ---------------------------------------------------------------*/
+
+/**
+ * @brief standard parser for unpacking CAN functions into CAN_inputs table (big endian)
+ * @param q_msg: incoming CAN message
+ * @param CAN_msg: reference message from CAN_dict w/ message metadata
+ */
+static void CAN_parser_std(queue_msg_t q_msg, uint8_t CAN_idx)
+{
+	/* iterate over all inputs in data field */
+	for (int i = 0; i < CAN_dict[CAN_idx].num_inputs; i++)
+	{
+		uint32_t result = 0;
+		input_map_t input = CAN_dict[CAN_idx].input_map[i];
+
+		/* iterate over all bytes of input */
+		for (int j = 0; j < input.size; j++)
+		{
+			result = result << 8 | (uint32_t) (q_msg.data._8[input.start_byte + j] << input.start_bit);
+		}
+
+		/* store result in CAN_inputs table */
+		CAN_inputs[input.index] = result;
+	}
+}
+
+/**
+ * @brief special parser for EMUS1 CAN message
+ * @param q_msg: incoming CAN message
+ * @param CAN_msg: reference message from CAN_dict w/ message metadata
+ */
+static void CAN_parser_EMUS1(queue_msg_t q_msg, uint8_t CAN_idx)
+{
+	CAN_inputs[MIN_CELL_VOLTAGE] = q_msg.data._8[0];
+	CAN_inputs[MAX_CELL_VOLTAGE] = q_msg.data._8[1];
+	CAN_inputs[AVG_CELL_VOLTAGE] = q_msg.data._8[2];
+	CAN_inputs[TOTAL_VOLTAGE] = (uint32_t) q_msg.data._8[5] << 24 | (uint32_t) q_msg.data._8[3] << 16 | (uint32_t) q_msg.data._8[6] << 8 | (uint32_t) q_msg.data._8[4];
+}
+
+/**
+ * @brief special parser for Bamocar CAN messages
+ * @param q_msg: incoming CAN message
+ * @param CAN_msg: reference message from CAN_dict w/ message metadata
+ */
+static void CAN_parser_BAMO(queue_msg_t q_msg, uint8_t CAN_idx)
+{
+	uint32_t result = 0;
+
+	/* unpack data based on DLC (little endian) */
+	if (q_msg.Rx_header.DLC == 0x3)
+	{
+		/* 2 data bytes */
+		result = (uint32_t) q_msg.data._8[2] << 8 | (uint32_t) q_msg.data._8[1];
+	}
+	else
+	{
+		/* 4 data bytes */
+		result = (uint32_t) q_msg.data._8[4] << 24 | (uint32_t) q_msg.data._8[3] << 16 | (uint32_t) q_msg.data._8[2] << 8 | (uint32_t) q_msg.data._8[1];
+	}
+
+	/* store in CAN_inputs table */
+	switch (CAN_dict[CAN_idx].reg_ID)
+	{
+	case 0x30:
+		CAN_inputs[MOTOR_RPM] = result;
+		break;
+	case 0x5F:
+		CAN_inputs[MOTOR_CURRENT] = result;
+		break;
+	case 0xA0:
+		CAN_inputs[MOTOR_TORQUE] = result;
+		break;
+	case 0x8A:
+		CAN_inputs[MOTOR_VOLTAGE] = result;
+		break;
+	case 0x49:
+		CAN_inputs[MOTOR_TEMP] = result;
+		break;
+	case 0x8F:
+		CAN_inputs[BAMO_FAULT] = result;
+		break;
+	case 0xEB:
+		CAN_inputs[BAMO_BUS_VOLTAGE] = result;
+		break;
+	case 0xE0:
+		CAN_inputs[BAMO_D_1_OUT_1] = result;
+		break;
+	case 0xE1:
+		CAN_inputs[BAMO_D_1_OUT_2] = result;
+		break;
+	default:
+		break;
+	}
+
+}
+
 
 /**
  * @brief	Initialize CAN

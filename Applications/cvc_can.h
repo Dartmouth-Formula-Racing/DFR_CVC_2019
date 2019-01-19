@@ -43,35 +43,49 @@
 #define EXT							CAN_ID_EXT
 
 /* Type Definitions ------------------------------------------------------------------------*/
-typedef struct bamocar_data_16_s
+typedef enum input_index_e
 {
-	uint8_t		reg_ID;
-	uint16_t	data;
-} bamocar_data_16_t;
+	BAMO_STATUS = 0,	// 0
+	MOTOR_RPM,			// 1
+	MOTOR_CURRENT,		// 2
+	MOTOR_TORQUE,		// 3
+	MOTOR_VOLTAGE,		// 4
+	MOTOR_TEMP,			// 5
+	BAMO_FAULT,			// 6
+	BAMO_BUS_VOLTAGE,	// 7
+	BAMO_D_1_OUT_1,		// 8
+	BAMO_D_1_OUT_2,		// 9
+	ENG_REV_COUNT,		// 10
+	ENG_RPM,			// 11
+	ENG_TPS,			// 12, Throttle Position %
+	ENG_MAP,			// 13, Manifold Air Pressure
+	ENG_TEMP,			// 14
+	AIR_TEMP,			// 15
+	OIL_TEMP,			// 16
+	KL15_BATT_VOLTAGE,	// 17
+	KL30_BATT_VOLTAGE,	// 18
+	BARO,				// 19
+	FLAG_OVERHEAT,		// 20
+	ACTIVE_MAP,			// 21
+	MIN_CELL_VOLTAGE,	// 22
+	MAX_CELL_VOLTAGE,	// 23
+	AVG_CELL_VOLTAGE,	// 24
+	TOTAL_VOLTAGE,		// 25
+	MIN_CELL_TEMP,		// 26
+	MAX_CELL_TEMP,		// 27
+	AVG_CELL_TEMP,		// 28
+	BATT_CURRENT,		// 29
+	BATT_CHARGE,		// 30
+	BATT_SOC,			// 31
 
-typedef union CAN_data_u
-{
-	uint64_t	_64;
-	uint32_t	_32[2];
-	uint16_t	_16[4];
-	uint8_t		_8[8];
-	float		_float[2];
-	double		_double;
+	NUM_INPUTS,			// 32, Must be last!
 
-	bamocar_data_16_t	bamocar_data_16;
-
-} CAN_data_t;
+} input_index_t;
 
 
-typedef struct CAN_msg_s
-{
-	uint32_t	msg_ID;		// Message ID
-	uint32_t	msg_type;	// STD or EXT
-	uint32_t 	reg_ID;		// reg_ID (for bamocar messages)
-	CAN_data_t	data;		// Message data
-	char 		name[10];	// internal message name
+/* Variables to Export ------------------------------------------------------------------------*/
 
-} CAN_msg_t;
+uint32_t CAN_inputs[NUM_INPUTS];
 
 /* Function Prototypes ------------------------------------------------------------------------*/
 void CAN_Init(void)	;
@@ -81,47 +95,6 @@ void CAN_Demo_Task(void * parameters);
 void CAN_Rx_Task(void * parameters);
 void CAN_Tx_Task(void * parameters);
 
-/* Variables to Export ------------------------------------------------------------------------*/
-typedef enum input_index_e
-{
-	BAMO_STATUS = 0,
-	MOTOR_RPM,
-	MOTOR_CURRENT,
-	MOTOR_TORQUE,
-	MOTOR_VOLTAGE,
-	MOTOR_TEMP,
-	BAMO_FAULT,
-	BAMO_BUS_VOLTAGE,
-	BAMO_D_1_OUT_1,
-	BAMO_D_1_OUT_2,
-	ENG_REV_COUNT,
-	ENG_RPM,
-	ENG_TPS,			// Throttle Position %
-	ENG_MAP,			// Manifold Air Pressure
-	ENG_TEMP,
-	AIR_TEMP,
-	OIL_TEMP,
-	KL15_BATT_VOLTAGE,
-	KL30_BATT_VOLTAGE,
-	BARO,
-	FLAG_OVERHEAT,
-	ACTIVE_MAP,
-	MIN_CELL_VOLTAGE,
-	MAX_CELL_VOLTAGE,
-	AVG_CELL_VOLTAGE,
-	TOTAL_VOLTAGE,
-	MIN_CELL_TEMP,
-	MAX_CELL_TEMP,
-	AVG_CELL_TEMP,
-	BATT_CURRENT,
-	BATT_CHARGE,
-	BATT_SOC,
-
-	NUM_INPUTS,			// Must be last!
-
-} input_index_t;
-
-uint32_t CAN_inputs[NUM_INPUTS];
 
 
 #endif /* CVC_CAN_H_ */
