@@ -8,22 +8,6 @@
 #ifndef INC_CVC_SPI_H_
 #define INC_CVC_SPI_H_
 
-/* Temporary defines of LED blink times */
- /**
-  * @brief Toggle periods for various blinking modes
-  */
-#define LED_BLINK_FAST  200
-#define LED_BLINK_SLOW  500
-#define LED_BLINK_ERROR 1000
-
-/**
-  * @brief LED1
-  */
-#define LED1_PIN                           LL_GPIO_PIN_0
-#define LED1_GPIO_PORT                     GPIOB
-#define LED1_GPIO_CLK_ENABLE()             LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOB)
-
-
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f7xx_ll_bus.h"
@@ -37,31 +21,6 @@
 
 #include "stm32f7xx_it.h"
 #include "FreeRTOS.h"
-
-
-/**
-  * @brief Key push-button
-  */
-#define USER_BUTTON_PIN                         LL_GPIO_PIN_13
-#define USER_BUTTON_GPIO_PORT                   GPIOC
-#define USER_BUTTON_GPIO_CLK_ENABLE()           LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOC)
-#define USER_BUTTON_EXTI_LINE                   LL_EXTI_LINE_13
-#define USER_BUTTON_EXTI_IRQn                   EXTI15_10_IRQn
-#define USER_BUTTON_EXTI_LINE_ENABLE()          LL_EXTI_EnableIT_0_31(USER_BUTTON_EXTI_LINE)
-#define USER_BUTTON_EXTI_FALLING_TRIG_ENABLE()  LL_EXTI_EnableFallingTrig_0_31(USER_BUTTON_EXTI_LINE)
-#define USER_BUTTON_SYSCFG_SET_EXTI()           do {                                                                     \
-                                                  LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_SYSCFG);                  \
-                                                  LL_SYSCFG_SetEXTISource(LL_SYSCFG_EXTI_PORTC, LL_SYSCFG_EXTI_LINE13);  \
-                                                } while(0)
-#define USER_BUTTON_IRQHANDLER                  EXTI15_10_IRQHandler
-
-
-
-/* Uncomment this line to use the board as master, if not it is used as slave */
-//#define MASTER_BOARD
-
-
-
 
 
 /* Typedefs ----------------------------------------------------------*/
@@ -193,8 +152,6 @@ extern volatile	CLT_Read_u_t CLT_Read;
 extern volatile uint16_t	CLT_Write;	//random 16 bits to initiate transfer with CLT
 extern volatile VNI_Read_u_t VNI_Read;
 
-
-
 extern volatile SPI_inputs_vector_t		SPI_inputs_vector;
 extern volatile SPI_outputs_vector_t	SPI_outputs_vector;
 
@@ -207,20 +164,14 @@ void Activate_SPI(void);
 
 void initiate_SPI_transmission(void);
 void SPI_routine(void);
+
 void add_to_SPI_input_buffer(uint16_t new_data);
-
-
-void set_SPI_check_bit_outputs(volatile VNI_Write_u_t *WriteValue);
 
 void SPI_PLC_Set_Inputs(void);
 void SPI_PLC_Set_Outputs(void);
 void set_SPI_parity_check_bit_outputs(volatile VNI_Write_u_t *WriteValue);
 
-
 CLT_Read_u_t debounce_SPI_input(void);
-
-
-
 
 
 #endif /* INC_CVC_SPI_H_ */

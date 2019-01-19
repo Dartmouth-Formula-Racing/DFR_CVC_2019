@@ -12,19 +12,6 @@
 #define		SPI_BUFFER_SIZE 	5
 
 
-/* Buffer used for transmission */
-uint8_t aTxBuffer[] = "**** SPI_TwoBoards_FullDuplex_IT communication **** SPI_TwoBoards_FullDuplex_IT communication **** SPI_TwoBoards_FullDuplex_IT communication ****";
-uint8_t ubNbDataToTransmit = sizeof(aTxBuffer);
-__IO uint8_t ubTransmitIndex = 0;
-
-/* Buffer used for reception */
-uint16_t aRxBuffer[sizeof(aTxBuffer)];
-uint8_t ubNbDataToReceive = sizeof(aTxBuffer);
-__IO uint8_t ubReceiveIndex = 0;
-
-
-
-
 /* External Variables ------------------------------------------------------------*/
 volatile CLT_Read_u_t			CLT_Read;
 volatile uint16_t				CLT_Write;
@@ -41,11 +28,13 @@ volatile SPI_outputs_vector_t	SPI_outputs_vector;
 /* Functions ---------------------------------------------------------------------*/
 
 /**
- *
- *
+  * @brief	Start SPI communication with PLC board
+  * @param	None
+  * @retval	None
  */
 void initiate_SPI_transmission(void)
 {
+	/* Begin transmission with PLC by writing CLT_Write (empty) to CLT chip */
 	LL_GPIO_ResetOutputPin(GPIOD, LL_GPIO_PIN_15);
 	LL_SPI_TransmitData16(SPI1, CLT_Write);
 	SPI_io_state = wait_for_CLT;
@@ -53,36 +42,45 @@ void initiate_SPI_transmission(void)
 
 volatile uint32_t SPI1_SR = 0;
 
+
+/**
+  * @brief	Conduct SPI data transfers with CLT and VNI chips on the PLC board. Called
+  * 			from SPI1_IRQHandler().
+  * @param	None
+  * @retval	None
+ */
 void SPI_routine(void)
 {
 	switch(SPI_io_state)
 	{
 		case(wait_for_CLT):
+
+			/* Read input pins from PLC (from the CLT chip) into CLT_Read */
 			LL_GPIO_SetOutputPin(GPIOD, LL_GPIO_PIN_15);
-
-			add_to_SPI_input_buffer((uint16_t)SPI1->DR);
-
+			add_to_SPI_input_buffer(LL_SPI_ReceiveData16(SPI1));
 			SPI1_SR = SPI1->SR;
-
 			CLT_Read = debounce_SPI_input();
 
-			SPI_PLC_Set_Inputs();
+			SPI_PLC_Set_Inputs();	// Store CLT_Read in SPI inputs vector
+			SPI_PLC_Set_Outputs();	// Set values of VNI_Write using outputs vector
 
-			SPI_PLC_Set_Outputs();
-
-
+			/* Set PLC output pins by transmitting VNI_Write */
 			LL_GPIO_ResetOutputPin(GPIOD, LL_GPIO_PIN_14);
 			LL_SPI_TransmitData16(SPI1, VNI_Write.word);
-			SPI_io_state = wait_for_VNI;
-			break;
-		case(wait_for_VNI):
-			LL_GPIO_SetOutputPin(GPIOD, LL_GPIO_PIN_14);
 
-			VNI_Read.word = SPI1->DR;
+			SPI_io_state = wait_for_VNI;	// Move to wait_for_VNI state
+			break;
+
+		case(wait_for_VNI):
+
+			/* Read inputs from the VNI chip */
+			LL_GPIO_SetOutputPin(GPIOD, LL_GPIO_PIN_14);
+			VNI_Read.word = LL_SPI_ReceiveData16(SPI1);
 			SPI1_SR = SPI1->SR;
 
-			SPI_io_state = wait_for_next_transmission;
+			SPI_io_state = wait_for_next_transmission;	// Move to waiting state
 			break;
+
 		default:
 			break;
 	};
@@ -94,6 +92,12 @@ int SPI_buffer_index = 0;
 
 CLT_Read_u_t CLT_read_buffer[SPI_BUFFER_SIZE] = {0};
 
+
+/**
+  * @brief	Add SPI data to input buffer
+  * @param	None
+  * @retval	None
+ */
 void add_to_SPI_input_buffer(uint16_t new_data)
 {
 	CLT_read_buffer[SPI_buffer_index].word = new_data;
@@ -113,6 +117,12 @@ CLT_Read_u_t all_zeroes;
 CLT_Read_u_t Or_temp;
 CLT_Read_u_t debounced_data = {0};
 
+
+/**
+  * @brief	Debounce data from SPI buffer before returning it to CLT_Read
+  * @param	None
+  * @retval	None
+ */
 CLT_Read_u_t debounce_SPI_input(void)
 {
 	all_ones.word = 0xFFFF;
@@ -226,97 +236,95 @@ void set_SPI_parity_check_bit_outputs(volatile VNI_Write_u_t *WriteValue)
   */
 void Configure_SPI(void)
 {
-  /* (1) Enables GPIO clock and configures the SPI1 pins ********************/
-  /* Enable the peripheral clock of GPIOA */
-  LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOA);
-  LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOD);
-  LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOE);
+	/* (1) Enables GPIO clock and configures the SPI1 pins ********************/
+	/* Enable the peripheral clock of GPIOA */
+	LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOA);
+	LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOD);
+	LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOE);
 
-  /* Configure SCK Pin connected to pin 10 of CN7 connector */
-  LL_GPIO_SetPinMode(GPIOA, LL_GPIO_PIN_5, LL_GPIO_MODE_ALTERNATE);
-  LL_GPIO_SetAFPin_0_7(GPIOA, LL_GPIO_PIN_5, LL_GPIO_AF_5);
-  LL_GPIO_SetPinSpeed(GPIOA, LL_GPIO_PIN_5, LL_GPIO_SPEED_FREQ_MEDIUM);
-  LL_GPIO_SetPinPull(GPIOA, LL_GPIO_PIN_5, LL_GPIO_PULL_DOWN);
-  LL_GPIO_SetPinOutputType(GPIOA, LL_GPIO_PIN_5, LL_GPIO_OUTPUT_PUSHPULL);
+	/* Configure SCK Pin connected to pin 10 of CN7 connector */
+	LL_GPIO_SetPinMode(GPIOA, LL_GPIO_PIN_5, LL_GPIO_MODE_ALTERNATE);
+	LL_GPIO_SetAFPin_0_7(GPIOA, LL_GPIO_PIN_5, LL_GPIO_AF_5);
+	LL_GPIO_SetPinSpeed(GPIOA, LL_GPIO_PIN_5, LL_GPIO_SPEED_FREQ_MEDIUM);
+	LL_GPIO_SetPinPull(GPIOA, LL_GPIO_PIN_5, LL_GPIO_PULL_DOWN);
+	LL_GPIO_SetPinOutputType(GPIOA, LL_GPIO_PIN_5, LL_GPIO_OUTPUT_PUSHPULL);
 
-  /* Configure MISO Pin connected to pin 12 of CN7 connector */
-  LL_GPIO_SetPinMode(GPIOA, LL_GPIO_PIN_6, LL_GPIO_MODE_ALTERNATE);
-  LL_GPIO_SetAFPin_0_7(GPIOA, LL_GPIO_PIN_6, LL_GPIO_AF_5);
-  LL_GPIO_SetPinSpeed(GPIOA, LL_GPIO_PIN_6, LL_GPIO_SPEED_FREQ_MEDIUM);
-  LL_GPIO_SetPinPull(GPIOA, LL_GPIO_PIN_6, LL_GPIO_PULL_UP);
-  LL_GPIO_SetPinOutputType(GPIOA, LL_GPIO_PIN_6, LL_GPIO_OUTPUT_OPENDRAIN);
+	/* Configure MISO Pin connected to pin 12 of CN7 connector */
+	LL_GPIO_SetPinMode(GPIOA, LL_GPIO_PIN_6, LL_GPIO_MODE_ALTERNATE);
+	LL_GPIO_SetAFPin_0_7(GPIOA, LL_GPIO_PIN_6, LL_GPIO_AF_5);
+	LL_GPIO_SetPinSpeed(GPIOA, LL_GPIO_PIN_6, LL_GPIO_SPEED_FREQ_MEDIUM);
+	LL_GPIO_SetPinPull(GPIOA, LL_GPIO_PIN_6, LL_GPIO_PULL_UP);
+	LL_GPIO_SetPinOutputType(GPIOA, LL_GPIO_PIN_6, LL_GPIO_OUTPUT_OPENDRAIN);
 
-  /* Configure MOSI Pin connected to pin 14 of CN7 connector */
-  LL_GPIO_SetPinMode(GPIOA, LL_GPIO_PIN_7, LL_GPIO_MODE_ALTERNATE);
-  LL_GPIO_SetAFPin_0_7(GPIOA, LL_GPIO_PIN_7, LL_GPIO_AF_5);
-  LL_GPIO_SetPinSpeed(GPIOA, LL_GPIO_PIN_7, LL_GPIO_SPEED_FREQ_MEDIUM);
-  LL_GPIO_SetPinPull(GPIOA, LL_GPIO_PIN_7, LL_GPIO_PULL_NO);
-  LL_GPIO_SetPinOutputType(GPIOA, LL_GPIO_PIN_7, LL_GPIO_OUTPUT_PUSHPULL);
-
-
-  LL_GPIO_SetOutputPin(GPIOA, GPIO_PIN_5);
-  LL_GPIO_SetOutputPin(GPIOA, GPIO_PIN_7);
+	/* Configure MOSI Pin connected to pin 14 of CN7 connector */
+	LL_GPIO_SetPinMode(GPIOA, LL_GPIO_PIN_7, LL_GPIO_MODE_ALTERNATE);
+	LL_GPIO_SetAFPin_0_7(GPIOA, LL_GPIO_PIN_7, LL_GPIO_AF_5);
+	LL_GPIO_SetPinSpeed(GPIOA, LL_GPIO_PIN_7, LL_GPIO_SPEED_FREQ_MEDIUM);
+	LL_GPIO_SetPinPull(GPIOA, LL_GPIO_PIN_7, LL_GPIO_PULL_NO);
+	LL_GPIO_SetPinOutputType(GPIOA, LL_GPIO_PIN_7, LL_GPIO_OUTPUT_PUSHPULL);
+	// Actually PB5 on PCB!
 
 
-  /* Configure SPI_CS1 PD15 CLT01-38SQ7 */
-  LL_GPIO_SetPinMode(GPIOD, LL_GPIO_PIN_15, LL_GPIO_MODE_OUTPUT);
-  LL_GPIO_SetPinSpeed(GPIOD, LL_GPIO_PIN_15, LL_GPIO_SPEED_FREQ_LOW);
-  LL_GPIO_SetPinPull(GPIOD, LL_GPIO_PIN_15, LL_GPIO_PULL_NO);
-  LL_GPIO_SetPinOutputType(GPIOD, LL_GPIO_PIN_15, LL_GPIO_OUTPUT_PUSHPULL);
-
-  /* Configure SPI_CS2 PD14 VNI8200XP */
-  LL_GPIO_SetPinMode(GPIOD, LL_GPIO_PIN_14, LL_GPIO_MODE_OUTPUT);
-  LL_GPIO_SetPinSpeed(GPIOD, LL_GPIO_PIN_14, LL_GPIO_SPEED_FREQ_LOW);
-  LL_GPIO_SetPinPull(GPIOD, LL_GPIO_PIN_14, LL_GPIO_PULL_NO);
-  LL_GPIO_SetPinOutputType(GPIOD, LL_GPIO_PIN_14, LL_GPIO_OUTPUT_PUSHPULL);
-
-  /* Configure OUT_EN PE9 VNI8200XP */
-  LL_GPIO_SetPinMode(GPIOE, LL_GPIO_PIN_9, LL_GPIO_MODE_OUTPUT);
-  LL_GPIO_SetPinSpeed(GPIOE, LL_GPIO_PIN_9, LL_GPIO_SPEED_FREQ_LOW);
-  LL_GPIO_SetPinPull(GPIOE, LL_GPIO_PIN_9, LL_GPIO_PULL_NO);
-  LL_GPIO_SetPinOutputType(GPIOE, LL_GPIO_PIN_9, LL_GPIO_OUTPUT_PUSHPULL);
+	LL_GPIO_SetOutputPin(GPIOA, GPIO_PIN_5);
+	LL_GPIO_SetOutputPin(GPIOA, GPIO_PIN_7);
 
 
-  LL_GPIO_SetOutputPin(GPIOD, GPIO_PIN_15);
-  LL_GPIO_SetOutputPin(GPIOD, GPIO_PIN_14);
-  LL_GPIO_SetOutputPin(GPIOE, GPIO_PIN_9);
+	/* Configure SPI_CS1 PD15 CLT01-38SQ7 */
+	LL_GPIO_SetPinMode(GPIOD, LL_GPIO_PIN_15, LL_GPIO_MODE_OUTPUT);
+	LL_GPIO_SetPinSpeed(GPIOD, LL_GPIO_PIN_15, LL_GPIO_SPEED_FREQ_LOW);
+	LL_GPIO_SetPinPull(GPIOD, LL_GPIO_PIN_15, LL_GPIO_PULL_NO);
+	LL_GPIO_SetPinOutputType(GPIOD, LL_GPIO_PIN_15, LL_GPIO_OUTPUT_PUSHPULL);
 
-  /* (2) Configure NVIC for SPI1 transfer complete/error interrupts **********/
+	/* Configure SPI_CS2 PD14 VNI8200XP */
+	LL_GPIO_SetPinMode(GPIOD, LL_GPIO_PIN_14, LL_GPIO_MODE_OUTPUT);
+	LL_GPIO_SetPinSpeed(GPIOD, LL_GPIO_PIN_14, LL_GPIO_SPEED_FREQ_LOW);
+	LL_GPIO_SetPinPull(GPIOD, LL_GPIO_PIN_14, LL_GPIO_PULL_NO);
+	LL_GPIO_SetPinOutputType(GPIOD, LL_GPIO_PIN_14, LL_GPIO_OUTPUT_PUSHPULL);
 
-  NVIC_SetPriorityGrouping(NVIC_PRIORITYGROUP_4); //for free rtos on stm32
-
-  /* Set priority for SPI1_IRQn */
-  NVIC_SetPriority(SPI1_IRQn, configMAX_SYSCALL_INTERRUPT_PRIORITY);
-  /* Enable SPI1_IRQn           */
-  NVIC_EnableIRQ(SPI1_IRQn);
-
+	/* Configure OUT_EN PE9 VNI8200XP */
+	LL_GPIO_SetPinMode(GPIOE, LL_GPIO_PIN_9, LL_GPIO_MODE_OUTPUT);
+	LL_GPIO_SetPinSpeed(GPIOE, LL_GPIO_PIN_9, LL_GPIO_SPEED_FREQ_LOW);
+	LL_GPIO_SetPinPull(GPIOE, LL_GPIO_PIN_9, LL_GPIO_PULL_NO);
+	LL_GPIO_SetPinOutputType(GPIOE, LL_GPIO_PIN_9, LL_GPIO_OUTPUT_PUSHPULL);
 
 
-  /* (3) Configure SPI1 functional parameters ********************************/
+	LL_GPIO_SetOutputPin(GPIOD, GPIO_PIN_15);
+	LL_GPIO_SetOutputPin(GPIOD, GPIO_PIN_14);
+	LL_GPIO_SetOutputPin(GPIOE, GPIO_PIN_9);
 
-  /* Enable the peripheral clock of GPIOA */
-  LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_SPI1);
+	/* (2) Configure NVIC for SPI1 transfer complete/error interrupts **********/
 
-  /* Configure SPI1 communication */
-  LL_SPI_SetBaudRatePrescaler(SPI1, LL_SPI_BAUDRATEPRESCALER_DIV32);
-  LL_SPI_SetTransferDirection(SPI1,LL_SPI_FULL_DUPLEX);
-  LL_SPI_SetClockPhase(SPI1, LL_SPI_PHASE_1EDGE);			// modified to match John's code
-  LL_SPI_SetClockPolarity(SPI1, LL_SPI_POLARITY_LOW);		// modified to match John's code
-  /* Reset value is LL_SPI_MSB_FIRST */
-  LL_SPI_SetTransferBitOrder(SPI1, LL_SPI_MSB_FIRST);
-  LL_SPI_SetDataWidth(SPI1, LL_SPI_DATAWIDTH_16BIT);
-  LL_SPI_SetNSSMode(SPI1, LL_SPI_NSS_SOFT);
-  LL_SPI_SetRxFIFOThreshold(SPI1, LL_SPI_RX_FIFO_TH_HALF);
+	NVIC_SetPriorityGrouping(NVIC_PRIORITYGROUP_4); //for free rtos on stm32
 
-  LL_SPI_SetMode(SPI1, LL_SPI_MODE_MASTER);
+	/* Set priority for SPI1_IRQn */
+	NVIC_SetPriority(SPI1_IRQn, configMAX_SYSCALL_INTERRUPT_PRIORITY);
+	/* Enable SPI1_IRQn           */
+	NVIC_EnableIRQ(SPI1_IRQn);
 
-  /* Configure SPI1 transfer interrupts */
-  /* Enable RXNE  Interrupt             */
-  LL_SPI_EnableIT_RXNE(SPI1);
-  /* Enable TXE   Interrupt             */
-  //LL_SPI_EnableIT_TXE(SPI1);
-  /* Enable Error Interrupt             */
-  //LL_SPI_EnableIT_ERR(SPI1);
+
+
+	/* (3) Configure SPI1 functional parameters ********************************/
+
+	/* Enable the peripheral clock of GPIOA */
+	LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_SPI1);
+
+	/* Configure SPI1 communication */
+	LL_SPI_SetBaudRatePrescaler(SPI1, LL_SPI_BAUDRATEPRESCALER_DIV32);
+	LL_SPI_SetTransferDirection(SPI1,LL_SPI_FULL_DUPLEX);
+	LL_SPI_SetClockPhase(SPI1, LL_SPI_PHASE_1EDGE);			// modified to match John's code
+	LL_SPI_SetClockPolarity(SPI1, LL_SPI_POLARITY_LOW);		// modified to match John's code
+	/* Reset value is LL_SPI_MSB_FIRST */
+	LL_SPI_SetTransferBitOrder(SPI1, LL_SPI_MSB_FIRST);
+	LL_SPI_SetDataWidth(SPI1, LL_SPI_DATAWIDTH_16BIT);
+	LL_SPI_SetNSSMode(SPI1, LL_SPI_NSS_SOFT);
+	LL_SPI_SetRxFIFOThreshold(SPI1, LL_SPI_RX_FIFO_TH_HALF);
+
+	LL_SPI_SetMode(SPI1, LL_SPI_MODE_MASTER);
+
+	/* Configure SPI1 transfer interrupts */
+	/* Enable RXNE  Interrupt             */
+	LL_SPI_EnableIT_RXNE(SPI1);
+
 }
 
 
