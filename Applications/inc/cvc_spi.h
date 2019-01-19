@@ -219,16 +219,7 @@ void set_SPI_parity_check_bit_outputs(volatile VNI_Write_u_t *WriteValue);
 
 CLT_Read_u_t debounce_SPI_input(void);
 
-void UserButton_Callback(void);
-void SPI1_Rx_Callback(void);
-void SPI1_Tx_Callback(void);
-void SPI1_TransferError_Callback(void);
 
-void LED_Init(void);
-
-
-void     UserButton_Init(void);
-void     WaitForUserButtonPress(void);
 
 
 

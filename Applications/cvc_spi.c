@@ -11,8 +11,6 @@
 /* Defines -------------------------------------------------------------------*/
 #define		SPI_BUFFER_SIZE 	5
 
-/* Uncomment this line to use the board as master, if not it is used as slave */
-//#define MASTER_BOARD
 
 /* Buffer used for transmission */
 uint8_t aTxBuffer[] = "**** SPI_TwoBoards_FullDuplex_IT communication **** SPI_TwoBoards_FullDuplex_IT communication **** SPI_TwoBoards_FullDuplex_IT communication ****";
@@ -25,15 +23,7 @@ uint8_t ubNbDataToReceive = sizeof(aTxBuffer);
 __IO uint8_t ubReceiveIndex = 0;
 
 
-/* Temporary function prototypes -------------------------------------------------*/
-void LED_Blinking(uint32_t Period);
 
-void LED_Off(void);
-
-
-
-/* Temporary Variables -----------------------------------------------------------*/
-__IO uint8_t ubButtonPress = 0;
 
 /* External Variables ------------------------------------------------------------*/
 volatile CLT_Read_u_t			CLT_Read;
@@ -345,159 +335,6 @@ void Activate_SPI(void)
 
 
 
-/******************************************************************************/
-/*   USER IRQ HANDLER TREATMENT Functions                                     */
-/******************************************************************************/
-
-/**
-  * @brief  Function called from SPI1 IRQ Handler when RXNE flag is set
-  *         Function is in charge of retrieving received byte from SPI lines.
-  * @param  None
-  * @retval None
-  */
-void  SPI1_Rx_Callback(void)
-{
-  /* Read character in Data register.
-  RXNE flag is cleared by reading data in DR register */
-  aRxBuffer[ubReceiveIndex++] = LL_SPI_ReceiveData16(SPI1);
-}
-
-/**
-  * @brief  Function called from SPI1 IRQ Handler when TXE flag is set
-  *         Function is in charge  to transmit byte on SPI lines.
-  * @param  None
-  * @retval None
-  */
-void  SPI1_Tx_Callback(void)
-{
-  /* Write character in Data register.
-  TXE flag is cleared by reading data in DR register */
-  LL_SPI_TransmitData8(SPI1, aTxBuffer[ubTransmitIndex++]);
-}
-
-/**
-  * @brief  Function called in case of error detected in SPI IT Handler
-  * @param  None
-  * @retval None
-  */
-void SPI1_TransferError_Callback(void)
-{
-  /* Disable RXNE  Interrupt             */
-  LL_SPI_DisableIT_RXNE(SPI1);
-
-  /* Disable TXE   Interrupt             */
-  LL_SPI_DisableIT_TXE(SPI1);
-
-  /* Set LED1 to Blinking mode to indicate error occurs */
-  LED_Blinking(LED_BLINK_ERROR);
-}
 
 
-/**
-  * @brief  Function to manage User push-button
-  * @param  None
-  * @retval None
-  */
-void UserButton_Callback(void)
-{
-  /* Update User push-button variable : to be checked in waiting loop in main program */
-  ubButtonPress = 1;
-}
-
-
-
-/**
-  * @brief  Turn-off LED1.
-  * @param  None
-  * @retval None
-  */
-void LED_Off(void)
-{
-  /* Turn LED1 off */
-  LL_GPIO_ResetOutputPin(LED1_GPIO_PORT, LED1_PIN);
-}
-
-
-/**
-  * @brief  Set LED1 to Blinking mode for an infinite loop (toggle period based on value provided as input parameter).
-  * @param  Period : Period of time (in ms) between each toggling of LED
-  *   This parameter can be user defined values. Pre-defined values used in that example are :
-  *     @arg LED_BLINK_FAST : Fast Blinking
-  *     @arg LED_BLINK_SLOW : Slow Blinking
-  *     @arg LED_BLINK_ERROR : Error specific Blinking
-  * @retval None
-  */
-void LED_Blinking(uint32_t Period)
-{
-  /* Toggle LED1 in an infinite loop */
-  while (1)
-  {
-    LL_GPIO_TogglePin(LED1_GPIO_PORT, LED1_PIN);
-    LL_mDelay(Period);
-  }
-}
-
-/**
-  * @brief  Initialize LED1.
-  * @param  None
-  * @retval None
-  */
-void LED_Init(void)
-{
-  /* Enable the LED1 Clock */
-  LED1_GPIO_CLK_ENABLE();
-
-  /* Configure IO in output push-pull mode to drive external LED1 */
-  LL_GPIO_SetPinMode(LED1_GPIO_PORT, LED1_PIN, LL_GPIO_MODE_OUTPUT);
-  /* Reset value is LL_GPIO_OUTPUT_PUSHPULL */
-  //LL_GPIO_SetPinOutputType(LED1_GPIO_PORT, LED1_PIN, LL_GPIO_OUTPUT_PUSHPULL);
-  /* Reset value is LL_GPIO_SPEED_FREQ_LOW */
-  //LL_GPIO_SetPinSpeed(LED1_GPIO_PORT, LED1_PIN, LL_GPIO_SPEED_FREQ_LOW);
-  /* Reset value is LL_GPIO_PULL_NO */
-  //LL_GPIO_SetPinPull(LED1_GPIO_PORT, LED1_PIN, LL_GPIO_PULL_NO);
-}
-
-
-/**
-  * @brief  Configures User push-button in GPIO or EXTI Line Mode.
-  * @param  None
-  * @retval None
-  */
-void UserButton_Init(void)
-{
-  /* Enable the BUTTON Clock */
-  USER_BUTTON_GPIO_CLK_ENABLE();
-
-  /* Configure GPIO for BUTTON */
-  LL_GPIO_SetPinMode(USER_BUTTON_GPIO_PORT, USER_BUTTON_PIN, LL_GPIO_MODE_INPUT);
-  LL_GPIO_SetPinPull(USER_BUTTON_GPIO_PORT, USER_BUTTON_PIN, LL_GPIO_PULL_NO);
-
-  /* Connect External Line to the GPIO*/
-  USER_BUTTON_SYSCFG_SET_EXTI();
-
-  /* Enable a rising trigger External line 13 Interrupt */
-  USER_BUTTON_EXTI_LINE_ENABLE();
-  USER_BUTTON_EXTI_FALLING_TRIG_ENABLE();
-
-  /* Configure NVIC for USER_BUTTON_EXTI_IRQn */
-  NVIC_EnableIRQ(USER_BUTTON_EXTI_IRQn);
-  NVIC_SetPriority(USER_BUTTON_EXTI_IRQn, 0x03);
-}
-
-/**
-  * @brief  Wait for User push-button press to start transfer.
-  * @param  None
-  * @retval None
-  */
-  /*  */
-void WaitForUserButtonPress(void)
-{
-  while (ubButtonPress == 0)
-  {
-    LL_GPIO_TogglePin(LED1_GPIO_PORT, LED1_PIN);
-    LL_mDelay(LED_BLINK_FAST);
-  }
-  /* Ensure that LED1 is turned Off */
-  LED_Off();
-}
 

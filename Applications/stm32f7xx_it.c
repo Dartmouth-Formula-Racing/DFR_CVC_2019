@@ -58,24 +58,6 @@ void CANx_RX_IRQHandler(void)
 
 
 /**
-  * @brief  This function handles external line 15_10 interrupt request.
-  * @param  None
-  * @retval None
-  */
-void USER_BUTTON_IRQHANDLER(void)
-{
-
-  /* Manage Flags */
-  if(LL_EXTI_IsActiveFlag_0_31(USER_BUTTON_EXTI_LINE) != RESET)
-  {
-    LL_EXTI_ClearFlag_0_31(USER_BUTTON_EXTI_LINE);
-
-    /* Manage code in main.c */
-    UserButton_Callback();
-  }
-}
-
-/**
   * @brief  This function handles SPI1 interrupt request.
   * @param  None
   * @retval None
@@ -87,22 +69,4 @@ void SPI1_IRQHandler(void)
 		SPI_routine();
 	}
 
-//  /* Check RXNE flag value in ISR register */
-// if(LL_SPI_IsActiveFlag_RXNE(SPI1))
-//  {
-//    /* Call function Slave Reception Callback */
-//    SPI1_Rx_Callback();
-//  }
-//  /* Check RXNE flag value in ISR register */
-//  else if(LL_SPI_IsActiveFlag_TXE(SPI1))
-//  {
-//    /* Call function Slave Reception Callback */
-//    SPI1_Tx_Callback();
-//  }
-//  /* Check STOP flag value in ISR register */
-//  else if(LL_SPI_IsActiveFlag_OVR(SPI1))
-//  {
-//    /* Call Error function */
-//    SPI1_TransferError_Callback();
-//  }
 }
