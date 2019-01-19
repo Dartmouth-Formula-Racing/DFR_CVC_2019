@@ -23,6 +23,45 @@
 #include "FreeRTOS.h"
 
 
+/* Defines -------------------------------------------------------------------*/
+
+/* Definition of PLC clk configs*/
+#define SPI1_PERIPH_CLK_ENABLE	LL_APB2_GRP1_PERIPH_SPI1
+#define LL_GPIOA_CLK_ENABLE		LL_AHB1_GRP1_PERIPH_GPIOA
+#define LL_GPIOD_CLK_ENABLE		LL_AHB1_GRP1_PERIPH_GPIOD
+#define LL_GPIOE_CLK_ENABLE		LL_AHB1_GRP1_PERIPH_GPIOE
+
+
+/* Definition of PLC SPI pins */
+/* SCK Pin */
+#define PLC_SCK_PIN				LL_GPIO_PIN_5
+#define PLC_SCK_GPIO_PORT		GPIOA
+#define PLC_SCK_AF				LL_GPIO_AF_5
+
+/* MISO pin */
+#define PLC_MISO_PIN			LL_GPIO_PIN_6
+#define PLC_MISO_GPIO_PORT		GPIOA
+#define PLC_MISO_AF				LL_GPIO_AF_5
+
+/* MOSI pin */
+#define PLC_MOSI_PIN			LL_GPIO_PIN_7	// Pin 5 for PCB
+#define PLC_MOSI_GPIO_PORT		GPIOA			// GPIOB for PCB
+#define PLC_MOSI_AF				LL_GPIO_AF_5
+
+/* CS1 (for CLT01-38SQ7) */
+#define PLC_CS1_PIN				LL_GPIO_PIN_15
+#define PLC_CS1_GPIO_PORT		GPIOD
+
+/* CS2 (for VNI8200XP) */
+#define PLC_CS2_PIN				LL_GPIO_PIN_14
+#define	PLC_CS2_GPIO_PORT		GPIOD
+
+/* OUTEN (for VNI8200XP) */
+#define PLC_OUTEN_PIN			LL_GPIO_PIN_9
+#define PLC_OUTEN_GPIO_PORT		GPIOE
+
+
+
 /* Typedefs ----------------------------------------------------------*/
 
 volatile typedef struct SPI_inputs_vector_s

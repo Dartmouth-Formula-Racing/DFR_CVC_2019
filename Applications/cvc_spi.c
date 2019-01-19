@@ -25,6 +25,21 @@ volatile SPI_inputs_vector_t	SPI_inputs_vector;
 volatile SPI_outputs_vector_t	SPI_outputs_vector;
 
 
+volatile uint32_t SPI1_SR = 0;
+
+
+int SPI_buffer_index = 0;
+CLT_Read_u_t CLT_read_buffer[SPI_BUFFER_SIZE] = {0};
+
+
+int i;
+
+CLT_Read_u_t all_ones;
+CLT_Read_u_t all_zeroes;
+CLT_Read_u_t Or_temp;
+CLT_Read_u_t debounced_data = {0};
+
+
 /* Functions ---------------------------------------------------------------------*/
 
 /**
@@ -39,8 +54,6 @@ void initiate_SPI_transmission(void)
 	LL_SPI_TransmitData16(SPI1, CLT_Write);
 	SPI_io_state = wait_for_CLT;
 }
-
-volatile uint32_t SPI1_SR = 0;
 
 
 /**
@@ -84,13 +97,8 @@ void SPI_routine(void)
 		default:
 			break;
 	};
-
 }
 
-
-int SPI_buffer_index = 0;
-
-CLT_Read_u_t CLT_read_buffer[SPI_BUFFER_SIZE] = {0};
 
 
 /**
@@ -108,14 +116,6 @@ void add_to_SPI_input_buffer(uint16_t new_data)
 		SPI_buffer_index = 0;
 	}
 }
-
-
-int i;
-
-CLT_Read_u_t all_ones;
-CLT_Read_u_t all_zeroes;
-CLT_Read_u_t Or_temp;
-CLT_Read_u_t debounced_data = {0};
 
 
 /**
@@ -141,8 +141,6 @@ CLT_Read_u_t debounce_SPI_input(void)
 }
 
 
-
-
 /**
   * @brief	Set SPI_inputs_vector values using PLC_Read data
   * @param	None
@@ -157,7 +155,6 @@ void SPI_PLC_Set_Inputs(void)
 	SPI_inputs_vector.IMD_safety_circuit_fault 		= CLT_Read.bit.IN5;
 	SPI_inputs_vector.BMS_safety_circuit_fault 		= CLT_Read.bit.IN6;
 	SPI_inputs_vector.Bamocar_safety_circuit_fault 	= CLT_Read.bit.IN7;
-
 }
 
 
@@ -238,59 +235,59 @@ void Configure_SPI(void)
 {
 	/* (1) Enables GPIO clock and configures the SPI1 pins ********************/
 	/* Enable the peripheral clock of GPIOA */
-	LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOA);
-	LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOD);
-	LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOE);
+	LL_AHB1_GRP1_EnableClock(LL_GPIOA_CLK_ENABLE);
+	LL_AHB1_GRP1_EnableClock(LL_GPIOD_CLK_ENABLE);
+	LL_AHB1_GRP1_EnableClock(LL_GPIOE_CLK_ENABLE);
 
 	/* Configure SCK Pin connected to pin 10 of CN7 connector */
-	LL_GPIO_SetPinMode(GPIOA, LL_GPIO_PIN_5, LL_GPIO_MODE_ALTERNATE);
-	LL_GPIO_SetAFPin_0_7(GPIOA, LL_GPIO_PIN_5, LL_GPIO_AF_5);
-	LL_GPIO_SetPinSpeed(GPIOA, LL_GPIO_PIN_5, LL_GPIO_SPEED_FREQ_MEDIUM);
-	LL_GPIO_SetPinPull(GPIOA, LL_GPIO_PIN_5, LL_GPIO_PULL_DOWN);
-	LL_GPIO_SetPinOutputType(GPIOA, LL_GPIO_PIN_5, LL_GPIO_OUTPUT_PUSHPULL);
+	LL_GPIO_SetPinMode(PLC_SCK_GPIO_PORT, PLC_SCK_PIN, LL_GPIO_MODE_ALTERNATE);
+	LL_GPIO_SetAFPin_0_7(PLC_SCK_GPIO_PORT, PLC_SCK_PIN, PLC_SCK_AF);
+	LL_GPIO_SetPinSpeed(PLC_SCK_GPIO_PORT, PLC_SCK_PIN, LL_GPIO_SPEED_FREQ_MEDIUM);
+	LL_GPIO_SetPinPull(PLC_SCK_GPIO_PORT, PLC_SCK_PIN, LL_GPIO_PULL_DOWN);
+	LL_GPIO_SetPinOutputType(PLC_SCK_GPIO_PORT, PLC_SCK_PIN, LL_GPIO_OUTPUT_PUSHPULL);
 
 	/* Configure MISO Pin connected to pin 12 of CN7 connector */
-	LL_GPIO_SetPinMode(GPIOA, LL_GPIO_PIN_6, LL_GPIO_MODE_ALTERNATE);
-	LL_GPIO_SetAFPin_0_7(GPIOA, LL_GPIO_PIN_6, LL_GPIO_AF_5);
-	LL_GPIO_SetPinSpeed(GPIOA, LL_GPIO_PIN_6, LL_GPIO_SPEED_FREQ_MEDIUM);
-	LL_GPIO_SetPinPull(GPIOA, LL_GPIO_PIN_6, LL_GPIO_PULL_UP);
-	LL_GPIO_SetPinOutputType(GPIOA, LL_GPIO_PIN_6, LL_GPIO_OUTPUT_OPENDRAIN);
+	LL_GPIO_SetPinMode(PLC_MISO_GPIO_PORT, PLC_MISO_PIN, LL_GPIO_MODE_ALTERNATE);
+	LL_GPIO_SetAFPin_0_7(PLC_MISO_GPIO_PORT, PLC_MISO_PIN, PLC_MISO_AF);
+	LL_GPIO_SetPinSpeed(PLC_MISO_GPIO_PORT, PLC_MISO_PIN, LL_GPIO_SPEED_FREQ_MEDIUM);
+	LL_GPIO_SetPinPull(PLC_MISO_GPIO_PORT, PLC_MISO_PIN, LL_GPIO_PULL_UP);
+	LL_GPIO_SetPinOutputType(PLC_MISO_GPIO_PORT, PLC_MISO_PIN, LL_GPIO_OUTPUT_OPENDRAIN);
 
 	/* Configure MOSI Pin connected to pin 14 of CN7 connector */
-	LL_GPIO_SetPinMode(GPIOA, LL_GPIO_PIN_7, LL_GPIO_MODE_ALTERNATE);
-	LL_GPIO_SetAFPin_0_7(GPIOA, LL_GPIO_PIN_7, LL_GPIO_AF_5);
-	LL_GPIO_SetPinSpeed(GPIOA, LL_GPIO_PIN_7, LL_GPIO_SPEED_FREQ_MEDIUM);
-	LL_GPIO_SetPinPull(GPIOA, LL_GPIO_PIN_7, LL_GPIO_PULL_NO);
-	LL_GPIO_SetPinOutputType(GPIOA, LL_GPIO_PIN_7, LL_GPIO_OUTPUT_PUSHPULL);
-	// Actually PB5 on PCB!
+	LL_GPIO_SetPinMode(PLC_MOSI_GPIO_PORT, PLC_MOSI_PIN, LL_GPIO_MODE_ALTERNATE);
+	LL_GPIO_SetAFPin_0_7(PLC_MOSI_GPIO_PORT, PLC_MOSI_PIN, PLC_MOSI_AF);
+	LL_GPIO_SetPinSpeed(PLC_MOSI_GPIO_PORT, PLC_MOSI_PIN, LL_GPIO_SPEED_FREQ_MEDIUM);
+	LL_GPIO_SetPinPull(PLC_MOSI_GPIO_PORT, PLC_MOSI_PIN, LL_GPIO_PULL_NO);
+	LL_GPIO_SetPinOutputType(PLC_MOSI_GPIO_PORT, PLC_MOSI_PIN, LL_GPIO_OUTPUT_PUSHPULL);
+// Actually PB5 on PCB!
 
 
-	LL_GPIO_SetOutputPin(GPIOA, GPIO_PIN_5);
-	LL_GPIO_SetOutputPin(GPIOA, GPIO_PIN_7);
+	LL_GPIO_SetOutputPin(PLC_SCK_GPIO_PORT, PLC_SCK_PIN);
+	LL_GPIO_SetOutputPin(PLC_MOSI_GPIO_PORT, PLC_MOSI_PIN);
 
 
 	/* Configure SPI_CS1 PD15 CLT01-38SQ7 */
-	LL_GPIO_SetPinMode(GPIOD, LL_GPIO_PIN_15, LL_GPIO_MODE_OUTPUT);
-	LL_GPIO_SetPinSpeed(GPIOD, LL_GPIO_PIN_15, LL_GPIO_SPEED_FREQ_LOW);
-	LL_GPIO_SetPinPull(GPIOD, LL_GPIO_PIN_15, LL_GPIO_PULL_NO);
-	LL_GPIO_SetPinOutputType(GPIOD, LL_GPIO_PIN_15, LL_GPIO_OUTPUT_PUSHPULL);
+	LL_GPIO_SetPinMode(PLC_CS1_GPIO_PORT, PLC_CS1_PIN, LL_GPIO_MODE_OUTPUT);
+	LL_GPIO_SetPinSpeed(PLC_CS1_GPIO_PORT, PLC_CS1_PIN, LL_GPIO_SPEED_FREQ_LOW);
+	LL_GPIO_SetPinPull(PLC_CS1_GPIO_PORT, PLC_CS1_PIN, LL_GPIO_PULL_NO);
+	LL_GPIO_SetPinOutputType(PLC_CS1_GPIO_PORT, PLC_CS1_PIN, LL_GPIO_OUTPUT_PUSHPULL);
 
 	/* Configure SPI_CS2 PD14 VNI8200XP */
-	LL_GPIO_SetPinMode(GPIOD, LL_GPIO_PIN_14, LL_GPIO_MODE_OUTPUT);
-	LL_GPIO_SetPinSpeed(GPIOD, LL_GPIO_PIN_14, LL_GPIO_SPEED_FREQ_LOW);
-	LL_GPIO_SetPinPull(GPIOD, LL_GPIO_PIN_14, LL_GPIO_PULL_NO);
-	LL_GPIO_SetPinOutputType(GPIOD, LL_GPIO_PIN_14, LL_GPIO_OUTPUT_PUSHPULL);
+	LL_GPIO_SetPinMode(PLC_CS2_GPIO_PORT, PLC_CS2_PIN, LL_GPIO_MODE_OUTPUT);
+	LL_GPIO_SetPinSpeed(PLC_CS2_GPIO_PORT, PLC_CS2_PIN, LL_GPIO_SPEED_FREQ_LOW);
+	LL_GPIO_SetPinPull(PLC_CS2_GPIO_PORT, PLC_CS2_PIN, LL_GPIO_PULL_NO);
+	LL_GPIO_SetPinOutputType(PLC_CS2_GPIO_PORT, PLC_CS2_PIN, LL_GPIO_OUTPUT_PUSHPULL);
 
 	/* Configure OUT_EN PE9 VNI8200XP */
-	LL_GPIO_SetPinMode(GPIOE, LL_GPIO_PIN_9, LL_GPIO_MODE_OUTPUT);
-	LL_GPIO_SetPinSpeed(GPIOE, LL_GPIO_PIN_9, LL_GPIO_SPEED_FREQ_LOW);
-	LL_GPIO_SetPinPull(GPIOE, LL_GPIO_PIN_9, LL_GPIO_PULL_NO);
-	LL_GPIO_SetPinOutputType(GPIOE, LL_GPIO_PIN_9, LL_GPIO_OUTPUT_PUSHPULL);
+	LL_GPIO_SetPinMode(PLC_OUTEN_GPIO_PORT, PLC_OUTEN_PIN, LL_GPIO_MODE_OUTPUT);
+	LL_GPIO_SetPinSpeed(PLC_OUTEN_GPIO_PORT, PLC_OUTEN_PIN, LL_GPIO_SPEED_FREQ_LOW);
+	LL_GPIO_SetPinPull(PLC_OUTEN_GPIO_PORT, PLC_OUTEN_PIN, LL_GPIO_PULL_NO);
+	LL_GPIO_SetPinOutputType(PLC_OUTEN_GPIO_PORT, PLC_OUTEN_PIN, LL_GPIO_OUTPUT_PUSHPULL);
 
 
-	LL_GPIO_SetOutputPin(GPIOD, GPIO_PIN_15);
-	LL_GPIO_SetOutputPin(GPIOD, GPIO_PIN_14);
-	LL_GPIO_SetOutputPin(GPIOE, GPIO_PIN_9);
+	LL_GPIO_SetOutputPin(PLC_CS1_GPIO_PORT, PLC_CS1_PIN);
+	LL_GPIO_SetOutputPin(PLC_CS2_GPIO_PORT, PLC_CS2_PIN);
+	LL_GPIO_SetOutputPin(PLC_OUTEN_GPIO_PORT, PLC_OUTEN_PIN);
 
 	/* (2) Configure NVIC for SPI1 transfer complete/error interrupts **********/
 
@@ -302,11 +299,10 @@ void Configure_SPI(void)
 	NVIC_EnableIRQ(SPI1_IRQn);
 
 
-
 	/* (3) Configure SPI1 functional parameters ********************************/
 
 	/* Enable the peripheral clock of GPIOA */
-	LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_SPI1);
+	LL_APB2_GRP1_EnableClock(SPI1_PERIPH_CLK_ENABLE);
 
 	/* Configure SPI1 communication */
 	LL_SPI_SetBaudRatePrescaler(SPI1, LL_SPI_BAUDRATEPRESCALER_DIV32);
@@ -328,7 +324,6 @@ void Configure_SPI(void)
 }
 
 
-
 /**
   * @brief  This function Activate SPI1
   * @param  None
@@ -339,10 +334,3 @@ void Activate_SPI(void)
   /* Enable SPI1 */
   LL_SPI_Enable(SPI1);
 }
-
-
-
-
-
-
-
