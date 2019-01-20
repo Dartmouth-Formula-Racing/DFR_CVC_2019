@@ -83,10 +83,10 @@ static void CAN_parser_BAMO(queue_msg_t q_msg, uint8_t CAN_idx);
 
 /* Private Variables ---------------------------------------------------------------*/
 CAN_HandleTypeDef		CanHandle;
-CAN_TxHeaderTypeDef		TxHeader;
-CAN_RxHeaderTypeDef		RxHeader;
-uint8_t					TxData[8];
-uint8_t					RxData[8];
+//CAN_TxHeaderTypeDef		TxHeader;
+//CAN_RxHeaderTypeDef		RxHeader;
+//uint8_t					TxData[8];
+//uint8_t					RxData[8];
 uint32_t 				TxMailbox;
 
 
@@ -154,13 +154,14 @@ static CAN_msg_t CAN_dict[]	=
 		{0x180, STD, 0xE0, 0, "BAMO8", NULL, 0, CAN_parser_BAMO}, 		// BAMOCAR 8 - BAMOCAR D_OUT 1 (13)
 };
 
-static CAN_msg_t		demo_message;	// CAN message received through demo
+#define CAN_DICT_SIZE			14
 
+/* FreeRTOS Message Queues */
 static QueueHandle_t RxQueue = NULL;
 static QueueHandle_t TxQueue = NULL;
-//static QueueHandle_t testQueue = NULL;
 
-
+/* Definition for CAN validation */
+//#define SENDER
 
 /* Task Functions ---------------------------------------------------------------*/
 /**
@@ -168,30 +169,64 @@ static QueueHandle_t TxQueue = NULL;
  */
 void CAN_Demo_Task(void * parameters)
 {
-	uint8_t LED_send = 0U;
+//	uint8_t LED_send = 0U;
 	queue_msg_t Tx_msg;
+
+	uint8_t i= 0;
 
 	while (1)
 	{
 		/* Delay task for 1 seconds */
 		vTaskDelay((TickType_t) 1000/portTICK_PERIOD_MS);
 
+#ifdef SENDER
+
 		/* Build CAN message */
-		Tx_msg.Tx_header = TxHeader;
-		Tx_msg.data._8[0] = LED_send;
-		Tx_msg.data._8[1] = 0xAD;
+		if (i < CAN_DICT_SIZE)
+		{
+			Tx_msg.Tx_header.StdId = CAN_dict[i].msg_ID;
+			Tx_msg.Tx_header.ExtId = 0x01;
+			Tx_msg.Tx_header.RTR = CAN_RTR_DATA;
+			Tx_msg.Tx_header.IDE = CAN_ID_STD;
+
+			if (CAN_dict[i].reg_ID != 0)
+			{
+				/* Bamocar message */
+				Tx_msg.Tx_header.DLC = 0x3;
+				Tx_msg.data._8[0] = CAN_dict[i].reg_ID;
+				Tx_msg.data._8[1] = i;
+				Tx_msg.data._8[2] = 0;
+			}
+			else
+			{
+				/* Regular message */
+				Tx_msg.Tx_header.DLC = 8;
+				Tx_msg.data._8[0] = 0;
+				Tx_msg.data._8[1] = 1;
+				Tx_msg.data._8[2] = 2;
+				Tx_msg.data._8[3] = 3;
+				Tx_msg.data._8[4] = 4;
+				Tx_msg.data._8[5] = 5;
+				Tx_msg.data._8[6] = 6;
+				Tx_msg.data._8[7] = 7;
+
+			}
+		}
+
+		i++;
+
+		if (i == CAN_DICT_SIZE)
+		{
+			/* All messages sent */
+			i = 0;
+			BSP_LED_On(LED_GREEN);
+		}
+
 
 		/* Add CAN message to TxQueue */
 		xQueueSend(TxQueue, &Tx_msg, 0U);
 
-		/* Increment LED_send */
-		LED_send = (LED_send % 3)+1;
-
-		/* send to test queue */
-		//xQueueSend(testQueue, &LED_send, 0U);
-
-		/* Read received data from data table and turn on corresponding LED */
-		LED_Display(demo_message.data._8[0]);
+#endif	/* SENDER */
 	}
 
 }
@@ -248,6 +283,7 @@ void CAN_Tx_Task(void * parameters)
 
 		if (HAL_CAN_AddTxMessage(&CanHandle, &Tx_msg.Tx_header, Tx_msg.data._8, &TxMailbox) != HAL_OK)
 		{
+			BSP_LED_On(LED_RED);
 			/* Transmission request error */
 		}
 	}
@@ -439,13 +475,13 @@ static void CAN_Config(void)
 		Error_Handler();
 	}
 
-	/* 5. Configure Transmission Process----------------------------------------------*/
-	TxHeader.StdId = 0x321;
-	TxHeader.ExtId= 0x01;
-	TxHeader.RTR = CAN_RTR_DATA;
-	TxHeader.IDE = CAN_ID_STD;
-	TxHeader.DLC = 2;
-	TxHeader.TransmitGlobalTime = DISABLE;
+//	/* 5. Configure Transmission Process----------------------------------------------*/
+//	TxHeader.StdId = 0x321;
+//	TxHeader.ExtId= 0x01;
+//	TxHeader.RTR = CAN_RTR_DATA;
+//	TxHeader.IDE = CAN_ID_STD;
+//	TxHeader.DLC = 2;
+//	TxHeader.TransmitGlobalTime = DISABLE;
 }
 
 
@@ -457,19 +493,24 @@ static void CAN_Config(void)
   */
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 {
-  /* Get RX message */
-  if (HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &RxHeader, RxData) != HAL_OK)
-  {
-    /* Reception Error */
-  }
+	CAN_RxHeaderTypeDef		RxHeader;
+	uint8_t					RxData[8];
 
-  /* Add message to RxQueue */
-  queue_msg_t Rx_msg;
-  Rx_msg.Rx_header = RxHeader;
-  for (int i=0; i<sizeof(RxData); i++)	{
+	queue_msg_t Rx_msg;
+
+	/* Get RX message */
+	if (HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &(RxHeader), RxData) != HAL_OK)
+	{
+		/* Reception Error */
+		BSP_LED_On(LED_RED);
+	}
+
+	/* Add message to RxQueue */
+	Rx_msg.Rx_header = RxHeader;
+	for (int i=0; i<sizeof(RxData); i++)	{
 	  Rx_msg.data._8[i] = RxData[i];
-  }
-  xQueueSendFromISR(RxQueue, &Rx_msg, NULL);
+	}
+	xQueueSendFromISR(RxQueue, &Rx_msg, NULL);
 
 }
 

@@ -39,9 +39,9 @@ int main(void)
 	SystemClock_Config();
 
 	/* Configure LED1 and LED3 */
-	BSP_LED_Init(LED1);
-	BSP_LED_Init(LED2);
-	BSP_LED_Init(LED3);
+	BSP_LED_Init(LED_GREEN);
+	BSP_LED_Init(LED_BLUE);
+	BSP_LED_Init(LED_RED);
 
 	/* Configure User push-button */
 	BSP_PB_Init(BUTTON_USER, BUTTON_MODE_GPIO);
