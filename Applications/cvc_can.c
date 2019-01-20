@@ -148,76 +148,8 @@ static CAN_msg_t CAN_dict[]	=
 static QueueHandle_t RxQueue = NULL;
 static QueueHandle_t TxQueue = NULL;
 
-/* Definition for CAN validation */
-//#define SENDER
 
 /* Task Functions ---------------------------------------------------------------*/
-/**
- * @brief 	Reads CAN messages from data table and blinks corresponding LED, sends CAN messages to CAN_Tx_Task
- */
-void CAN_Demo_Task(void * parameters)
-{
-//	uint8_t LED_send = 0U;
-	queue_msg_t Tx_msg;
-
-	uint8_t i= 0;
-
-	while (1)
-	{
-		/* Delay task for 1 millisecond */
-		vTaskDelay((TickType_t) 1000/portTICK_PERIOD_MS);
-
-#ifdef SENDER
-
-		/* Build CAN message */
-		if (i < CAN_DICT_SIZE)
-		{
-			Tx_msg.Tx_header.StdId = CAN_dict[i].msg_ID;
-			Tx_msg.Tx_header.ExtId = 0x01;
-			Tx_msg.Tx_header.RTR = CAN_RTR_DATA;
-			Tx_msg.Tx_header.IDE = CAN_ID_STD;
-
-			if (CAN_dict[i].reg_ID != 0)
-			{
-				/* Bamocar message */
-				Tx_msg.Tx_header.DLC = 0x3;
-				Tx_msg.data._8[0] = CAN_dict[i].reg_ID;
-				Tx_msg.data._8[1] = i;
-				Tx_msg.data._8[2] = 0;
-			}
-			else
-			{
-				/* Regular message */
-				Tx_msg.Tx_header.DLC = 8;
-				Tx_msg.data._8[0] = 0;
-				Tx_msg.data._8[1] = 1;
-				Tx_msg.data._8[2] = 2;
-				Tx_msg.data._8[3] = 3;
-				Tx_msg.data._8[4] = 4;
-				Tx_msg.data._8[5] = 5;
-				Tx_msg.data._8[6] = 6;
-				Tx_msg.data._8[7] = 7;
-
-			}
-		}
-
-		i++;
-
-		if (i == CAN_DICT_SIZE)
-		{
-			/* All messages sent */
-			i = 0;
-			BSP_LED_On(LED_GREEN);
-		}
-
-
-		/* Add CAN message to TxQueue */
-		xQueueSend(TxQueue, &Tx_msg, 0U);
-
-#endif	/* SENDER */
-	}
-
-}
 
 /**
  * @brief	Reads incoming CAN messages from RxQueue and adds to data table

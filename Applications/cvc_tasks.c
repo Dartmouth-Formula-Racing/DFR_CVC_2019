@@ -19,7 +19,6 @@
 /* list of all program tasks */
 static task_t taskList[] = {
 		//{demoTask, "demo", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY, NULL},		/* demo blinky task */
-		//{CAN_Demo_Task,"CAN_demo", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 1, NULL},	/* CAN demo task */
 		//{CAN_Rx_Task,"canRx", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 2, NULL},		/* CAN Rx task */
 		//{CAN_Tx_Task,"canTx", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 2, NULL},		/* CAN Tx task */
 		{_10_ms_Task,"10ms", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 1, NULL},

@@ -44,14 +44,6 @@ int main(void)
 	/* Configure the system clock to 216 MHz */
 	SystemClock_Config();
 
-	/* Configure LED1 and LED3 */
-	BSP_LED_Init(LED_GREEN);
-	BSP_LED_Init(LED_BLUE);
-	BSP_LED_Init(LED_RED);
-
-	/* Configure User push-button */
-	BSP_PB_Init(BUTTON_USER, BUTTON_MODE_GPIO);
-
 	/* Initialize CAN */
 	CAN_Init();
 
