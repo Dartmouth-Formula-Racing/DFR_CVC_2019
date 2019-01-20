@@ -21,7 +21,6 @@
 /* Private function prototypes -----------------------------------------------*/
 static void SystemClock_Config(void);
 static void CPU_CACHE_Enable(void);
-//void LED_Display(uint8_t LedStatus);
 
 /* Private Variables ----------------------------------------------------*/
 uint8_t ubKeyNumber = 0x0;
@@ -46,9 +45,9 @@ int main(void)
 	SystemClock_Config();
 
 	/* Configure LED1 and LED3 */
-	BSP_LED_Init(LED1);
-	BSP_LED_Init(LED2);
-	BSP_LED_Init(LED3);
+	BSP_LED_Init(LED_GREEN);
+	BSP_LED_Init(LED_BLUE);
+	BSP_LED_Init(LED_RED);
 
 	/* Configure User push-button */
 	BSP_PB_Init(BUTTON_USER, BUTTON_MODE_GPIO);
