@@ -14,13 +14,6 @@
 
 /* Private TypeDefs ---------------------------------------------------------------*/
 
-/* bamocar data struct */
-typedef struct bamocar_data_16_s
-{
-	uint8_t		reg_ID;
-	uint16_t	data;
-} bamocar_data_16_t;
-
 /* CAN data union */
 typedef union CAN_data_u
 {
@@ -30,8 +23,6 @@ typedef union CAN_data_u
 	uint8_t		_8[8];
 	float		_float[2];
 	double		_double;
-
-	bamocar_data_16_t	bamocar_data_16;
 
 } CAN_data_t;
 
@@ -83,14 +74,11 @@ static void CAN_parser_BAMO(queue_msg_t q_msg, uint8_t CAN_idx);
 
 /* Private Variables ---------------------------------------------------------------*/
 CAN_HandleTypeDef		CanHandle;
-//CAN_TxHeaderTypeDef		TxHeader;
-//CAN_RxHeaderTypeDef		RxHeader;
-//uint8_t					TxData[8];
-//uint8_t					RxData[8];
 uint32_t 				TxMailbox;
 
 
 /* CAN message input maps */
+/* INDEX, START BYTE, START BIT, BYTE SIZE */
 input_map_t ATHENA1_map[] =
 {
 		{ENG_REV_COUNT, 0, 0, 2},
@@ -176,7 +164,7 @@ void CAN_Demo_Task(void * parameters)
 
 	while (1)
 	{
-		/* Delay task for 1 seconds */
+		/* Delay task for 1 millisecond */
 		vTaskDelay((TickType_t) 1000/portTICK_PERIOD_MS);
 
 #ifdef SENDER
@@ -407,8 +395,6 @@ void CAN_Init(void)
 		Error_Handler();
 	}
 
-	//testQueue = xQueueCreate(1U, sizeof(uint8_t));
-
 }
 
 
@@ -475,13 +461,6 @@ static void CAN_Config(void)
 		Error_Handler();
 	}
 
-//	/* 5. Configure Transmission Process----------------------------------------------*/
-//	TxHeader.StdId = 0x321;
-//	TxHeader.ExtId= 0x01;
-//	TxHeader.RTR = CAN_RTR_DATA;
-//	TxHeader.IDE = CAN_ID_STD;
-//	TxHeader.DLC = 2;
-//	TxHeader.TransmitGlobalTime = DISABLE;
 }
 
 
