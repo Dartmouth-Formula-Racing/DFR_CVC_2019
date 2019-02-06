@@ -119,7 +119,7 @@ uint8_t BSP_SD_GetCardInfo(BSP_SD_CardInfo *pCardInfo)
 
 
 /**
-  * @brief  Writes block(s) to a specified address in the SD card, in polling mode.
+  * @brief  Writes block(s) to a specified address in the SD card, in DMA mode.
   * @param  pData: Pointer to the buffer that will contain the data to transmit
   * @param  WriteAddr: Address from where data is to be written. The address is counted
   *                   in blocks of 512bytes
@@ -134,7 +134,7 @@ uint8_t BSP_SD_WriteBlocks_DMA(uint8_t *pData, uint32_t WriteAddr, uint32_t NumO
 	return ret;
 }
 /**
-  * @brief  Reads block(s) from a specified address in the SD card, in polling mode.
+  * @brief  Reads block(s) from a specified address in the SD card, in DMA mode.
   * @param  pData: Pointer to the buffer that will contain the data to transmit
   * @param  ReadAddr: Address from where data is to be read. The address is counted
   *                   in blocks of 512bytes
