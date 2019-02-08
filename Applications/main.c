@@ -39,13 +39,13 @@ int main(void)
 	Configure_USART();
 
 	/* test FatFs */
-	function_test_main();
+//	function_test_main();
 
 	/* Create all tasks */
-	//taskCreateAll();
+	taskCreateAll();
 
 	/* Start RTOS Scheduler */
-	//vTaskStartScheduler();
+	vTaskStartScheduler();
 
 	/* Function should never reach this point once scheduler is started */
 	for(;;);
@@ -92,7 +92,7 @@ static void SystemClock_Config(void)
   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-  RCC_OscInitStruct.PLL.PLLM = 25;
+  RCC_OscInitStruct.PLL.PLLM = 8; 		// Changed from 25, OSCILLATOR OVERRIDE
   RCC_OscInitStruct.PLL.PLLN = 432;
   RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
   RCC_OscInitStruct.PLL.PLLQ = 9;

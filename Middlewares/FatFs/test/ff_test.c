@@ -61,52 +61,72 @@ int test_diskio (
 
 
     sprintf(message_buff, message_buff, "test_diskio(%u, %u, 0x%08X, 0x%08X)\n", pdrv, ncyc, (UINT)buff, sz_buff);
-    printf("%s", message_buff);
+//    printf("%s", message_buff);
+    ////console_write(message_buff);
 
     if (sz_buff < _MAX_SS + 4) {
         sprintf(message_buff, message_buff, "Insufficient work area to run program.\n");
-        printf("%s", message_buff);
+//        printf("%s", message_buff);
+        //console_write(message_buff);
         return 1;
     }
 
     for (cc = 1; cc <= ncyc; cc++) {
         sprintf(message_buff, "**** Test cycle %u of %u start ****\n", cc, ncyc);
-        printf("%s", message_buff);
+//        printf("%s", message_buff);
+        //console_write(message_buff);
 
         sprintf(message_buff, " disk_initalize(%u)", pdrv);
-        printf("%s", message_buff);
+//        printf("%s", message_buff);
+        //console_write(message_buff);
 
         ds = disk_initialize(pdrv);
         if (ds & STA_NOINIT) {
             sprintf(message_buff, " - failed.\n");
-            printf("%s", message_buff);
+//            printf("%s", message_buff);
+            //console_write(message_buff);
+
             return 2;
         } else {
             sprintf(message_buff, " - ok.\n");
-            printf("%s", message_buff);
+//            printf("%s", message_buff);
+            //console_write(message_buff);
+
         }
 
         sprintf(message_buff, "**** Get drive size ****\n");
-        printf("%s", message_buff);
+//        printf("%s", message_buff);
+        //console_write(message_buff);
+
         sprintf(message_buff, " disk_ioctl(%u, GET_SECTOR_COUNT, 0x%08X)", pdrv, (UINT)&sz_drv);
-        printf("%s", message_buff);
+//        printf("%s", message_buff);
+        //console_write(message_buff);
+
         sz_drv = 0;
         dr = disk_ioctl(pdrv, GET_SECTOR_COUNT, &sz_drv);
         if (dr == RES_OK) {
             sprintf(message_buff, " - ok.\n");
-            printf("%s", message_buff);
+//            printf("%s", message_buff);
+            //console_write(message_buff);
+
         } else {
             sprintf(message_buff, " - failed.\n");
-            printf("%s", message_buff);
+//            printf("%s", message_buff);
+            //console_write(message_buff);
+
             return 3;
         }
         if (sz_drv < 128) {
             sprintf(message_buff, "Failed: Insufficient drive size to test.\n");
-            printf("%s", message_buff);
+//            printf("%s", message_buff);
+            //console_write(message_buff);
+
             return 4;
         }
         sprintf(message_buff, " Number of sectors on the drive %u is %lu.\n", pdrv, sz_drv);
-        printf("%s", message_buff);
+//        printf("%s", message_buff);
+        //console_write(message_buff);
+
 
 #if _MAX_SS != _MIN_SS
         sprintf(message_buff, "**** Get sector size ****\n");
@@ -125,256 +145,380 @@ int test_diskio (
 #endif
 
         sprintf(message_buff, "**** Get block size ****\n");
-        printf("%s", message_buff);
+//        printf("%s", message_buff);
+        //console_write(message_buff);
+
         sprintf(message_buff, " disk_ioctl(%u, GET_BLOCK_SIZE, 0x%X)", pdrv, (UINT)&sz_eblk);
-        printf("%s", message_buff);
+//        printf("%s", message_buff);
+        //console_write(message_buff);
+
         sz_eblk = 0;
         dr = disk_ioctl(pdrv, GET_BLOCK_SIZE, &sz_eblk);
         if (dr == RES_OK) {
             sprintf(message_buff, " - ok.\n");
-            printf("%s", message_buff);
+//            printf("%s", message_buff);
+            //console_write(message_buff);
+
         } else {
             sprintf(message_buff, " - failed.\n");
-            printf("%s", message_buff);
+//            printf("%s", message_buff);
+            //console_write(message_buff);
+
         }
         if (dr == RES_OK || sz_eblk >= 2) {
             sprintf(message_buff, " Size of the erase block is %lu sectors.\n", sz_eblk);
-            printf("%s", message_buff);
+//            printf("%s", message_buff);
+            //console_write(message_buff);
+
         } else {
             sprintf(message_buff, " Size of the erase block is unknown.\n");
-            printf("%s", message_buff);
+//            printf("%s", message_buff);
+            //console_write(message_buff);
+
         }
 
         /* Single sector write test */
         sprintf(message_buff, "**** Single sector write test 1 ****\n");
-        printf("%s", message_buff);
+//        printf("%s", message_buff);
+        //console_write(message_buff);
+
         lba = 0;
         for (n = 0, pn(pns); n < sz_sect; n++) pbuff[n] = (BYTE)pn(0);
         sprintf(message_buff, " disk_write(%u, 0x%X, %lu, 1)", pdrv, (UINT)pbuff, lba);
-        printf("%s", message_buff);
+//        printf("%s", message_buff);
+        //console_write(message_buff);
+
         dr = disk_write(pdrv, pbuff, lba, 1);
         if (dr == RES_OK) {
             sprintf(message_buff, " - ok.\n");
-            printf("%s", message_buff);
+//            printf("%s", message_buff);
+            //console_write(message_buff);
+
         } else {
             sprintf(message_buff, " - failed.\n");
-            printf("%s", message_buff);
+//            printf("%s", message_buff);
+            //console_write(message_buff);
+
             return 6;
         }
         sprintf(message_buff, " disk_ioctl(%u, CTRL_SYNC, NULL)", pdrv);
-        printf("%s", message_buff);
+//        printf("%s", message_buff);
+        //console_write(message_buff);
+
         dr = disk_ioctl(pdrv, CTRL_SYNC, 0);
         if (dr == RES_OK) {
             sprintf(message_buff, " - ok.\n");
-            printf("%s", message_buff);
+//            printf("%s", message_buff);
+            //console_write(message_buff);
+
         } else {
             sprintf(message_buff, " - failed.\n");
-            printf("%s", message_buff);
+//            printf("%s", message_buff);
+            //console_write(message_buff);
+
             return 7;
         }
         memset(pbuff, 0, sz_sect);
         sprintf(message_buff, " disk_read(%u, 0x%X, %lu, 1)", pdrv, (UINT)pbuff, lba);
-        printf("%s", message_buff);
+//        printf("%s", message_buff);
+        //console_write(message_buff);
+
         dr = disk_read(pdrv, pbuff, lba, 1);
         if (dr == RES_OK) {
             sprintf(message_buff, " - ok.\n");
-            printf("%s", message_buff);
+//            printf("%s", message_buff);
+            //console_write(message_buff);
+
         } else {
             sprintf(message_buff, " - failed.\n");
-            printf("%s", message_buff);
+//            printf("%s", message_buff);
+            //console_write(message_buff);
+
             return 8;
         }
         for (n = 0, pn(pns); n < sz_sect && pbuff[n] == (BYTE)pn(0); n++) ;
         if (n == sz_sect) {
             sprintf(message_buff, " Data matched.\n");
-            printf("%s", message_buff);
+//            printf("%s", message_buff);
+            //console_write(message_buff);
+
         } else {
             sprintf(message_buff, "Failed: Read data differs from the data written.\n");
-            printf("%s", message_buff);
+//            printf("%s", message_buff);
+            //console_write(message_buff);
+
             return 10;
         }
         pns++;
 
 
         sprintf(message_buff, "**** Multiple sector write test ****\n");
-        printf("%s", message_buff);
+//        printf("%s", message_buff);
+        //console_write(message_buff);
+
         lba = 1; ns = sz_buff / sz_sect;
         if (ns > 4) ns = 4;
         for (n = 0, pn(pns); n < (UINT)(sz_sect * ns); n++) pbuff[n] = (BYTE)pn(0);
-        sprintf(message_buff, " disk_write(%u, 0x%X, %lu, %u)", pdrv, (UINT)pbuff, lba, ns);
-        printf("%s", message_buff);
+//        sprintf(message_buff, " disk_write(%u, 0x%X, %lu, %u)", pdrv, (UINT)pbuff, lba, ns);
+//        printf("%s", message_buff);
+        //console_write(message_buff);
+
         dr = disk_write(pdrv, pbuff, lba, ns);
         if (dr == RES_OK) {
             sprintf(message_buff, " - ok.\n");
-            printf("%s", message_buff);
+//            printf("%s", message_buff);
+            //console_write(message_buff);
+
         } else {
             sprintf(message_buff, " - failed.\n");
-            printf("%s", message_buff);
+//            printf("%s", message_buff);
+            //console_write(message_buff);
+
             return 11;
         }
         sprintf(message_buff, " disk_ioctl(%u, CTRL_SYNC, NULL)", pdrv);
-        printf("%s", message_buff);
+//        printf("%s", message_buff);
+        //console_write(message_buff);
+
         dr = disk_ioctl(pdrv, CTRL_SYNC, 0);
         if (dr == RES_OK) {
             sprintf(message_buff, " - ok.\n");
-            printf("%s", message_buff);
+//            printf("%s", message_buff);
+            //console_write(message_buff);
+
         } else {
             sprintf(message_buff, " - failed.\n");
-            printf("%s", message_buff);
+//            printf("%s", message_buff);
+            //console_write(message_buff);
+
             return 12;
         }
         memset(pbuff, 0, sz_sect * ns);
         sprintf(message_buff, " disk_read(%u, 0x%X, %lu, %u)", pdrv, (UINT)pbuff, lba, ns);
-        printf("%s", message_buff);
+//        printf("%s", message_buff);
+        //console_write(message_buff);
+
         dr = disk_read(pdrv, pbuff, lba, ns);
         if (dr == RES_OK) {
             sprintf(message_buff, " - ok.\n");
-            printf("%s", message_buff);
+//            printf("%s", message_buff);
+            //console_write(message_buff);
+
         } else {
             sprintf(message_buff, " - failed.\n");
-            printf("%s", message_buff);
+//            printf("%s", message_buff);
+            //console_write(message_buff);
+
             return 13;
         }
         for (n = 0, pn(pns); n < (UINT)(sz_sect * ns) && pbuff[n] == (BYTE)pn(0); n++) ;
         if (n == (UINT)(sz_sect * ns)) {
             sprintf(message_buff, " Data matched.\n");
-            printf("%s", message_buff);
+//            printf("%s", message_buff);
+            //console_write(message_buff);
+
         } else {
             sprintf(message_buff, "Failed: Read data differs from the data written.\n");
-            printf("%s", message_buff);
+//            printf("%s", message_buff);
+            //console_write(message_buff);
+
             return 14;
         }
         pns++;
 
 
-        sprintf(message_buff, "**** Single sector write test (misaligned address) ****\n");
-        printf("%s", message_buff);
-        lba = 5;
-        for (n = 0, pn(pns); n < sz_sect; n++) pbuff[n+3] = (BYTE)pn(0);
-        sprintf(message_buff, " disk_write(%u, 0x%X, %lu, 1)", pdrv, (UINT)(pbuff+3), lba);
-        printf("%s", message_buff);
-        dr = disk_write(pdrv, pbuff+3, lba, 1);
-        if (dr == RES_OK) {
-            sprintf(message_buff, " - ok.\n");
-            printf("%s", message_buff);
-        } else {
-            sprintf(message_buff, " - failed.\n");
-            printf("%s", message_buff);
-            return 15;
-        }
-        sprintf(message_buff, " disk_ioctl(%u, CTRL_SYNC, NULL)", pdrv);
-        printf("%s", message_buff);
-        dr = disk_ioctl(pdrv, CTRL_SYNC, 0);
-        if (dr == RES_OK) {
-            sprintf(message_buff, " - ok.\n");
-            printf("%s", message_buff);
-        } else {
-            sprintf(message_buff, " - failed.\n");
-            printf("%s", message_buff);
-            return 16;
-        }
-        memset(pbuff+5, 0, sz_sect);
-        sprintf(message_buff, " disk_read(%u, 0x%X, %lu, 1)", pdrv, (UINT)(pbuff+5), lba);
-        printf("%s", message_buff);
-        dr = disk_read(pdrv, pbuff+5, lba, 1);
-        if (dr == RES_OK) {
-            sprintf(message_buff, " - ok.\n");
-            printf("%s", message_buff);
-        } else {
-            sprintf(message_buff, " - failed.\n");
-            printf("%s", message_buff);
-            return 17;
-        }
-        for (n = 0, pn(pns); n < sz_sect && pbuff[n+5] == (BYTE)pn(0); n++) ;
-        if (n == sz_sect) {
-            sprintf(message_buff, " Data matched.\n");
-            printf("%s", message_buff);
-        } else {
-            sprintf(message_buff, "Failed: Read data differs from the data written.\n");
-            printf("%s", message_buff);
-            return 18;
-        }
-        pns++;
-
-
-        sprintf(message_buff, "**** 4GB barrier test ****\n");
-        printf("%s", message_buff);
-        if (sz_drv >= 128 + 0x80000000 / (sz_sect / 2)) {
-            lba = 6; lba2 = lba + 0x80000000 / (sz_sect / 2);
-            for (n = 0, pn(pns); n < (UINT)(sz_sect * 2); n++) pbuff[n] = (BYTE)pn(0);
-            sprintf(message_buff, " disk_write(%u, 0x%X, %lu, 1)", pdrv, (UINT)pbuff, lba);
-            printf("%s", message_buff);
-            dr = disk_write(pdrv, pbuff, lba, 1);
-            if (dr == RES_OK) {
-                sprintf(message_buff, " - ok.\n");
-                printf("%s", message_buff);
-            } else {
-                sprintf(message_buff, " - failed.\n");
-                printf("%s", message_buff);
-                return 19;
-            }
-            sprintf(message_buff, " disk_write(%u, 0x%X, %lu, 1)", pdrv, (UINT)(pbuff+sz_sect), lba2);
-            printf("%s", message_buff);
-            dr = disk_write(pdrv, pbuff+sz_sect, lba2, 1);
-            if (dr == RES_OK) {
-                sprintf(message_buff, " - ok.\n");
-                printf("%s", message_buff);
-            } else {
-                sprintf(message_buff, " - failed.\n");
-                printf("%s", message_buff);
-                return 20;
-            }
-            sprintf(message_buff, " disk_ioctl(%u, CTRL_SYNC, NULL)", pdrv);
-            printf("%s", message_buff);
-            dr = disk_ioctl(pdrv, CTRL_SYNC, 0);
-            if (dr == RES_OK) {
-            sprintf(message_buff, " - ok.\n");
-            printf("%s", message_buff);
-            } else {
-                sprintf(message_buff, " - failed.\n");
-                printf("%s", message_buff);
-                return 21;
-            }
-            memset(pbuff, 0, sz_sect * 2);
-            sprintf(message_buff, " disk_read(%u, 0x%X, %lu, 1)", pdrv, (UINT)pbuff, lba);
-            printf("%s", message_buff);
-            dr = disk_read(pdrv, pbuff, lba, 1);
-            if (dr == RES_OK) {
-                sprintf(message_buff, " - ok.\n");
-                printf("%s", message_buff);
-            } else {
-                sprintf(message_buff, " - failed.\n");
-                printf("%s", message_buff);
-                return 22;
-            }
-            sprintf(message_buff, " disk_read(%u, 0x%X, %lu, 1)", pdrv, (UINT)(pbuff+sz_sect), lba2);
-            printf("%s", message_buff);
-            dr = disk_read(pdrv, pbuff+sz_sect, lba2, 1);
-            if (dr == RES_OK) {
-                sprintf(message_buff, " - ok.\n");
-                printf("%s", message_buff);
-            } else {
-                sprintf(message_buff, " - failed.\n");
-                printf("%s", message_buff);
-                return 23;
-            }
-            for (n = 0, pn(pns); pbuff[n] == (BYTE)pn(0) && n < (UINT)(sz_sect * 2); n++) ;
-            if (n == (UINT)(sz_sect * 2)) {
-                sprintf(message_buff, " Data matched.\n");
-                printf("%s", message_buff);
-            } else {
-                sprintf(message_buff, "Failed: Read data differs from the data written.\n");
-                printf("%s", message_buff);
-                return 24;
-            }
-        } else {
-            sprintf(message_buff, " Test skipped.\n");
-            printf("%s", message_buff);
-        }
-        pns++;
+//        sprintf(message_buff, "**** Single sector write test (misaligned address) ****\n");
+////        printf("%s", message_buff);
+//        //console_write(message_buff);
+//
+//        lba = 5;
+//        for (n = 0, pn(pns); n < sz_sect; n++) pbuff[n+3] = (BYTE)pn(0);
+//        sprintf(message_buff, " disk_write(%u, 0x%X, %lu, 1)", pdrv, (UINT)(pbuff+3), lba);
+////        printf("%s", message_buff);
+//        //console_write(message_buff);
+//
+//        dr = disk_write(pdrv, pbuff+3, lba, 1);
+//        if (dr == RES_OK) {
+//            sprintf(message_buff, " - ok.\n");
+////            printf("%s", message_buff);
+//            //console_write(message_buff);
+//
+//        } else {
+//            sprintf(message_buff, " - failed.\n");
+////            printf("%s", message_buff);
+//            //console_write(message_buff);
+//
+//            return 15;
+//        }
+//        sprintf(message_buff, " disk_ioctl(%u, CTRL_SYNC, NULL)", pdrv);
+////        printf("%s", message_buff);
+//        //console_write(message_buff);
+//
+//        dr = disk_ioctl(pdrv, CTRL_SYNC, 0);
+//        if (dr == RES_OK) {
+//            sprintf(message_buff, " - ok.\n");
+////            printf("%s", message_buff);
+//            //console_write(message_buff);
+//
+//        } else {
+//            sprintf(message_buff, " - failed.\n");
+////            printf("%s", message_buff);
+//            //console_write(message_buff);
+//
+//            return 16;
+//        }
+//        memset(pbuff+5, 0, sz_sect);
+//        sprintf(message_buff, " disk_read(%u, 0x%X, %lu, 1)", pdrv, (UINT)(pbuff+5), lba);
+////        printf("%s", message_buff);
+//        //console_write(message_buff);
+//
+//        dr = disk_read(pdrv, pbuff+5, lba, 1);
+//        if (dr == RES_OK) {
+//            sprintf(message_buff, " - ok.\n");
+////            printf("%s", message_buff);
+//            //console_write(message_buff);
+//
+//        } else {
+//            sprintf(message_buff, " - failed.\n");
+////            printf("%s", message_buff);
+//            //console_write(message_buff);
+//
+//            return 17;
+//        }
+//        for (n = 0, pn(pns); n < sz_sect && pbuff[n+5] == (BYTE)pn(0); n++) ;
+//        if (n == sz_sect) {
+//            sprintf(message_buff, " Data matched.\n");
+////            printf("%s", message_buff);
+//            //console_write(message_buff);
+//
+//        } else {
+//            sprintf(message_buff, "Failed: Read data differs from the data written.\n");
+////            printf("%s", message_buff);
+//            //console_write(message_buff);
+//
+//            return 18;
+//        }
+//        pns++;
+//
+//
+//        sprintf(message_buff, "**** 4GB barrier test ****\n");
+////        printf("%s", message_buff);
+//        //console_write(message_buff);
+//
+//        if (sz_drv >= 128 + 0x80000000 / (sz_sect / 2)) {
+//            lba = 6; lba2 = lba + 0x80000000 / (sz_sect / 2);
+//            for (n = 0, pn(pns); n < (UINT)(sz_sect * 2); n++) pbuff[n] = (BYTE)pn(0);
+//            sprintf(message_buff, " disk_write(%u, 0x%X, %lu, 1)", pdrv, (UINT)pbuff, lba);
+////            printf("%s", message_buff);
+//            //console_write(message_buff);
+//
+//            dr = disk_write(pdrv, pbuff, lba, 1);
+//            if (dr == RES_OK) {
+//                sprintf(message_buff, " - ok.\n");
+////                printf("%s", message_buff);
+//                //console_write(message_buff);
+//
+//            } else {
+//                sprintf(message_buff, " - failed.\n");
+////                printf("%s", message_buff);
+//                //console_write(message_buff);
+//
+//                return 19;
+//            }
+//            sprintf(message_buff, " disk_write(%u, 0x%X, %lu, 1)", pdrv, (UINT)(pbuff+sz_sect), lba2);
+////            printf("%s", message_buff);
+//            //console_write(message_buff);
+//
+//            dr = disk_write(pdrv, pbuff+sz_sect, lba2, 1);
+//            if (dr == RES_OK) {
+//                sprintf(message_buff, " - ok.\n");
+////                printf("%s", message_buff);
+//                //console_write(message_buff);
+//
+//            } else {
+//                sprintf(message_buff, " - failed.\n");
+////                printf("%s", message_buff);
+//                //console_write(message_buff);
+//
+//                return 20;
+//            }
+//            sprintf(message_buff, " disk_ioctl(%u, CTRL_SYNC, NULL)", pdrv);
+////            printf("%s", message_buff);
+//            //console_write(message_buff);
+//
+//            dr = disk_ioctl(pdrv, CTRL_SYNC, 0);
+//            if (dr == RES_OK) {
+//            sprintf(message_buff, " - ok.\n");
+////            printf("%s", message_buff);
+//            //console_write(message_buff);
+//
+//            } else {
+//                sprintf(message_buff, " - failed.\n");
+////                printf("%s", message_buff);
+//                //console_write(message_buff);
+//
+//                return 21;
+//            }
+//            memset(pbuff, 0, sz_sect * 2);
+//            sprintf(message_buff, " disk_read(%u, 0x%X, %lu, 1)", pdrv, (UINT)pbuff, lba);
+////            printf("%s", message_buff);
+//            //console_write(message_buff);
+//
+//            dr = disk_read(pdrv, pbuff, lba, 1);
+//            if (dr == RES_OK) {
+//                sprintf(message_buff, " - ok.\n");
+////                printf("%s", message_buff);
+//                //console_write(message_buff);
+//
+//            } else {
+//                sprintf(message_buff, " - failed.\n");
+////                printf("%s", message_buff);
+//                //console_write(message_buff);
+//
+//                return 22;
+//            }
+//            sprintf(message_buff, " disk_read(%u, 0x%X, %lu, 1)", pdrv, (UINT)(pbuff+sz_sect), lba2);
+////            printf("%s", message_buff);
+//            //console_write(message_buff);
+//
+//            dr = disk_read(pdrv, pbuff+sz_sect, lba2, 1);
+//            if (dr == RES_OK) {
+//                sprintf(message_buff, " - ok.\n");
+////                printf("%s", message_buff);
+//                //console_write(message_buff);
+//
+//            } else {
+//                sprintf(message_buff, " - failed.\n");
+////                printf("%s", message_buff);
+//                //console_write(message_buff);
+//
+//                return 23;
+//            }
+//            for (n = 0, pn(pns); pbuff[n] == (BYTE)pn(0) && n < (UINT)(sz_sect * 2); n++) ;
+//            if (n == (UINT)(sz_sect * 2)) {
+//                sprintf(message_buff, " Data matched.\n");
+////                printf("%s", message_buff);
+//                //console_write(message_buff);
+//
+//            } else {
+//                sprintf(message_buff, "Failed: Read data differs from the data written.\n");
+////                printf("%s", message_buff);
+//                //console_write(message_buff);
+//
+//                return 24;
+//            }
+//        } else {
+//            sprintf(message_buff, " Test skipped.\n");
+////            printf("%s", message_buff);
+//            //console_write(message_buff);
+//
+//        }
+//        pns++;
 
         sprintf(message_buff, "**** Test cycle %u of %u completed ****\n\n", cc, ncyc);
-        printf("%s", message_buff);
+//        printf("%s", message_buff);
+        //console_write(message_buff);
+
     }
 
     return 0;
@@ -404,10 +548,15 @@ int function_test_main (void)
 
     if (rc) {
         sprintf(message_buff, "Sorry the function/compatibility test failed. (rc=%d)\nFatFs will not work with this disk driver.\n", rc);
-        printf("%s", message_buff);
+//        printf("%s", message_buff);
+//        //console_write(message_buff);
+        BSP_LED_On(LED_RED);
+
     } else {
         sprintf(message_buff, message_buff, "Congratulations! The disk driver works well.\n");
-        printf("%s", message_buff);
+//        printf("%s", message_buff);
+//        //console_write(message_buff);
+        BSP_LED_On(LED_GREEN);
     }
 
     return rc;

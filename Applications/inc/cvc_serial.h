@@ -43,7 +43,7 @@
  	- Hardware flow control disabled (RTS and CTS signals)
  */
 
-#define USE_PRINTF       1
+#define USE_PRINTF       0
 
 /* Private definitions covering GPIO clock and USART pins
    depending on selected USART instance. */

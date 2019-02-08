@@ -56,6 +56,8 @@
 #include "cmsis_os.h"
 #include "ff_gen_drv.h"
 #include "stm32f7_diskio_dma_rtos.h"
+#include "cvc_sd.h"
+
 
 
 /* Private typedef -----------------------------------------------------------*/
@@ -92,7 +94,7 @@
  * Notice: This is applicable only for cortex M7 based platform.
  */
 
-/* #define ENABLE_SD_DMA_CACHE_MAINTENANCE  1 */
+#define ENABLE_SD_DMA_CACHE_MAINTENANCE  1
 
 
 /* Private variables ---------------------------------------------------------*/
@@ -204,7 +206,7 @@ DRESULT SD_read(BYTE lun, BYTE *buff, DWORD sector, UINT count)
   uint32_t alignedAddr;
 #endif
 
-  if(BSP_SD_ReadBlocks_DMA((uint32_t*)buff,
+  if(BSP_SD_ReadBlocks_DMA((uint8_t*)buff,
                            (uint32_t) (sector),
                            count) == MSD_OK)
   {
@@ -219,7 +221,7 @@ DRESULT SD_read(BYTE lun, BYTE *buff, DWORD sector, UINT count)
         /* block until SDIO IP is ready or a timeout occur */
         while(timer > osKernelSysTick())
         {
-          if (BSP_SD_GetCardState() == SD_TRANSFER_OK)
+          if (BSP_SD_GetTransferState() == SD_TRANSFER_OK)
           {
             res = RES_OK;
 #if (ENABLE_SD_DMA_CACHE_MAINTENANCE == 1)
@@ -266,7 +268,7 @@ DRESULT SD_write(BYTE lun, const BYTE *buff, DWORD sector, UINT count)
 #endif
 
 
-  if(BSP_SD_WriteBlocks_DMA((uint32_t*)buff,
+  if(BSP_SD_WriteBlocks_DMA((uint8_t*)buff,
                            (uint32_t) (sector),
                            count) == MSD_OK)
   {
@@ -281,7 +283,7 @@ DRESULT SD_write(BYTE lun, const BYTE *buff, DWORD sector, UINT count)
         /* block until SDIO IP is ready or a timeout occur */
         while(timer > osKernelSysTick())
         {
-          if (BSP_SD_GetCardState() == SD_TRANSFER_OK)
+          if (BSP_SD_GetTransferState() == SD_TRANSFER_OK)
           {
             res = RES_OK;
             break;

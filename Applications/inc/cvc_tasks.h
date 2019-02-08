@@ -11,6 +11,7 @@
 #include "freeRTOS.h"
 #include "task.h"
 #include "demo.h"
+#include "cvc_logging.h"
 
 
 /*********************************************************************************
