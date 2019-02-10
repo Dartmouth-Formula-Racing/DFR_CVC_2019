@@ -20,6 +20,8 @@
 #include "ffconf.h"
 #include "stm32f7xx_nucleo_144.h"
 #include "cvc_serial.h"
+#include "FreeRTOS.h"
+#include "task.h"
 
 static char message_buff[MAX_STRING_LENGTH];
 static
@@ -530,7 +532,7 @@ int function_test_main (void)
 {
 	BSP_LED_Init(LED_RED);
 	BSP_LED_Init(LED_BLUE);
-	BSP_LED_Init(LED_RED);
+	BSP_LED_Init(LED_GREEN);
 
 	BSP_LED_Off(LED_RED);
 	BSP_LED_Off(LED_GREEN);
@@ -557,6 +559,7 @@ int function_test_main (void)
 //        printf("%s", message_buff);
 //        //console_write(message_buff);
         BSP_LED_On(LED_GREEN);
+        vTaskDelay(1);
     }
 
     return rc;

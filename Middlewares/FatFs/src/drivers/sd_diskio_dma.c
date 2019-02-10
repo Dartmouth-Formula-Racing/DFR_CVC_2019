@@ -48,6 +48,9 @@
   */
 
 /* Includes ------------------------------------------------------------------*/
+#include "FreeRTOS.h"
+#include "task.h"
+#include "cmsis_os.h"
 #include "ff_gen_drv.h"
 #include "sd_diskio_dma.h"
 #include "cvc_sd.h"
@@ -55,6 +58,11 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
+#define QUEUE_SIZE         (uint32_t) 10
+#define READ_CPLT_MSG      (uint32_t) 1
+#define WRITE_CPLT_MSG     (uint32_t) 2
+#define ABORT_MSG          (uint32_t) 3
+
 /*
  * the following Timeout is useful to give the control back to the applications
  * in case of errors in either BSP_SD_ReadCpltCallback() or BSP_SD_WriteCpltCallback()
@@ -80,13 +88,14 @@
  * Notice: This is applicable only for cortex M7 based platform.
  */
 
-#define ENABLE_SD_DMA_CACHE_MAINTENANCE  1
+#define ENABLE_SD_DMA_CACHE_MAINTENANCE  0
 
 
 /* Private variables ---------------------------------------------------------*/
 /* Disk status */
 static volatile DSTATUS Stat = STA_NOINIT;
-static volatile  UINT  WriteStatus = 0, ReadStatus = 0;
+//static volatile  UINT  WriteStatus = 0, ReadStatus = 0;
+static osMessageQId SDQueueID;
 /* Private function prototypes -----------------------------------------------*/
 static DSTATUS SD_CheckStatus(BYTE lun);
 DSTATUS SD_initialize (BYTE);
@@ -133,16 +142,29 @@ static DSTATUS SD_CheckStatus(BYTE lun)
   */
 DSTATUS SD_initialize(BYTE lun)
 {
+  if(osKernelRunning())
+  {
 #if !defined(DISABLE_SD_INIT)
 
-  if(BSP_SD_Init() == MSD_OK)
-  {
-    Stat = SD_CheckStatus(lun);
-  }
+	  if(BSP_SD_Init() == MSD_OK)
+	  {
+		Stat = SD_CheckStatus(lun);
+	  }
 
 #else
   Stat = SD_CheckStatus(lun);
 #endif
+
+  /*
+       * if the SD is correctly initialized, create the operation queue
+       */
+
+      if (Stat != STA_NOINIT)
+      {
+        osMessageQDef(SD_Queue, QUEUE_SIZE, uint16_t);
+        SDQueueID = osMessageCreate (osMessageQ(SD_Queue), NULL);
+      }
+    }
   return Stat;
 }
 
@@ -166,52 +188,49 @@ DSTATUS SD_status(BYTE lun)
   */
 DRESULT SD_read(BYTE lun, BYTE *buff, DWORD sector, UINT count)
 {
-  DRESULT res = RES_ERROR;
-  ReadStatus = 0;
-  uint32_t timeout;
+	DRESULT res = RES_ERROR;
+	osEvent event;
+	uint32_t timeout;
+
 #if (ENABLE_SD_DMA_CACHE_MAINTENANCE == 1)
-  uint32_t alignedAddr;
+	uint32_t alignedAddr;
 #endif
 
-  if(BSP_SD_ReadBlocks_DMA((uint8_t*)buff,
-                           (uint32_t) (sector),
-                           count) == MSD_OK)
-  {
-    /* Wait that the reading process is completed or a timeout occurs */
-    timeout = HAL_GetTick();
-    while((ReadStatus == 0) && ((HAL_GetTick() - timeout) < SD_TIMEOUT))
-    {
-    }
-    /* incase of a timeout return error */
-    if (ReadStatus == 0)
-    {
-      res = RES_ERROR;
-    }
-    else
-    {
-      ReadStatus = 0;
-      timeout = HAL_GetTick();
+	if(BSP_SD_ReadBlocks_DMA((uint8_t*)buff,
+						   (uint32_t) (sector),
+						   count) == MSD_OK)
+	{
+		/* wait for a message from the queue or a timeout */
+		event = osMessageGet(SDQueueID, SD_TIMEOUT);
 
-      while((HAL_GetTick() - timeout) < SD_TIMEOUT)
-      {
-        if (BSP_SD_GetTransferState() == SD_TRANSFER_OK)
-        {
-          res = RES_OK;
+		if (event.status == osEventMessage)
+		{
+			if (event.value.v == READ_CPLT_MSG)
+			{
+				timeout = HAL_GetTick();
+
+				while((HAL_GetTick() - timeout) < SD_TIMEOUT)
+				{
+					if (BSP_SD_GetTransferState() == SD_TRANSFER_OK)
+					{
+						res = RES_OK;
+
 #if (ENABLE_SD_DMA_CACHE_MAINTENANCE == 1)
-            /*
-               the SCB_InvalidateDCache_by_Addr() requires a 32-Byte aligned address,
-               adjust the address and the D-Cache size to invalidate accordingly.
-             */
-            alignedAddr = (uint32_t)buff & ~0x1F;
-            SCB_InvalidateDCache_by_Addr((uint32_t*)alignedAddr, count*BLOCKSIZE + ((uint32_t)buff - alignedAddr));
+						/*
+						   the SCB_InvalidateDCache_by_Addr() requires a 32-Byte aligned address,
+						   adjust the address and the D-Cache size to invalidate accordingly.
+						 */
+						alignedAddr = (uint32_t)buff & ~0x1F;
+						SCB_InvalidateDCache_by_Addr((uint32_t*)alignedAddr, count*BLOCKSIZE + ((uint32_t)buff - alignedAddr));
 #endif
-           break;
-        }
-      }
-    }
-  }
-
-  return res;
+						break;
+					}
+					vTaskDelay(1);
+				}
+			}
+		}
+	}
+	return res;
 }
 
 /**
@@ -225,53 +244,49 @@ DRESULT SD_read(BYTE lun, BYTE *buff, DWORD sector, UINT count)
 #if _USE_WRITE == 1
 DRESULT SD_write(BYTE lun, const BYTE *buff, DWORD sector, UINT count)
 {
-  DRESULT res = RES_ERROR;
-  WriteStatus = 0;
-  uint32_t timeout;
+	osEvent event;
+	DRESULT res = RES_ERROR;
+	uint32_t timeout;
 
 #if (ENABLE_SD_DMA_CACHE_MAINTENANCE == 1)
-  uint32_t alignedAddr;
-  /*
-   the SCB_CleanDCache_by_Addr() requires a 32-Byte aligned address
-   adjust the address and the D-Cache size to clean accordingly.
-   */
-  alignedAddr = (uint32_t)buff &  ~0x1F;
-  SCB_CleanDCache_by_Addr((uint32_t*)alignedAddr, count*BLOCKSIZE + ((uint32_t)buff - alignedAddr));
+	uint32_t alignedAddr;
+	/*
+		the SCB_CleanDCache_by_Addr() requires a 32-Byte aligned address
+		adjust the address and the D-Cache size to clean accordingly.
+	*/
+	alignedAddr = (uint32_t)buff &  ~0x1F;
+	SCB_CleanDCache_by_Addr((uint32_t*)alignedAddr, count*BLOCKSIZE + ((uint32_t)buff - alignedAddr));
 #endif
 
 
-  if(BSP_SD_WriteBlocks_DMA((uint8_t*)buff,
-                            (uint32_t)(sector),
-                            count) == MSD_OK)
-  {
-    /* Wait that writing process is completed or a timeout occurs */
+	if(BSP_SD_WriteBlocks_DMA((uint8_t*)buff,
+							(uint32_t)(sector),
+							count) == MSD_OK)
+	{
+		/* Wait that writing process is completed or a timeout occurs */
 
-    timeout = HAL_GetTick();
-    while((WriteStatus == 0) && ((HAL_GetTick() - timeout) < SD_TIMEOUT))
-    {
-    }
-    /* incase of a timeout return error */
-    if (WriteStatus == 0)
-    {
-      res = RES_ERROR;
-    }
-    else
-    {
-      WriteStatus = 0;
-      timeout = HAL_GetTick();
+		/* Get the message from the queue */
+		event = osMessageGet(SDQueueID, SD_TIMEOUT);
 
-      while((HAL_GetTick() - timeout) < SD_TIMEOUT)
-      {
-        if (BSP_SD_GetTransferState() == SD_TRANSFER_OK)
-        {
-          res = RES_OK;
-          break;
-        }
-      }
-    }
-  }
+		if (event.status == osEventMessage)
+		{
+			if (event.value.v == WRITE_CPLT_MSG)
+			{
+				timeout = HAL_GetTick();
 
-  return res;
+				while((HAL_GetTick() - timeout) < SD_TIMEOUT)
+				{
+					if (BSP_SD_GetTransferState() == SD_TRANSFER_OK)
+					{
+						res = RES_OK;
+						break;
+					}
+					vTaskDelay(1);
+				}
+			}
+		}
+	}
+	return res;
 }
 #endif /* _USE_WRITE == 1 */
 
@@ -344,7 +359,11 @@ DRESULT SD_ioctl(BYTE lun, BYTE cmd, void *buff)
 
 void HAL_SD_TxCpltCallback(SD_HandleTypeDef *hsd)
 {
-  WriteStatus = 1;
+	/*
+	   * No need to add an "osKernelRunning()" check here, as the SD_initialize()
+	   * is always called before any SD_Read()/SD_Write() call
+	   */
+	  osMessagePut(SDQueueID, WRITE_CPLT_MSG, osWaitForever);
 }
 
 /**
@@ -353,16 +372,35 @@ void HAL_SD_TxCpltCallback(SD_HandleTypeDef *hsd)
   * @retval None
   */
 
-  /*
-   ===============================================================================
-    Select the correct function signature depending on your platform.
-    please refer to the file "stm32xxxx_eval_sd.h" to verify the correct function
-    prototype
-   ===============================================================================
-  */
+/*
+ ===============================================================================
+  Select the correct function signature depending on your platform.
+  please refer to the file "stm32xxxx_eval_sd.h" to verify the correct function
+  prototype
+ ===============================================================================
+*/
 void HAL_SD_RxCpltCallback(SD_HandleTypeDef *hsd)
 {
-  ReadStatus = 1;
+	/*
+	   * No need to add an "osKernelRunning()" check here, as the SD_initialize()
+	   * is always called before any SD_Read()/SD_Write() call
+	   */
+	  osMessagePut(SDQueueID, READ_CPLT_MSG, osWaitForever);
+}
+
+
+/**
+* @brief Abort callbacks
+* @param hsd: SD handle
+* @retval None
+*/
+void HAL_SD_AbortCallback(SD_HandleTypeDef *hsd)
+{
+/*
+ * No need to add an "osKernelRunning()" check here, as the SD_initialize()
+ * is always called before any SD_Read()/SD_Write() call
+ */
+ osMessagePut(SDQueueID, ABORT_MSG, osWaitForever);
 }
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
 

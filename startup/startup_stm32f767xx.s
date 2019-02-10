@@ -126,6 +126,8 @@ Default_Handler:
 Infinite_Loop:
   b  Infinite_Loop
   .size  Default_Handler, .-Default_Handler
+
+
 /******************************************************************************
 *
 * The minimal vector table for a Cortex M7. Note that the proper constructs
