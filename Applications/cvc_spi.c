@@ -28,6 +28,9 @@ typedef struct PLC_transmission_msg_s
 /* Free rtos variables -----------------------------------------------------------*/
 static QueueHandle_t PLC_transmit_queue = NULL;
 
+/* Semaphores ----------------------------------------------------------------*/
+volatile SemaphoreHandle_t SPI_Inputs_Vector_Mutex;
+volatile SemaphoreHandle_t SPI_Outputs_Vector_Mutex;
 
 /* External Variables ------------------------------------------------------------*/
 volatile CLT_Read_u_t			CLT_Read;
@@ -69,16 +72,16 @@ void PLC_Routine_Task(void * parameters)
 		{
 			vTaskDelay((TickType_t) 10/portTICK_PERIOD_MS);		// Running at 100 Hz
 
-			//get mutex
-			xSemaphoreTake(SPI_Inputs_Vector_Mutex, portMAX_DELAY);
+			xSemaphoreTake(SPI_Inputs_Vector_Mutex, portMAX_DELAY);	//get mutex
+			xSemaphoreTake(SPI_Outputs_Vector_Mutex, portMAX_DELAY);	//get mutex
 
 			initiate_SPI_transmission();
 
 			/* get message from queue */
 			xQueueReceive( PLC_transmit_queue, &PLC_transmission_message, portMAX_DELAY ); //change portMAX_DELAY to some # of ticks
 
-			//give_SPI_mutex
-			xSemaphoreGive(SPI_Inputs_Vector_Mutex);
+			xSemaphoreGive(SPI_Inputs_Vector_Mutex);	//give_SPI_mutex
+			xSemaphoreGive(SPI_Outputs_Vector_Mutex);	//give_SPI_mutex
 		}
 }
 
@@ -417,6 +420,12 @@ void Activate_SPI(void)
 
 	SPI_Inputs_Vector_Mutex = xSemaphoreCreateMutex();
 	if (SPI_Inputs_Vector_Mutex == NULL)
+	{
+		//Error_Handler();
+	}
+
+	SPI_Outputs_Vector_Mutex = xSemaphoreCreateMutex();
+	if (SPI_Outputs_Vector_Mutex == NULL)
 	{
 		//Error_Handler();
 	}

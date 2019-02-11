@@ -198,8 +198,6 @@ extern volatile SPI_outputs_vector_t	SPI_outputs_vector;
 
 extern volatile SPI_io_states_t SPI_io_state;
 
-/* Semaphores ----------------------------------------------------------------*/
-SemaphoreHandle_t SPI_Inputs_Vector_Mutex;
 
 /* Function prototypes -----------------------------------------------*/
 void PLC_Routine_Task(void * parameters);
