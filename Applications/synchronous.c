@@ -13,7 +13,10 @@
 #include "cvc_spi.h"
 
 /* Volatile variables --------------------------------------------------------*/
+extern volatile SPI_outputs_vector_t SPI_outputs_vector;
 
+extern volatile SemaphoreHandle_t SPI_Inputs_Vector_Mutex;
+extern volatile SemaphoreHandle_t SPI_Outputs_Vector_Mutex;
 
 /**
   * @brief Fast synchronous task (100 Hz)
@@ -25,7 +28,16 @@ void _10_ms_Task(void * parameters)
 		vTaskDelay((TickType_t) 10/portTICK_PERIOD_MS);
 
 
-		initiate_SPI_transmission();
+		if (xSemaphoreTake(SPI_Outputs_Vector_Mutex, portMAX_DELAY) == pdTRUE);
+
+		SPI_outputs_vector.safety = SPI_inputs_vector.ICE_enable;
+		SPI_outputs_vector.ready_to_drive = SPI_inputs_vector.Motor_enable;
+		SPI_outputs_vector.rfg = SPI_inputs_vector.Ready_to_drive;
+		SPI_outputs_vector.ignition_kill = SPI_inputs_vector.Dash_BRB_press;
+		SPI_outputs_vector.downshift_solenoid = SPI_inputs_vector.IMD_safety_circuit_fault;
+		SPI_outputs_vector.upshift_solenoid = SPI_inputs_vector.BMS_safety_circuit_fault;
+
+		xSemaphoreGive(SPI_Outputs_Vector_Mutex);
 	}
 }
 

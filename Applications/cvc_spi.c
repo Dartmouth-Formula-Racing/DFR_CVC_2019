@@ -8,9 +8,29 @@
 /* Includes ------------------------------------------------------------------*/
 #include "cvc_spi.h"
 
+#include "FreeRTOS.h"
+#include "task.h"
+#include "queue.h"
+
+
 /* Defines -------------------------------------------------------------------*/
 #define		SPI_BUFFER_SIZE 	5
 
+/* Private TypeDefs ---------------------------------------------------------------*/
+
+/* Struct to hold messages used in PLC_transmission_complete queues */
+typedef struct PLC_transmission_msg_s
+{
+	int flag;
+} PLC_transmission_msg_t;
+
+
+/* Free rtos variables -----------------------------------------------------------*/
+static QueueHandle_t PLC_transmit_queue = NULL;
+
+/* Semaphores ----------------------------------------------------------------*/
+volatile SemaphoreHandle_t SPI_Inputs_Vector_Mutex;
+volatile SemaphoreHandle_t SPI_Outputs_Vector_Mutex;
 
 /* External Variables ------------------------------------------------------------*/
 volatile CLT_Read_u_t			CLT_Read;
@@ -40,7 +60,52 @@ CLT_Read_u_t Or_temp;
 CLT_Read_u_t debounced_data = {0};
 
 
+/* Task Functions ----------------------------------------------------------------*/
+/**
+ * @brief 	Carries out PLC SPI communication routine
+ */
+void PLC_Routine_Task(void * parameters)
+{
+	PLC_transmission_msg_t PLC_transmission_message;
+
+	while(1)
+		{
+			vTaskDelay((TickType_t) 10/portTICK_PERIOD_MS);		// Running at 100 Hz
+
+			xSemaphoreTake(SPI_Inputs_Vector_Mutex, portMAX_DELAY);	//get mutex
+			xSemaphoreTake(SPI_Outputs_Vector_Mutex, portMAX_DELAY);	//get mutex
+
+			initiate_SPI_transmission();
+
+			/* get message from queue */
+			xQueueReceive( PLC_transmit_queue, &PLC_transmission_message, portMAX_DELAY ); //change portMAX_DELAY to some # of ticks
+
+			xSemaphoreGive(SPI_Inputs_Vector_Mutex);	//give_SPI_mutex
+			xSemaphoreGive(SPI_Outputs_Vector_Mutex);	//give_SPI_mutex
+		}
+}
+
+
+
 /* Functions ---------------------------------------------------------------------*/
+
+/**
+  * @brief	When RX Interrupt is received, run SPI_routine()
+  * @param	None
+  * @retval	None
+ */
+void PLC_routine_ISR_callback(void)
+{
+	PLC_transmission_msg_t PLC_transmission_message;
+
+	SPI_routine();
+
+	if ( SPI_io_state == wait_for_next_transmission)
+	{
+		xQueueSendFromISR(PLC_transmit_queue, &PLC_transmission_message, NULL);
+	}
+}
+
 
 /**
   * @brief	Start SPI communication with PLC board
@@ -50,6 +115,7 @@ CLT_Read_u_t debounced_data = {0};
 void initiate_SPI_transmission(void)
 {
 	/* Begin transmission with PLC by writing CLT_Write (empty) to CLT chip */
+	CLT_Write = 0;
 	LL_GPIO_ResetOutputPin(GPIOD, LL_GPIO_PIN_15);
 	LL_SPI_TransmitData16(SPI1, CLT_Write);
 	SPI_io_state = wait_for_CLT;
@@ -155,6 +221,9 @@ void SPI_PLC_Set_Inputs(void)
 	SPI_inputs_vector.IMD_safety_circuit_fault 		= CLT_Read.bit.IN5;
 	SPI_inputs_vector.BMS_safety_circuit_fault 		= CLT_Read.bit.IN6;
 	SPI_inputs_vector.Bamocar_safety_circuit_fault 	= CLT_Read.bit.IN7;
+
+
+
 }
 
 
@@ -173,6 +242,16 @@ void SPI_PLC_Set_Outputs(void)
 	VNI_Write.bit.IN6 = SPI_outputs_vector.upshift_solenoid;
 	VNI_Write.bit.IN7 = 0;
 	VNI_Write.bit.IN8 = 0;
+
+
+//	VNI_Write.bit.IN1 = CLT_Read.bit.IN1;
+//	VNI_Write.bit.IN2 = CLT_Read.bit.IN2;
+//	VNI_Write.bit.IN3 = CLT_Read.bit.IN3;
+//	VNI_Write.bit.IN4 = CLT_Read.bit.IN4;
+//	VNI_Write.bit.IN5 = CLT_Read.bit.IN5;
+//	VNI_Write.bit.IN6 = CLT_Read.bit.IN6;
+//	VNI_Write.bit.IN7 = CLT_Read.bit.IN7;
+//	VNI_Write.bit.IN8 = 0;
 
 	set_SPI_parity_check_bit_outputs(&VNI_Write);
 }
@@ -294,7 +373,7 @@ void Configure_SPI(void)
 	NVIC_SetPriorityGrouping(NVIC_PRIORITYGROUP_4); //for free rtos on stm32
 
 	/* Set priority for SPI1_IRQn */
-	NVIC_SetPriority(SPI1_IRQn, configMAX_SYSCALL_INTERRUPT_PRIORITY);
+	NVIC_SetPriority(SPI1_IRQn, configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY);
 	/* Enable SPI1_IRQn           */
 	NVIC_EnableIRQ(SPI1_IRQn);
 
@@ -331,6 +410,23 @@ void Configure_SPI(void)
   */
 void Activate_SPI(void)
 {
-  /* Enable SPI1 */
-  LL_SPI_Enable(SPI1);
+	/* Enable SPI1 */
+	LL_SPI_Enable(SPI1);
+	PLC_transmit_queue = xQueueCreate(PLC_TRANSMIT_QUEUE_LENGTH, sizeof(PLC_transmission_msg_t));
+	if (PLC_transmit_queue == NULL)
+	{
+		//Error_Handler();
+	}
+
+	SPI_Inputs_Vector_Mutex = xSemaphoreCreateMutex();
+	if (SPI_Inputs_Vector_Mutex == NULL)
+	{
+		//Error_Handler();
+	}
+
+	SPI_Outputs_Vector_Mutex = xSemaphoreCreateMutex();
+	if (SPI_Outputs_Vector_Mutex == NULL)
+	{
+		//Error_Handler();
+	}
 }

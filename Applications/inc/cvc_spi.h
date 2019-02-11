@@ -21,7 +21,7 @@
 
 #include "stm32f7xx_it.h"
 #include "FreeRTOS.h"
-
+#include "semphr.h"
 
 /* Defines -------------------------------------------------------------------*/
 
@@ -61,6 +61,8 @@
 #define PLC_OUTEN_GPIO_PORT		GPIOE
 
 
+/* Definitions for Queues */
+#define PLC_TRANSMIT_QUEUE_LENGTH		100U
 
 /* Typedefs ----------------------------------------------------------*/
 
@@ -198,6 +200,9 @@ extern volatile SPI_io_states_t SPI_io_state;
 
 
 /* Function prototypes -----------------------------------------------*/
+void PLC_Routine_Task(void * parameters);
+void PLC_routine_ISR_callback(void);
+
 void Configure_SPI(void);
 void Activate_SPI(void);
 
