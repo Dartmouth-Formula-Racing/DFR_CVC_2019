@@ -31,7 +31,7 @@ void _10_ms_Task(void * parameters)
 		SPI_outputs_vector.downshift_solenoid = SPI_inputs_vector.IMD_safety_circuit_fault;
 		SPI_outputs_vector.upshift_solenoid = SPI_inputs_vector.BMS_safety_circuit_fault;
 
-		initiate_SPI_transmission();
+//		initiate_SPI_transmission();
 	}
 }
 

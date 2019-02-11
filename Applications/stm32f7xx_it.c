@@ -67,7 +67,8 @@ void SPI1_IRQHandler(void)
 
 	if(LL_SPI_IsActiveFlag_RXNE(SPI1))
 	{
-		SPI_routine();
+		//SPI_routine();
+		PLC_routine_ISR_callback();
 	}
 
 
