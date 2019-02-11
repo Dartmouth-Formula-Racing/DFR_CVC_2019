@@ -40,7 +40,11 @@ BaseType_t taskCreateAll()	{
 	return status;
 }
 
-
+void vApplicationStackOverflowHook( TaskHandle_t xTask,
+                                    signed char *pcTaskName )
+{
+	for(;;);
+}
 
 
 
