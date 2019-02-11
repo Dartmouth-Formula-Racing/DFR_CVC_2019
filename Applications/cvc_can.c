@@ -11,6 +11,7 @@
 #include "task.h"
 #include "demo.h"
 #include "queue.h"
+#include "semphr.h"
 
 /* Private TypeDefs ---------------------------------------------------------------*/
 
@@ -148,6 +149,10 @@ static CAN_msg_t CAN_dict[]	=
 static QueueHandle_t RxQueue = NULL;
 static QueueHandle_t TxQueue = NULL;
 
+/* Semaphores ----------------------------------------------------------------*/
+volatile SemaphoreHandle_t CAN_Inputs_Vector_Mutex;
+volatile SemaphoreHandle_t CAN_Outputs_Vector_Mutex;
+
 
 /* Task Functions ---------------------------------------------------------------*/
 
@@ -209,6 +214,7 @@ void CAN_Tx_Task(void * parameters)
 	}
 }
 
+
 /* Non-Task Functions ---------------------------------------------------------------*/
 
 /**
@@ -224,14 +230,19 @@ static void CAN_parser_std(queue_msg_t q_msg, uint8_t CAN_idx)
 		uint32_t result = 0;
 		input_map_t input = CAN_dict[CAN_idx].input_map[i];
 
+
 		/* iterate over all bytes of input */
 		for (int j = 0; j < input.size; j++)
 		{
 			result = result << 8 | (uint32_t) (q_msg.data._8[input.start_byte + j] << input.start_bit);
 		}
 
+		xSemaphoreTake(CAN_Inputs_Vector_Mutex, portMAX_DELAY);	//get CAN inputs mutex
+
 		/* store result in CAN_inputs table */
 		CAN_inputs[input.index] = result;
+
+		xSemaphoreGive(CAN_Inputs_Vector_Mutex);	//give CAN inputs mutex
 	}
 }
 
@@ -242,10 +253,14 @@ static void CAN_parser_std(queue_msg_t q_msg, uint8_t CAN_idx)
  */
 static void CAN_parser_EMUS1(queue_msg_t q_msg, uint8_t CAN_idx)
 {
+	xSemaphoreTake(CAN_Inputs_Vector_Mutex, portMAX_DELAY);	//get CAN inputs mutex
+
 	CAN_inputs[MIN_CELL_VOLTAGE] = q_msg.data._8[0];
 	CAN_inputs[MAX_CELL_VOLTAGE] = q_msg.data._8[1];
 	CAN_inputs[AVG_CELL_VOLTAGE] = q_msg.data._8[2];
 	CAN_inputs[TOTAL_VOLTAGE] = (uint32_t) q_msg.data._8[5] << 24 | (uint32_t) q_msg.data._8[3] << 16 | (uint32_t) q_msg.data._8[6] << 8 | (uint32_t) q_msg.data._8[4];
+
+	xSemaphoreGive(CAN_Inputs_Vector_Mutex);	//give CAN inputs mutex
 }
 
 /**
@@ -268,6 +283,8 @@ static void CAN_parser_BAMO(queue_msg_t q_msg, uint8_t CAN_idx)
 		/* 4 data bytes */
 		result = (uint32_t) q_msg.data._8[4] << 24 | (uint32_t) q_msg.data._8[3] << 16 | (uint32_t) q_msg.data._8[2] << 8 | (uint32_t) q_msg.data._8[1];
 	}
+
+	xSemaphoreTake(CAN_Inputs_Vector_Mutex, portMAX_DELAY);	//get CAN inputs mutex
 
 	/* store in CAN_inputs table */
 	switch (CAN_dict[CAN_idx].reg_ID)
@@ -303,6 +320,7 @@ static void CAN_parser_BAMO(queue_msg_t q_msg, uint8_t CAN_idx)
 		break;
 	}
 
+	xSemaphoreGive(CAN_Inputs_Vector_Mutex);	//give CAN inputs mutex
 }
 
 
@@ -323,6 +341,19 @@ void CAN_Init(void)
 
 	TxQueue = xQueueCreate(CAN_Tx_QUEUE_LENGTH, sizeof(queue_msg_t));
 	if (TxQueue == NULL)
+	{
+		Error_Handler();
+	}
+
+	/* Initialize CAN Input and Output Vector Mutex's */
+	CAN_Inputs_Vector_Mutex = xSemaphoreCreateMutex();
+	if (CAN_Inputs_Vector_Mutex == NULL)
+	{
+		Error_Handler();
+	}
+
+	CAN_Outputs_Vector_Mutex = xSemaphoreCreateMutex();
+	if (CAN_Outputs_Vector_Mutex == NULL)
 	{
 		Error_Handler();
 	}
@@ -437,7 +468,6 @@ void Error_Handler(void)
 	{
 	}
 }
-
 
 
 /**

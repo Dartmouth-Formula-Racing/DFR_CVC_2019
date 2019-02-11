@@ -11,7 +11,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "queue.h"
-
+#include "semphr.h"
 
 /* Defines -------------------------------------------------------------------*/
 #define		SPI_BUFFER_SIZE 	5
@@ -80,8 +80,8 @@ void PLC_Routine_Task(void * parameters)
 			/* get message from queue */
 			xQueueReceive( PLC_transmit_queue, &PLC_transmission_message, portMAX_DELAY ); //change portMAX_DELAY to some # of ticks
 
-			xSemaphoreGive(SPI_Inputs_Vector_Mutex);	//give_SPI_mutex
-			xSemaphoreGive(SPI_Outputs_Vector_Mutex);	//give_SPI_mutex
+			xSemaphoreGive(SPI_Inputs_Vector_Mutex);	//give SPI mutex
+			xSemaphoreGive(SPI_Outputs_Vector_Mutex);	//give SPI mutex
 		}
 }
 

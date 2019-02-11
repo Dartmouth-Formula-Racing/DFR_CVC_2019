@@ -11,6 +11,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "cvc_spi.h"
+#include "semphr.h"
 
 /* Volatile variables --------------------------------------------------------*/
 extern volatile SPI_outputs_vector_t SPI_outputs_vector;
