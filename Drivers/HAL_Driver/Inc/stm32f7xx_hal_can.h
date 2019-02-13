@@ -167,7 +167,7 @@ typedef struct
   */
 typedef struct
 {
-  uint32_t StdId;    /*!< Specifies the standard identifier.
+  uint32_t StdId;    /*!< Specifies the standard identifier (message ID).
                           This parameter must be a number between Min_Data = 0 and Max_Data = 0x7FF. */
 
   uint32_t ExtId;    /*!< Specifies the extended identifier.

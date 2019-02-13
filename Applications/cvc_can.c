@@ -12,57 +12,7 @@
 #include "demo.h"
 #include "queue.h"
 #include "semphr.h"
-
-/* Private TypeDefs ---------------------------------------------------------------*/
-
-/* CAN data union */
-typedef union CAN_data_u
-{
-	uint64_t	_64;
-	uint32_t	_32[2];
-	uint16_t	_16[4];
-	uint8_t		_8[8];
-	float		_float[2];
-	double		_double;
-
-} CAN_data_t;
-
-/* Struct to hold CAN input map (follows big endian) */
-typedef struct input_map_s
-{
-	input_index_t 	index;			/* index in inputs array */
-	uint8_t 		start_byte;		/* input start byte (MSB) in CAN data field */
-	uint8_t 		start_bit;		/* input start bit */
-	uint8_t 		size;			/* input size in bytes */
-} input_map_t;
-
-/* Struct to hold messages used in CAN message queues */
-typedef struct queue_msg_s
-{
-	union
-	{
-		CAN_TxHeaderTypeDef	Tx_header;
-		CAN_RxHeaderTypeDef	Rx_header;
-	};
-	CAN_data_t data;
-} queue_msg_t;
-
-/* Prototype that all CAN parser functions must use */
-typedef void (*CAN_parser_t)(queue_msg_t q_msg, uint8_t CAN_idx);
-
-/* CAN message type for use in CAN dictionary */
-typedef struct CAN_msg_s
-{
-	uint32_t		msg_ID;			// Message ID
-	uint32_t		msg_type;		// STD or EXT
-	uint32_t 		reg_ID;			// reg_ID (for bamocar messages)
-	CAN_data_t		data;			// Message data
-	char 			name[10];		// internal message name
-	input_map_t *   input_map;		// input_map for data
-	uint8_t			num_inputs;		// number of inputs
-	CAN_parser_t	parser;			// parser function
-
-} CAN_msg_t;
+#include "bamocar.h"
 
 
 
@@ -124,26 +74,25 @@ static CAN_msg_t CAN_dict[]	=
 {
 		// ATHENA ECU MSGS messages
 		{0x200, STD, 0, 0, "ATHENA1", ATHENA1_map, 4, CAN_parser_std},	// ATHENA 1 (0)
-		{0x310, STD, 0, 0, "ATHENA2", ATHENA2_map, 6, CAN_parser_std},	// ATHENA 1 (1)
-		{0x312, STD, 0, 0, "ATHENA3", ATHENA3_map, 2, CAN_parser_std},	// ATHENA 1 (2)
+		{0x310, STD, 0, 0, "ATHENA2", ATHENA2_map, 6, CAN_parser_std},	// ATHENA 2 (1)
+		{0x312, STD, 0, 0, "ATHENA3", ATHENA3_map, 2, CAN_parser_std},	// ATHENA 3 (2)
 
 		// EMUS BMS messages
-		{0x1B6, STD, 0, 0, "EMUS1", NULL, 0, CAN_parser_EMUS1}, 		// EMUS BMS (3)
-		{0x1B7, STD, 0, 0, "EMUS2", EMUS2_map, 3, CAN_parser_std}, 		// EMSU BMS (4)
-		{0x1BA, STD, 0, 0, "EMUS3", EMUS3_map, 3, CAN_parser_std}, 		// EMSU BMS (5)
+		{0x1B6, STD, 0, 0, "EMUS1", NULL, 0, CAN_parser_EMUS1}, 		// EMUS BMS 1 (3)
+		{0x1B7, STD, 0, 0, "EMUS2", EMUS2_map, 3, CAN_parser_std}, 		// EMSU BMS 2 (4)
+		{0x1BA, STD, 0, 0, "EMUS3", EMUS3_map, 3, CAN_parser_std}, 		// EMSU BMS 3 (5)
 
 		// BAMOCAR messages
-		{0x180, STD, 0x30, 0, "BAMO1", NULL, 0, CAN_parser_BAMO}, 		// BAMOCAR 1 - Motor RPM (6)
-		{0x180, STD, 0x5F, 0, "BAMO2", NULL, 0, CAN_parser_BAMO}, 		// BAMOCAR 2 - Motor Current // change to reg 27..? (7)
-		{0x180, STD, 0xA0, 0, "BAMO3", NULL, 0, CAN_parser_BAMO}, 		// BAMOCAR 3 - Motor Torque (8)
-		{0x180, STD, 0x8A, 0, "BAMO4", NULL, 0, CAN_parser_BAMO}, 		// BAMOCAR 4 - Motor Voltage (9)
-		{0x180, STD, 0xE1, 0, "BAMO5", NULL, 0, CAN_parser_BAMO}, 		// BAMOCAR 5 - BAMOCAR D_OUT2 (10)
-		{0x180, STD, 0x8F, 0, "BAMO6", NULL, 0, CAN_parser_BAMO}, 		// BAMOCAR 6 - BAMOCAR_Fault (11)
-		{0x180, STD, 0xEB, 0, "BAMO7", NULL, 0, CAN_parser_BAMO}, 		// BAMOCAR 7 - BAMOCAR Bus Voltage (12)
-		{0x180, STD, 0xE0, 0, "BAMO8", NULL, 0, CAN_parser_BAMO}, 		// BAMOCAR 8 - BAMOCAR D_OUT 1 (13)
+		{0x180, STD, MOTOR_RPM_REGID, 0, "BAMO1", NULL, 0, CAN_parser_BAMO}, 			// BAMOCAR 1 - Motor RPM (6)
+		{0x180, STD, MOTOR_CURRENT_REGID, 0, "BAMO2", NULL, 0, CAN_parser_BAMO}, 		// BAMOCAR 2 - Motor Current (7)
+		{0x180, STD, MOTOR_TORQUE_REGID, 0, "BAMO3", NULL, 0, CAN_parser_BAMO}, 		// BAMOCAR 3 - Motor Torque (8)
+		{0x180, STD, MOTOR_VOLTAGE_REGID, 0, "BAMO4", NULL, 0, CAN_parser_BAMO}, 		// BAMOCAR 4 - Motor Voltage (9)
+		{0x180, STD, BAMOCAR_D_OUT_2_REGID, 0, "BAMO5", NULL, 0, CAN_parser_BAMO}, 		// BAMOCAR 5 - BAMOCAR D_OUT2 (10)
+		{0x180, STD, BAMOCAR_FAULT_REGID, 0, "BAMO6", NULL, 0, CAN_parser_BAMO}, 		// BAMOCAR 6 - BAMOCAR_Fault (11)
+		{0x180, STD, BAMOCAR_BUS_VOLTAGE_REGID, 0, "BAMO7", NULL, 0, CAN_parser_BAMO}, 	// BAMOCAR 7 - BAMOCAR Bus Voltage (12)
+		{0x180, STD, BAMOCAR_D_OUT_1_REGID, 0, "BAMO8", NULL, 0, CAN_parser_BAMO}, 		// BAMOCAR 8 - BAMOCAR D_OUT 1 (13)
 };
 
-#define CAN_DICT_SIZE			14
 
 /* FreeRTOS Message Queues */
 static QueueHandle_t RxQueue = NULL;
@@ -153,6 +102,8 @@ static QueueHandle_t TxQueue = NULL;
 volatile SemaphoreHandle_t CAN_Inputs_Vector_Mutex;
 volatile SemaphoreHandle_t CAN_Outputs_Vector_Mutex;
 
+/* CAN Inputs Vector ----------------------------------------------------------------*/
+volatile uint32_t CAN_inputs[NUM_INPUTS];
 
 /* Task Functions ---------------------------------------------------------------*/
 

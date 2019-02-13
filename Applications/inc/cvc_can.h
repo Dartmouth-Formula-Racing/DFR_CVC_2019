@@ -41,8 +41,61 @@
 /* Definitions for CAN identifiers */
 #define STD							CAN_ID_STD
 #define EXT							CAN_ID_EXT
+#define RTR							CAN_RTR_DATA
+
 
 /* Type Definitions ------------------------------------------------------------------------*/
+
+/* CAN data union */
+typedef union CAN_data_u
+{
+	uint64_t	_64;
+	uint32_t	_32[2];
+	uint16_t	_16[4];
+	uint8_t		_8[8];
+	float		_float[2];
+	double		_double;
+
+} CAN_data_t;
+
+/* Struct to hold CAN input map (follows big endian) */
+typedef struct input_map_s
+{
+	input_index_t 	index;			/* index in inputs array */
+	uint8_t 		start_byte;		/* input start byte (MSB) in CAN data field */
+	uint8_t 		start_bit;		/* input start bit */
+	uint8_t 		size;			/* input size in bytes */
+} input_map_t;
+
+/* Struct to hold messages used in CAN message queues */
+typedef struct queue_msg_s
+{
+	union
+	{
+		CAN_TxHeaderTypeDef	Tx_header;
+		CAN_RxHeaderTypeDef	Rx_header;
+	};
+	CAN_data_t data;
+} queue_msg_t;
+
+/* Prototype that all CAN parser functions must use */
+typedef void (*CAN_parser_t)(queue_msg_t q_msg, uint8_t CAN_idx);
+
+/* CAN message type  */
+typedef struct CAN_msg_s
+{
+	uint32_t		msg_ID;			// Message ID
+	uint32_t		msg_type;		// STD or EXT
+	uint32_t 		reg_ID;			// reg_ID (for bamocar messages)
+	CAN_data_t		data;			// Message data
+	char 			name[10];		// internal message name
+	input_map_t *   input_map;		// input_map for data
+	uint8_t			num_inputs;		// number of inputs
+	CAN_parser_t	parser;			// parser function
+
+} CAN_msg_t;
+
+/* enum for inputs vector index */
 typedef enum input_index_e
 {
 	BAMO_STATUS = 0,	// 0
@@ -85,7 +138,9 @@ typedef enum input_index_e
 
 /* Variables to Export ------------------------------------------------------------------------*/
 
-uint32_t CAN_inputs[NUM_INPUTS];
+extern volatile uint32_t CAN_inputs[NUM_INPUTS];
+extern volatile SemaphoreHandle_t CAN_Inputs_Vector_Mutex;
+extern volatile SemaphoreHandle_t CAN_Outputs_Vector_Mutex;
 
 /* Function Prototypes ------------------------------------------------------------------------*/
 void CAN_Init(void)	;

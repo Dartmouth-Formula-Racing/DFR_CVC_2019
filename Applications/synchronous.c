@@ -29,7 +29,7 @@ void _10_ms_Task(void * parameters)
 		vTaskDelay((TickType_t) 10/portTICK_PERIOD_MS);
 
 
-		if (xSemaphoreTake(SPI_Outputs_Vector_Mutex, portMAX_DELAY) == pdTRUE);
+		xSemaphoreTake(SPI_Outputs_Vector_Mutex, portMAX_DELAY);
 
 		SPI_outputs_vector.safety = SPI_inputs_vector.ICE_enable;
 		SPI_outputs_vector.ready_to_drive = SPI_inputs_vector.Motor_enable;
