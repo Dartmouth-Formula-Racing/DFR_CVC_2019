@@ -123,7 +123,7 @@ typedef enum input_index_e
 	MIN_CELL_VOLTAGE,	// 22
 	MAX_CELL_VOLTAGE,	// 23
 	AVG_CELL_VOLTAGE,	// 24
-	TOTAL_VOLTAGE,		// 25
+	BATT_VOLTAGE,		// 25
 	MIN_CELL_TEMP,		// 26
 	MAX_CELL_TEMP,		// 27
 	AVG_CELL_TEMP,		// 28
@@ -146,10 +146,9 @@ extern volatile SemaphoreHandle_t CAN_Outputs_Vector_Mutex;
 void CAN_Init(void)	;
 HAL_StatusTypeDef CAN_Polling(void);
 void Error_Handler(void);
-void CAN_Demo_Task(void * parameters);
 void CAN_Rx_Task(void * parameters);
 void CAN_Tx_Task(void * parameters);
-
+void CAN_Send(queue_msg_t Tx_msg);
 
 
 #endif /* CVC_CAN_H_ */

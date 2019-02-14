@@ -28,12 +28,44 @@ void state_machine()
 		xSemaphoreGive(SPI_Outputs_Vector_Mutex);
 
 		/* send Bamocar reset message */
-		// send Bamocar init messages
+		bamo_var1_reset();
+
+		/* send Bamocar init messages */
+		if (bamo_init() == 1)
+		{
+			cvc_state = PRECHARGE;
+		}
+
 		break;
+
 	case PRECHARGE:
-		// check batt & bamo voltages
+
+		/* check batt & bamo voltages */
+		xSemaphoreTake(CAN_Inputs_Vector_Mutex, portMAX_DELAY);
+
+		// TODO: need to check units and determine acceptable bounds for voltages
+
+		xSemaphoreTake(CAN_Inputs_Vector_Mutex);
+
+
+		/* set SPI outputs */
+		xSemaphoreTake(SPI_Outputs_Vector_Mutex, portMAX_DELAY);
+
 		// set safety-out pin
-		// wait for 90% precharge
+		SPI_outputs_vector.safety = 1;
+		SPI_outputs_vector.ready_to_drive = 0;
+		SPI_outputs_vector.rfg = 0;
+
+		xSemaphoreGive(SPI_Outputs_Vector_Mutex);
+
+
+		/* wait for 90% precharge */
+		xSemaphoreTake(CAN_Inputs_Vector_Mutex, portMAX_DELAY);
+
+		float pack_voltage = (float) CAN_inputs[BATT_VOLTAGE]/100.0f;
+		float bus_voltage;
+
+		xSemaphoreTake(CAN_Inputs_Vector_Mutex);
 		// set precharge timer & wait
 		// send Bamocar set message
 		// alert driver AIRs are closed

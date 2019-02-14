@@ -168,6 +168,15 @@ void CAN_Tx_Task(void * parameters)
 
 /* Non-Task Functions ---------------------------------------------------------------*/
 
+void CAN_Send(queue_msg_t Tx_msg)
+{
+	/* TODO: check that CAN message is valid */
+	if (xQueueSend(TxQueue, &Tx_msg, portMAX_DELAY) != pdPASS)
+	{
+		Error_Handler();
+	}
+}
+
 /**
  * @brief standard parser for unpacking CAN functions into CAN_inputs table (big endian)
  * @param q_msg: incoming CAN message
@@ -209,7 +218,7 @@ static void CAN_parser_EMUS1(queue_msg_t q_msg, uint8_t CAN_idx)
 	CAN_inputs[MIN_CELL_VOLTAGE] = q_msg.data._8[0];
 	CAN_inputs[MAX_CELL_VOLTAGE] = q_msg.data._8[1];
 	CAN_inputs[AVG_CELL_VOLTAGE] = q_msg.data._8[2];
-	CAN_inputs[TOTAL_VOLTAGE] = (uint32_t) q_msg.data._8[5] << 24 | (uint32_t) q_msg.data._8[3] << 16 | (uint32_t) q_msg.data._8[6] << 8 | (uint32_t) q_msg.data._8[4];
+	CAN_inputs[BATT_VOLTAGE] = (uint32_t) q_msg.data._8[5] << 24 | (uint32_t) q_msg.data._8[3] << 16 | (uint32_t) q_msg.data._8[6] << 8 | (uint32_t) q_msg.data._8[4];
 
 	xSemaphoreGive(CAN_Inputs_Vector_Mutex);	//give CAN inputs mutex
 }

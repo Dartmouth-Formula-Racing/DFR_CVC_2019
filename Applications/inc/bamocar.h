@@ -28,5 +28,10 @@
 #define VAR1_RESET_VALUE 			0x00
 
 
+/* Function Prototypes */
+uint8_t bamo_init(void);
+void bamo_var1_reset(void);
+void bamo_var1_set(void);
+
 
 #endif /* INC_BAMOCAR_H_ */
