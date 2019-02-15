@@ -11,6 +11,8 @@
 /* Includes ------------------------------------------------------------------------*/
 #include "stm32f7xx_hal.h"
 #include "stm32f7xx_hal_can.h"
+#include "FreeRTOS.h"
+#include "semphr.h"
 
 /* Defines ------------------------------------------------------------------------*/
 /* Definition for CANx clock resources */
@@ -45,6 +47,46 @@
 
 
 /* Type Definitions ------------------------------------------------------------------------*/
+
+/* enum for inputs vector index */
+typedef enum input_index_e
+{
+	BAMO_STATUS = 0,	// 0
+	MOTOR_RPM,			// 1
+	MOTOR_CURRENT,		// 2
+	MOTOR_TORQUE,		// 3
+	MOTOR_VOLTAGE,		// 4
+	MOTOR_TEMP,			// 5
+	BAMO_FAULT,			// 6
+	BAMO_BUS_VOLTAGE,	// 7
+	BAMO_D_1_OUT_1,		// 8
+	BAMO_D_1_OUT_2,		// 9
+	ENG_REV_COUNT,		// 10
+	ENG_RPM,			// 11
+	ENG_TPS,			// 12, Throttle Position %
+	ENG_MAP,			// 13, Manifold Air Pressure
+	ENG_TEMP,			// 14
+	AIR_TEMP,			// 15
+	OIL_TEMP,			// 16
+	KL15_BATT_VOLTAGE,	// 17
+	KL30_BATT_VOLTAGE,	// 18
+	BARO,				// 19
+	FLAG_OVERHEAT,		// 20
+	ACTIVE_MAP,			// 21
+	MIN_CELL_VOLTAGE,	// 22
+	MAX_CELL_VOLTAGE,	// 23
+	AVG_CELL_VOLTAGE,	// 24
+	BATT_VOLTAGE,		// 25
+	MIN_CELL_TEMP,		// 26
+	MAX_CELL_TEMP,		// 27
+	AVG_CELL_TEMP,		// 28
+	BATT_CURRENT,		// 29
+	BATT_CHARGE,		// 30
+	BATT_SOC,			// 31
+
+	NUM_INPUTS,			// 32, Must be last!
+
+} input_index_t;
 
 /* CAN data union */
 typedef union CAN_data_u
@@ -94,46 +136,6 @@ typedef struct CAN_msg_s
 	CAN_parser_t	parser;			// parser function
 
 } CAN_msg_t;
-
-/* enum for inputs vector index */
-typedef enum input_index_e
-{
-	BAMO_STATUS = 0,	// 0
-	MOTOR_RPM,			// 1
-	MOTOR_CURRENT,		// 2
-	MOTOR_TORQUE,		// 3
-	MOTOR_VOLTAGE,		// 4
-	MOTOR_TEMP,			// 5
-	BAMO_FAULT,			// 6
-	BAMO_BUS_VOLTAGE,	// 7
-	BAMO_D_1_OUT_1,		// 8
-	BAMO_D_1_OUT_2,		// 9
-	ENG_REV_COUNT,		// 10
-	ENG_RPM,			// 11
-	ENG_TPS,			// 12, Throttle Position %
-	ENG_MAP,			// 13, Manifold Air Pressure
-	ENG_TEMP,			// 14
-	AIR_TEMP,			// 15
-	OIL_TEMP,			// 16
-	KL15_BATT_VOLTAGE,	// 17
-	KL30_BATT_VOLTAGE,	// 18
-	BARO,				// 19
-	FLAG_OVERHEAT,		// 20
-	ACTIVE_MAP,			// 21
-	MIN_CELL_VOLTAGE,	// 22
-	MAX_CELL_VOLTAGE,	// 23
-	AVG_CELL_VOLTAGE,	// 24
-	BATT_VOLTAGE,		// 25
-	MIN_CELL_TEMP,		// 26
-	MAX_CELL_TEMP,		// 27
-	AVG_CELL_TEMP,		// 28
-	BATT_CURRENT,		// 29
-	BATT_CHARGE,		// 30
-	BATT_SOC,			// 31
-
-	NUM_INPUTS,			// 32, Must be last!
-
-} input_index_t;
 
 
 /* Variables to Export ------------------------------------------------------------------------*/

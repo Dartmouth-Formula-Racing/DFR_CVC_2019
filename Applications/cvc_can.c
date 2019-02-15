@@ -13,6 +13,7 @@
 #include "queue.h"
 #include "semphr.h"
 #include "bamocar.h"
+#include "cvc_state_machine.h"
 
 
 
@@ -159,8 +160,7 @@ void CAN_Tx_Task(void * parameters)
 
 		if (HAL_CAN_AddTxMessage(&CanHandle, &Tx_msg.Tx_header, Tx_msg.data._8, &TxMailbox) != HAL_OK)
 		{
-			BSP_LED_On(LED_RED);
-			/* Transmission request error */
+			error_handler(CVC_HARD_FAULT);
 		}
 	}
 }
@@ -173,7 +173,7 @@ void CAN_Send(queue_msg_t Tx_msg)
 	/* TODO: check that CAN message is valid */
 	if (xQueueSend(TxQueue, &Tx_msg, portMAX_DELAY) != pdPASS)
 	{
-		Error_Handler();
+		error_handler(CVC_HARD_FAULT);
 	}
 }
 
@@ -403,8 +403,7 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 	/* Get RX message */
 	if (HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &(RxHeader), RxData) != HAL_OK)
 	{
-		/* Reception Error */
-		BSP_LED_On(LED_RED);
+		error_handler(CVC_HARD_FAULT);
 	}
 
 	/* Add message to RxQueue */

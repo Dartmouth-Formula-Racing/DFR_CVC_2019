@@ -21,6 +21,7 @@
 
 #include "stm32f7xx_it.h"
 #include "FreeRTOS.h"
+#include "semphr.h"
 
 /* Defines -------------------------------------------------------------------*/
 

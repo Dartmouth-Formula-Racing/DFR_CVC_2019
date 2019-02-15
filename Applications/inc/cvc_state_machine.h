@@ -9,16 +9,38 @@
 #define INC_CVC_STATE_MACHINE_H_
 
 
+/* Defines ------------------------------------------------------------------------*/
+#define BUZZER_TIMER_LOAD 60 // 2000/50 = 60 --> 2 seconds
+#define PRE_CHARGE_TIMER_LOAD 50 // 2500/50 = 50 --> 2.5 seconds
+
+/* Type Defines ------------------------------------------------------------------------*/
 typedef enum cvc_state_e
 {
+
 	BAMO_INIT = 0,
 	PRECHARGE = 1,
 	READY_TO_DRIVE = 2,
 	DRIVE = 3,
 	FAULT = 4,
+
 } cvc_state_t;
 
+typedef enum cvc_fault_status_e
+{
+
+	CVC_OK = 0,
+	CVC_WARNING = 1,
+	CVC_RST_FAULT = 2,
+	CVC_HARD_FAULT = 3,
+
+} cvc_fault_status_t;
+
+
+/* Variables to Export ------------------------------------------------------------------------*/
 extern volatile cvc_state_t cvc_state;
 
+/* Function Prototypes ------------------------------------------------------------------------*/
+void state_machine();
+void error_handler(cvc_fault_status_t error_type);
 
 #endif /* INC_CVC_STATE_MACHINE_H_ */

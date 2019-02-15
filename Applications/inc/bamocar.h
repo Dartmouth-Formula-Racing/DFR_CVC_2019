@@ -8,6 +8,8 @@
 #ifndef INC_BAMOCAR_H_
 #define INC_BAMOCAR_H_
 
+#include <stdint.h>
+
 /* Definitions for Bamocar CAN Messages */
 #define TRANSMIT_TO_BAMO_ID 		0x500 // 0x210
 #define BAMO_READ_REGID			 	0x3D

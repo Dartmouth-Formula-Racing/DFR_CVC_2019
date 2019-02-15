@@ -222,8 +222,6 @@ void SPI_PLC_Set_Inputs(void)
 	SPI_inputs_vector.BMS_safety_circuit_fault 		= CLT_Read.bit.IN6;
 	SPI_inputs_vector.Bamocar_safety_circuit_fault 	= CLT_Read.bit.IN7;
 
-
-
 }
 
 
@@ -242,16 +240,6 @@ void SPI_PLC_Set_Outputs(void)
 	VNI_Write.bit.IN6 = SPI_outputs_vector.upshift_solenoid;
 	VNI_Write.bit.IN7 = 0;
 	VNI_Write.bit.IN8 = 0;
-
-
-//	VNI_Write.bit.IN1 = CLT_Read.bit.IN1;
-//	VNI_Write.bit.IN2 = CLT_Read.bit.IN2;
-//	VNI_Write.bit.IN3 = CLT_Read.bit.IN3;
-//	VNI_Write.bit.IN4 = CLT_Read.bit.IN4;
-//	VNI_Write.bit.IN5 = CLT_Read.bit.IN5;
-//	VNI_Write.bit.IN6 = CLT_Read.bit.IN6;
-//	VNI_Write.bit.IN7 = CLT_Read.bit.IN7;
-//	VNI_Write.bit.IN8 = 0;
 
 	set_SPI_parity_check_bit_outputs(&VNI_Write);
 }
