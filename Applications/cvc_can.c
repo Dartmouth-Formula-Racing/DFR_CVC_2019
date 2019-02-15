@@ -218,7 +218,7 @@ static void CAN_parser_EMUS1(queue_msg_t q_msg, uint8_t CAN_idx)
 	CAN_inputs[MIN_CELL_VOLTAGE] = q_msg.data._8[0];
 	CAN_inputs[MAX_CELL_VOLTAGE] = q_msg.data._8[1];
 	CAN_inputs[AVG_CELL_VOLTAGE] = q_msg.data._8[2];
-	CAN_inputs[BATT_VOLTAGE] = (uint32_t) q_msg.data._8[5] << 24 | (uint32_t) q_msg.data._8[3] << 16 | (uint32_t) q_msg.data._8[6] << 8 | (uint32_t) q_msg.data._8[4];
+	CAN_inputs[BATT_VOLTAGE] = (uint32_t) q_msg.data._8[5] << 24 | (uint32_t) q_msg.data._8[6] << 16 | (uint32_t) q_msg.data._8[3] << 8 | (uint32_t) q_msg.data._8[4];
 
 	xSemaphoreGive(CAN_Inputs_Vector_Mutex);	//give CAN inputs mutex
 }
@@ -233,7 +233,7 @@ static void CAN_parser_BAMO(queue_msg_t q_msg, uint8_t CAN_idx)
 	uint32_t result = 0;
 
 	/* unpack data based on DLC (little endian) */
-	if (q_msg.Rx_header.DLC == 0x3)
+	if (q_msg.Rx_header.DLC == 0x3 || q_msg.Rx_header.DLC == 0x4)
 	{
 		/* 2 data bytes */
 		result = (uint32_t) q_msg.data._8[2] << 8 | (uint32_t) q_msg.data._8[1];
@@ -341,9 +341,9 @@ static void CAN_Config(void)
 	CanHandle.Init.TransmitFifoPriority = DISABLE;
 	CanHandle.Init.Mode = CAN_MODE_NORMAL;
 	CanHandle.Init.SyncJumpWidth = CAN_SJW_1TQ;
-	CanHandle.Init.TimeSeg1 = CAN_BS1_7TQ;
-	CanHandle.Init.TimeSeg2 = CAN_BS2_2TQ;
-	CanHandle.Init.Prescaler = 9;
+	CanHandle.Init.TimeSeg1 = CAN_BS1_14TQ;
+	CanHandle.Init.TimeSeg2 = CAN_BS2_3TQ;
+	CanHandle.Init.Prescaler = 6;
 
 	if (HAL_CAN_Init(&CanHandle) != HAL_OK)
 	{

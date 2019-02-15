@@ -18,10 +18,11 @@ typedef enum cvc_state_e
 {
 
 	BAMO_INIT = 0,
-	PRECHARGE = 1,
-	READY_TO_DRIVE = 2,
-	DRIVE = 3,
-	FAULT = 4,
+	VOLTAGE_CHECK = 1,
+	PRECHARGE = 2,
+	READY_TO_DRIVE = 3,
+	DRIVE = 4,
+	FAULT = 5,
 
 } cvc_state_t;
 

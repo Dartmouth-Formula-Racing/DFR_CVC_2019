@@ -24,6 +24,9 @@ static uint8_t buzzer_timer_started = 0;
 static uint8_t push_button = 0;
 static uint8_t ready_to_drive = 0;
 
+static float pack_voltage;
+static float bus_voltage;
+
 void state_machine()
 {
 	// add any checks that must be done in all states here
@@ -53,7 +56,7 @@ void state_machine()
 		/* send Bamocar init messages */
 		if (bamo_init() == 1)
 		{
-			cvc_state = PRECHARGE;
+			cvc_state = VOLTAGE_CHECK;
 		}
 		else
 		{
@@ -62,28 +65,56 @@ void state_machine()
 
 		break;
 
-	case PRECHARGE:
+	case VOLTAGE_CHECK:
 
 		/* get batt & bamo voltages */
 		xSemaphoreTake(CAN_Inputs_Vector_Mutex, portMAX_DELAY);
 
-		float pack_voltage = (float) CAN_inputs[BATT_VOLTAGE]/100.0f;
-		float bus_voltage = (float) CAN_inputs[BAMO_BUS_VOLTAGE]*96.0f/3600.0f;
+		pack_voltage = ((float) CAN_inputs[BATT_VOLTAGE])/100.0f;
+		bus_voltage = ((float) CAN_inputs[BAMO_BUS_VOLTAGE])*96.0f/3600.0f;
 
 		xSemaphoreGive(CAN_Inputs_Vector_Mutex);
 
 		/* TODO: check batt & bamo voltages */
+		if (1)
+		{
+			/* set SPI outputs */
+			xSemaphoreTake(SPI_Outputs_Vector_Mutex, portMAX_DELAY);
+
+			/* set safety-out pin */
+			SPI_outputs_vector.safety = 1;
+			SPI_outputs_vector.ready_to_drive = 0;
+			SPI_outputs_vector.rfg = 0;
+
+			xSemaphoreGive(SPI_Outputs_Vector_Mutex);
+
+			cvc_state = PRECHARGE;
+		}
+		else
+		{
+			error_handler(CVC_HARD_FAULT);
+		}
+
+		break;
+
+	case PRECHARGE:
 
 		/* set SPI outputs */
 		xSemaphoreTake(SPI_Outputs_Vector_Mutex, portMAX_DELAY);
 
-		/* set safety-out pin */
 		SPI_outputs_vector.safety = 1;
 		SPI_outputs_vector.ready_to_drive = 0;
 		SPI_outputs_vector.rfg = 0;
 
 		xSemaphoreGive(SPI_Outputs_Vector_Mutex);
 
+		/* get batt & bamo voltages */
+		xSemaphoreTake(CAN_Inputs_Vector_Mutex, portMAX_DELAY);
+
+		pack_voltage = (float) CAN_inputs[BATT_VOLTAGE]/100.0f;
+		bus_voltage = (float) CAN_inputs[BAMO_BUS_VOLTAGE]/50.4;	//*96.0f/3600.0f;
+
+		xSemaphoreGive(CAN_Inputs_Vector_Mutex);
 
 		/* wait for 90% precharge */
 		if (bus_voltage >= pack_voltage * 0.8f)
@@ -107,18 +138,18 @@ void state_machine()
 		}
 
 		/* send Bamocar set message when precharge complete to close second AIR */
-		if (precharge_complete)
-		{
-			bamo_var1_set();
-			cvc_state = READY_TO_DRIVE;
-			precharge_90p_voltage = 0;
-			precharge_timer_started = 0;
-			precharge_complete = 0;
-		}
-		else
-		{
+//		if (precharge_complete)
+//		{
+//			bamo_var1_set();
+//			cvc_state = READY_TO_DRIVE;
+//			precharge_90p_voltage = 0;
+//			precharge_timer_started = 0;
+//			precharge_complete = 0;
+//		}
+//		else
+//		{
 			cvc_state = PRECHARGE;
-		}
+//		}
 
 		/* TODO: alert driver AIRs are closed (MOTEC alert) */
 
