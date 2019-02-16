@@ -26,7 +26,7 @@ typedef struct PLC_transmission_msg_s
 
 
 /* Free rtos variables -----------------------------------------------------------*/
-//static QueueHandle_t PLC_transmit_queue = NULL;
+static QueueHandle_t PLC_transmit_queue = NULL;
 
 /* Semaphores ----------------------------------------------------------------*/
 volatile SemaphoreHandle_t SPI_Inputs_Vector_Mutex;
@@ -66,29 +66,30 @@ CLT_Read_u_t debounced_data = {0};
  */
 void PLC_Routine_Task(void * parameters)
 {
-//	PLC_transmission_msg_t PLC_transmission_message;
+	PLC_transmission_msg_t PLC_transmission_message;
 
 	while(1)
 		{
 			vTaskDelay((TickType_t) 10/portTICK_PERIOD_MS);		// Running at 100 Hz
 
-//			xSemaphoreTake(SPI_Inputs_Vector_Mutex, portMAX_DELAY);	//get mutex
-//			xSemaphoreTake(SPI_Outputs_Vector_Mutex, portMAX_DELAY);	//get mutex
+			xSemaphoreTake(SPI_Inputs_Vector_Mutex, portMAX_DELAY);	//get mutex
+			xSemaphoreTake(SPI_Outputs_Vector_Mutex, portMAX_DELAY);	//get mutex
 
 			taskENTER_CRITICAL();
 
 			initiate_SPI_transmission();
 
 			taskEXIT_CRITICAL();
-//			/* get message from queue */
-//			if (xQueueReceive( PLC_transmit_queue, &PLC_transmission_message, 5/portTICK_PERIOD_MS ) != pdPASS) //change portMAX_DELAY to some # of ticks
-//			{
-//				xSemaphoreGive(SPI_Inputs_Vector_Mutex);	//give SPI mutex
-//				xSemaphoreGive(SPI_Outputs_Vector_Mutex);	//give SPI mutex
-//				error_handler(CVC_HARD_FAULT, QUEUE_ERR);
-//			}
-//			xSemaphoreGive(SPI_Inputs_Vector_Mutex);	//give SPI mutex
-//			xSemaphoreGive(SPI_Outputs_Vector_Mutex);	//give SPI mutex
+
+			/* get message from queue */
+			if (xQueueReceive( PLC_transmit_queue, &PLC_transmission_message, 5/portTICK_PERIOD_MS ) != pdPASS) //change portMAX_DELAY to some # of ticks
+			{
+				xSemaphoreGive(SPI_Inputs_Vector_Mutex);	//give SPI mutex
+				xSemaphoreGive(SPI_Outputs_Vector_Mutex);	//give SPI mutex
+				error_handler(CVC_HARD_FAULT, QUEUE_ERR);
+			}
+			xSemaphoreGive(SPI_Inputs_Vector_Mutex);	//give SPI mutex
+			xSemaphoreGive(SPI_Outputs_Vector_Mutex);	//give SPI mutex
 		}
 }
 
@@ -103,17 +104,17 @@ void PLC_Routine_Task(void * parameters)
  */
 void PLC_routine_ISR_callback(void)
 {
-//	PLC_transmission_msg_t PLC_transmission_message;
+	PLC_transmission_msg_t PLC_transmission_message;
 
 	SPI_routine();
 
-//	if ( SPI_io_state == wait_for_next_transmission)
-//	{
-//		if (xQueueSendFromISR(PLC_transmit_queue, &PLC_transmission_message, NULL) != pdPASS)
-//		{
-//			error_handler(CVC_HARD_FAULT, QUEUE_ERR);
-//		}
-//	}
+	if ( SPI_io_state == wait_for_next_transmission)
+	{
+		if (xQueueSendFromISR(PLC_transmit_queue, &PLC_transmission_message, NULL) != pdPASS)
+		{
+			error_handler(CVC_HARD_FAULT, QUEUE_ERR);
+		}
+	}
 }
 
 
@@ -424,11 +425,11 @@ void Activate_SPI(void)
 {
 	/* Enable SPI1 */
 	LL_SPI_Enable(SPI1);
-//	PLC_transmit_queue = xQueueCreate(PLC_TRANSMIT_QUEUE_LENGTH, sizeof(PLC_transmission_msg_t));
-//	if (PLC_transmit_queue == NULL)
-//	{
-//		//Error_Handler();
-//	}
+	PLC_transmit_queue = xQueueCreate(PLC_TRANSMIT_QUEUE_LENGTH, sizeof(PLC_transmission_msg_t));
+	if (PLC_transmit_queue == NULL)
+	{
+		//Error_Handler();
+	}
 
 	SPI_Inputs_Vector_Mutex = xSemaphoreCreateMutex();
 	if (SPI_Inputs_Vector_Mutex == NULL)
