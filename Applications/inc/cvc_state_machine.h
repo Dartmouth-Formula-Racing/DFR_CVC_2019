@@ -10,8 +10,12 @@
 
 
 /* Defines ------------------------------------------------------------------------*/
-#define BUZZER_TIMER_LOAD 60 // 2000/50 = 60 --> 2 seconds
-#define PRE_CHARGE_TIMER_LOAD 50 // 2500/50 = 50 --> 2.5 seconds
+//#define BUZZER_TIMER_LOAD 40 // 2 seconds --> (2 s)/(0.05 s) = 40 ticks
+//#define PRE_CHARGE_TIMER_LOAD 50 // 2.5 seconds --> (2.5 s)/(0.05 s) = 50 ticks
+
+#define BUZZER_TIMER_LOAD 200 // 2 seconds --> (2 s)/(0.01 s) = 200 ticks
+#define PRE_CHARGE_TIMER_LOAD 250 // 2.5 seconds --> (2.5 s)/(0.01 s) = 250 ticks
+
 
 /* Type Defines ------------------------------------------------------------------------*/
 typedef enum cvc_state_e

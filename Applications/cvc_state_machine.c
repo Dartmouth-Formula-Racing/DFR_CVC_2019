@@ -72,12 +72,12 @@ void state_machine()
 		xSemaphoreTake(CAN_Inputs_Vector_Mutex, portMAX_DELAY);
 
 		pack_voltage = ((float) CAN_inputs[BATT_VOLTAGE])/100.0f;
-		bus_voltage = ((float) CAN_inputs[BAMO_BUS_VOLTAGE])*96.0f/3600.0f;
+		bus_voltage = ((float) CAN_inputs[BAMO_BUS_VOLTAGE])/50.4f;
 
 		xSemaphoreGive(CAN_Inputs_Vector_Mutex);
 
-		/* TODO: check batt & bamo voltages */
-		if (1)
+		/* check batt & bamo voltages */
+		if (pack_voltage > 250 && bus_voltage < 10)
 		{
 			/* set SPI outputs */
 			xSemaphoreTake(SPI_Outputs_Vector_Mutex, portMAX_DELAY);
@@ -93,7 +93,8 @@ void state_machine()
 		}
 		else
 		{
-			error_handler(CVC_HARD_FAULT, VOLTAGE_ERR);
+			// TODO: add timeout for voltage check state
+			cvc_state = VOLTAGE_CHECK;
 		}
 
 		break;
@@ -142,7 +143,9 @@ void state_machine()
 		/* send Bamocar set message when precharge complete to close second AIR */
 		if (precharge_complete)
 		{
-			bamo_var1_set();
+			//bamo_var1_set();
+			error_handler(CVC_HARD_FAULT, NONE);
+
 			cvc_state = READY_TO_DRIVE;
 			precharge_90p_voltage = 0;
 			precharge_timer_started = 0;

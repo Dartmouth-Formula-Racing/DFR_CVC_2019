@@ -23,6 +23,8 @@ void _10_ms_Task(void * parameters)
 	{
 		vTaskDelay((TickType_t) 10/portTICK_PERIOD_MS);
 
+		state_machine();
+
 	}
 }
 
@@ -37,7 +39,7 @@ void _50_ms_Task(void * parameters)
 	{
 		vTaskDelay((TickType_t) 50/portTICK_PERIOD_MS);
 
-		state_machine();
+
 
 	}
 
