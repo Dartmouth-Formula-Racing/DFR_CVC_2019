@@ -13,6 +13,7 @@
 
 volatile cvc_state_t cvc_state = BAMO_INIT;
 static cvc_fault_status_t cvc_fault = CVC_OK;
+static cvc_error_code_t cvc_error = NONE;
 
 static int precharge_timer = 0;
 static uint8_t precharge_90p_voltage = 0;
@@ -92,7 +93,7 @@ void state_machine()
 		}
 		else
 		{
-			error_handler(CVC_HARD_FAULT);
+			error_handler(CVC_HARD_FAULT, VOLTAGE_ERR);
 		}
 
 		break;
@@ -117,7 +118,7 @@ void state_machine()
 		xSemaphoreGive(CAN_Inputs_Vector_Mutex);
 
 		/* wait for 90% precharge */
-		if (bus_voltage >= pack_voltage * 0.8f)
+		if (bus_voltage >= pack_voltage * 0.9f)
 		{
 			precharge_90p_voltage = 1;
 		}
@@ -126,6 +127,7 @@ void state_machine()
 		if (precharge_90p_voltage && !precharge_timer_started)
 		{
 			precharge_timer = PRE_CHARGE_TIMER_LOAD;
+			precharge_timer_started = 1;
 		}
 		else if (precharge_90p_voltage && precharge_timer_started)
 		{
@@ -138,18 +140,18 @@ void state_machine()
 		}
 
 		/* send Bamocar set message when precharge complete to close second AIR */
-//		if (precharge_complete)
-//		{
-//			bamo_var1_set();
-//			cvc_state = READY_TO_DRIVE;
-//			precharge_90p_voltage = 0;
-//			precharge_timer_started = 0;
-//			precharge_complete = 0;
-//		}
-//		else
-//		{
+		if (precharge_complete)
+		{
+			bamo_var1_set();
+			cvc_state = READY_TO_DRIVE;
+			precharge_90p_voltage = 0;
+			precharge_timer_started = 0;
+			precharge_complete = 0;
+		}
+		else
+		{
 			cvc_state = PRECHARGE;
-//		}
+		}
 
 		/* TODO: alert driver AIRs are closed (MOTEC alert) */
 
@@ -184,6 +186,7 @@ void state_machine()
 		if (buzzer_timer_started && buzzer_timer == 0)
 		{
 			ready_to_drive = 0;
+			buzzer_timer_started = 0;
 			cvc_state = DRIVE;
 		}
 		else
@@ -238,9 +241,10 @@ void state_machine()
 	}
 }
 
-void error_handler(cvc_fault_status_t error_type)
+void error_handler(cvc_fault_status_t fault, cvc_error_code_t error)
 {
 	// TODO: account for pre-scheduler errors (init fault handler, probably just infinite loop)
 
-	cvc_fault = error_type;
+	cvc_fault = fault;
+	cvc_error = error;
 }

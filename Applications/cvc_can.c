@@ -160,7 +160,7 @@ void CAN_Tx_Task(void * parameters)
 
 		if (HAL_CAN_AddTxMessage(&CanHandle, &Tx_msg.Tx_header, Tx_msg.data._8, &TxMailbox) != HAL_OK)
 		{
-			error_handler(CVC_HARD_FAULT);
+			error_handler(CVC_HARD_FAULT, CAN_ERR);
 		}
 	}
 }
@@ -173,7 +173,7 @@ void CAN_Send(queue_msg_t Tx_msg)
 	/* TODO: check that CAN message is valid */
 	if (xQueueSend(TxQueue, &Tx_msg, portMAX_DELAY) != pdPASS)
 	{
-		error_handler(CVC_HARD_FAULT);
+		error_handler(CVC_HARD_FAULT, QUEUE_ERR);
 	}
 }
 
@@ -403,7 +403,7 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 	/* Get RX message */
 	if (HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &(RxHeader), RxData) != HAL_OK)
 	{
-		error_handler(CVC_HARD_FAULT);
+		error_handler(CVC_HARD_FAULT, CAN_ERR);
 	}
 
 	/* Add message to RxQueue */
@@ -411,7 +411,10 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 	for (int i=0; i<sizeof(RxData); i++)	{
 	  Rx_msg.data._8[i] = RxData[i];
 	}
-	xQueueSendFromISR(RxQueue, &Rx_msg, NULL);
+	if (xQueueSendFromISR(RxQueue, &Rx_msg, NULL) != pdPASS)
+	{
+		error_handler(CVC_HARD_FAULT, QUEUE_ERR);
+	}
 
 }
 

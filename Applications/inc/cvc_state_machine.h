@@ -36,12 +36,20 @@ typedef enum cvc_fault_status_e
 
 } cvc_fault_status_t;
 
+/* currently for debugging only */
+typedef enum cvc_error_code_e
+{
+	NONE = 0,
+	QUEUE_ERR = 1,
+	CAN_ERR = 2,
+	VOLTAGE_ERR = 3,
+} cvc_error_code_t;
 
 /* Variables to Export ------------------------------------------------------------------------*/
 extern volatile cvc_state_t cvc_state;
 
 /* Function Prototypes ------------------------------------------------------------------------*/
 void state_machine();
-void error_handler(cvc_fault_status_t error_type);
+void error_handler(cvc_fault_status_t fault, cvc_error_code_t error);
 
 #endif /* INC_CVC_STATE_MACHINE_H_ */

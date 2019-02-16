@@ -7,7 +7,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "cvc_spi.h"
-
+#include "cvc_state_machine.h"
 #include "FreeRTOS.h"
 #include "task.h"
 #include "queue.h"
@@ -78,8 +78,12 @@ void PLC_Routine_Task(void * parameters)
 			initiate_SPI_transmission();
 
 			/* get message from queue */
-			xQueueReceive( PLC_transmit_queue, &PLC_transmission_message, portMAX_DELAY ); //change portMAX_DELAY to some # of ticks
-
+			if (xQueueReceive( PLC_transmit_queue, &PLC_transmission_message, 5/portTICK_PERIOD_MS ) != pdPASS) //change portMAX_DELAY to some # of ticks
+			{
+				xSemaphoreGive(SPI_Inputs_Vector_Mutex);	//give SPI mutex
+				xSemaphoreGive(SPI_Outputs_Vector_Mutex);	//give SPI mutex
+				error_handler(CVC_HARD_FAULT, QUEUE_ERR);
+			}
 			xSemaphoreGive(SPI_Inputs_Vector_Mutex);	//give SPI mutex
 			xSemaphoreGive(SPI_Outputs_Vector_Mutex);	//give SPI mutex
 		}
@@ -102,7 +106,10 @@ void PLC_routine_ISR_callback(void)
 
 	if ( SPI_io_state == wait_for_next_transmission)
 	{
-		xQueueSendFromISR(PLC_transmit_queue, &PLC_transmission_message, NULL);
+		if (xQueueSendFromISR(PLC_transmit_queue, &PLC_transmission_message, NULL) != pdPASS)
+		{
+			error_handler(CVC_HARD_FAULT, QUEUE_ERR);
+		}
 	}
 }
 
