@@ -168,7 +168,7 @@ void state_machine()
 
 
 		/* wait for push button */
-		if (push_button == 1 && !buzzer_timer_started)
+		if (push_button != 0 && !buzzer_timer_started)
 		{
 			buzzer_timer = BUZZER_TIMER_LOAD;
 			buzzer_timer_started = 1;
