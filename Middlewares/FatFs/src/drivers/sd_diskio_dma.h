@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * @file    sd_diskio_dma_template.h
+  * @file    sd_diskio_dma.h
   * @author  MCD Application Team
   * @version V2.0.2
   * @date    10-November-2017

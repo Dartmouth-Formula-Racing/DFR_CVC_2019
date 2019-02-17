@@ -94,8 +94,9 @@
 /* Private variables ---------------------------------------------------------*/
 /* Disk status */
 static volatile DSTATUS Stat = STA_NOINIT;
-//static volatile  UINT  WriteStatus = 0, ReadStatus = 0;
 static osMessageQId SDQueueID;
+static uint8_t SDQueueCreated = 0;
+
 /* Private function prototypes -----------------------------------------------*/
 static DSTATUS SD_CheckStatus(BYTE lun);
 DSTATUS SD_initialize (BYTE);
@@ -142,29 +143,18 @@ static DSTATUS SD_CheckStatus(BYTE lun)
   */
 DSTATUS SD_initialize(BYTE lun)
 {
-  if(osKernelRunning())
-  {
 #if !defined(DISABLE_SD_INIT)
 
-	  if(BSP_SD_Init() == MSD_OK)
-	  {
-		Stat = SD_CheckStatus(lun);
-	  }
+	if(BSP_SD_Init() == MSD_OK)
+	{
+	Stat = SD_CheckStatus(lun);
+	}
 
 #else
   Stat = SD_CheckStatus(lun);
 #endif
 
-  /*
-       * if the SD is correctly initialized, create the operation queue
-       */
 
-      if (Stat != STA_NOINIT)
-      {
-        osMessageQDef(SD_Queue, QUEUE_SIZE, uint16_t);
-        SDQueueID = osMessageCreate (osMessageQ(SD_Queue), NULL);
-      }
-    }
   return Stat;
 }
 
@@ -196,36 +186,46 @@ DRESULT SD_read(BYTE lun, BYTE *buff, DWORD sector, UINT count)
 	uint32_t alignedAddr;
 #endif
 
-	if(BSP_SD_ReadBlocks_DMA((uint8_t*)buff,
-						   (uint32_t) (sector),
-						   count) == MSD_OK)
+	if(osKernelRunning())
 	{
-		/* wait for a message from the queue or a timeout */
-		event = osMessageGet(SDQueueID, SD_TIMEOUT);
-
-		if (event.status == osEventMessage)
+		if (SDQueueCreated == 0)
 		{
-			if (event.value.v == READ_CPLT_MSG)
+			osMessageQDef(SD_Queue, QUEUE_SIZE, uint16_t);
+			SDQueueID = osMessageCreate (osMessageQ(SD_Queue), NULL);
+			SDQueueCreated = 1;
+		}
+
+		if(BSP_SD_ReadBlocks_DMA((uint8_t*)buff,
+							   (uint32_t) (sector),
+							   count) == MSD_OK)
+		{
+			/* wait for a message from the queue or a timeout */
+			event = osMessageGet(SDQueueID, SD_TIMEOUT);
+
+			if (event.status == osEventMessage)
 			{
-				timeout = HAL_GetTick();
-
-				while((HAL_GetTick() - timeout) < SD_TIMEOUT)
+				if (event.value.v == READ_CPLT_MSG)
 				{
-					if (BSP_SD_GetTransferState() == SD_TRANSFER_OK)
-					{
-						res = RES_OK;
+					timeout = HAL_GetTick();
 
-#if (ENABLE_SD_DMA_CACHE_MAINTENANCE == 1)
-						/*
-						   the SCB_InvalidateDCache_by_Addr() requires a 32-Byte aligned address,
-						   adjust the address and the D-Cache size to invalidate accordingly.
-						 */
-						alignedAddr = (uint32_t)buff & ~0x1F;
-						SCB_InvalidateDCache_by_Addr((uint32_t*)alignedAddr, count*BLOCKSIZE + ((uint32_t)buff - alignedAddr));
-#endif
-						break;
+					while((HAL_GetTick() - timeout) < SD_TIMEOUT)
+					{
+						if (BSP_SD_GetTransferState() == SD_TRANSFER_OK)
+						{
+							res = RES_OK;
+
+	#if (ENABLE_SD_DMA_CACHE_MAINTENANCE == 1)
+							/*
+							   the SCB_InvalidateDCache_by_Addr() requires a 32-Byte aligned address,
+							   adjust the address and the D-Cache size to invalidate accordingly.
+							 */
+							alignedAddr = (uint32_t)buff & ~0x1F;
+							SCB_InvalidateDCache_by_Addr((uint32_t*)alignedAddr, count*BLOCKSIZE + ((uint32_t)buff - alignedAddr));
+	#endif
+							break;
+						}
+						vTaskDelay(1);
 					}
-					vTaskDelay(1);
 				}
 			}
 		}
@@ -259,29 +259,39 @@ DRESULT SD_write(BYTE lun, const BYTE *buff, DWORD sector, UINT count)
 #endif
 
 
-	if(BSP_SD_WriteBlocks_DMA((uint8_t*)buff,
-							(uint32_t)(sector),
-							count) == MSD_OK)
+	if(osKernelRunning())
 	{
-		/* Wait that writing process is completed or a timeout occurs */
-
-		/* Get the message from the queue */
-		event = osMessageGet(SDQueueID, SD_TIMEOUT);
-
-		if (event.status == osEventMessage)
+		if (SDQueueCreated == 0)
 		{
-			if (event.value.v == WRITE_CPLT_MSG)
-			{
-				timeout = HAL_GetTick();
+			osMessageQDef(SD_Queue, QUEUE_SIZE, uint16_t);
+			SDQueueID = osMessageCreate (osMessageQ(SD_Queue), NULL);
+			SDQueueCreated = 1;
+		}
 
-				while((HAL_GetTick() - timeout) < SD_TIMEOUT)
+		if(BSP_SD_WriteBlocks_DMA((uint8_t*)buff,
+								(uint32_t)(sector),
+								count) == MSD_OK)
+		{
+			/* Wait that writing process is completed or a timeout occurs */
+
+			/* Get the message from the queue */
+			event = osMessageGet(SDQueueID, SD_TIMEOUT);
+
+			if (event.status == osEventMessage)
+			{
+				if (event.value.v == WRITE_CPLT_MSG)
 				{
-					if (BSP_SD_GetTransferState() == SD_TRANSFER_OK)
+					timeout = HAL_GetTick();
+
+					while((HAL_GetTick() - timeout) < SD_TIMEOUT)
 					{
-						res = RES_OK;
-						break;
+						if (BSP_SD_GetTransferState() == SD_TRANSFER_OK)
+						{
+							res = RES_OK;
+							break;
+						}
+						vTaskDelay(1);
 					}
-					vTaskDelay(1);
 				}
 			}
 		}

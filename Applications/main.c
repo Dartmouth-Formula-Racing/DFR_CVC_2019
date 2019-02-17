@@ -38,8 +38,8 @@ int main(void)
 	/* Configure USARTx (USART IP configuration and related GPIO initialization) */
 	Configure_USART();
 
-	/* test FatFs */
-//	function_test_main();
+	/* initialize logging */
+	logging_init();
 
 	/* Create all tasks */
 	taskCreateAll();

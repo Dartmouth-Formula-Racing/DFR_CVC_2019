@@ -12,5 +12,6 @@
 
 /* Function Declarations -----------------------------------------------------*/
 void fatTask(void * parameters);
+void logging_init();
 
 #endif /* INC_CVC_LOGGING_H_ */

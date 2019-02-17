@@ -225,6 +225,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f7xx_hal.h"
+#include "cmsis_os.h"
 
 /** @addtogroup STM32F7xx_HAL_Driver
   * @{
@@ -376,7 +377,15 @@ HAL_StatusTypeDef HAL_SD_InitCard(SD_HandleTypeDef *hsd)
   __HAL_SD_ENABLE(hsd);
   
   /* Required power up waiting time before starting the SD initialization sequence */
-  HAL_Delay(2);
+  if (osKernelRunning())
+  {
+	  /* use osDelay in case FreeRTOS task scheduler has already been started */
+	  osDelay(2);
+  }
+  else
+  {
+	  HAL_Delay(2);
+  }
   
   /* Identify card operating voltage */
   errorstate = SD_PowerON(hsd);
