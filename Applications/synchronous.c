@@ -13,6 +13,7 @@
 #include "cvc_spi.h"
 #include "semphr.h"
 #include "cvc_state_machine.h"
+#include "torque_command.h"
 
 /**
   * @brief Fast synchronous task (100 Hz)
@@ -24,6 +25,11 @@ void _10_ms_Task(void * parameters)
 		vTaskDelay((TickType_t) 10/portTICK_PERIOD_MS);
 
 		state_machine();
+
+		if (cvc_state == DRIVE)
+		{
+			torque_command();
+		}
 
 	}
 }

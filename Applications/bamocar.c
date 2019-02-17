@@ -70,7 +70,12 @@ queue_msg_t bamocar_var1_msg =
 	.data._8 = {BAMOCAR_VAR1,    VAR1_SET_VALUE, 0 , 0, 0, 0, 0, 0}
 };
 
-
+/* Bamocar Torque Command CAN message */
+queue_msg_t bamocar_torque_msg =
+{
+		.Tx_header = {TRANSMIT_TO_BAMO_ID, 0, STD, RTR, 0x5},
+		.data._8 = {MOTOR_TORQUE_COMMAND_REGID, 0, 0, 00, 0x10, 0, 0, 0}
+};
 
 /**
  * @brief: send next Bamocar init message until all have been sent
@@ -100,4 +105,14 @@ void bamo_var1_reset(void)
 void bamo_var1_set(void)
 {
 	CAN_Send(bamocar_var1_msg);
+}
+
+
+void bamo_torque_command(uint16_t torque_command)
+{
+
+	bamocar_torque_msg.data._8[1] = (torque_command & 0x00FF);
+	bamocar_torque_msg.data._8[2] = ((torque_command & 0xFF00) >> 8);
+
+	CAN_Send(bamocar_torque_msg);
 }

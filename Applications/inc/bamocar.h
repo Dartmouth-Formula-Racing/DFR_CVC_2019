@@ -29,11 +29,14 @@
 #define VAR1_SET_VALUE 				0x01
 #define VAR1_RESET_VALUE 			0x00
 
+#define MOTOR_TORQUE_COMMAND_REGID			0x2F	//offset and scale REGID
 
 /* Function Prototypes */
 uint8_t bamo_init(void);
 void bamo_var1_reset(void);
 void bamo_var1_set(void);
+
+void bamo_torque_command(uint16_t torque_command);
 
 
 #endif /* INC_BAMOCAR_H_ */
