@@ -284,7 +284,7 @@
 /      can be opened simultaneously under file lock control. Note that the file
 /      lock control is independent of re-entrancy. */
 
-#define _FS_REENTRANT	0
+#define _FS_REENTRANT	1
 
 #if _FS_REENTRANT
 #include "cmsis_os.h"
@@ -313,14 +313,15 @@
 #if _USE_LFN == 3
 #if !defined(ff_malloc) || !defined(ff_free)
 #include <stdlib.h>
+#include "FreeRTOS.h"
 #endif
 
 #if !defined(ff_malloc)
-#define ff_malloc malloc
+#define ff_malloc pvPortMalloc
 #endif
 
 #if !defined(ff_free)
-#define ff_free free
+#define ff_free vPortFree
 #endif
 #endif
 /*--- End of configuration options ---*/

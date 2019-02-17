@@ -31,7 +31,7 @@ void logging_init()
 	if (FATFS_LinkDriver(&SD_Driver, SDPath) == 0)
 	{
 		/* mount disk */
-		if (f_mount(&SD_FatFs, (char const*) SDPath, 1) != FR_OK)
+		if (f_mount(&SD_FatFs, (char const*) SDPath, 0) != FR_OK)
 		{
 			logging_error();
 		}
@@ -40,6 +40,7 @@ void logging_init()
 	{
 		logging_error();
 	}
+	BSP_LED_Init(LED_GREEN);
 }
 
 void fatTask(void * parameters)
@@ -54,6 +55,8 @@ void fatTask(void * parameters)
 				logging_error();
 			}
 			f_close(&MyFile);
+
+			BSP_LED_On(LED_GREEN);
 		}
 		else
 		{

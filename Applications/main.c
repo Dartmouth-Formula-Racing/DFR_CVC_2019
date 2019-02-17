@@ -45,10 +45,10 @@ int main(void)
 	logging_init();
 
 	/* Create all tasks */
-//	taskCreateAll();
+	taskCreateAll();
 
 	/* Start RTOS Scheduler */
-//	vTaskStartScheduler();
+	vTaskStartScheduler();
 
 	/* Function should never reach this point once scheduler is started */
 	for(;;);
