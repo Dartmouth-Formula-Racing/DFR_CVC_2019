@@ -284,7 +284,7 @@
 /      can be opened simultaneously under file lock control. Note that the file
 /      lock control is independent of re-entrancy. */
 
-#define _FS_REENTRANT	1
+#define _FS_REENTRANT	0
 
 #if _FS_REENTRANT
 #include "cmsis_os.h"

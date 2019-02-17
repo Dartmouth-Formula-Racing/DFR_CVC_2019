@@ -15,6 +15,7 @@
 #include "cvc_tasks.h"
 #include "cvc_serial.h"
 #include "ff_test.h"
+#include "cvc_sd.h"
 
 /* Private function prototypes -----------------------------------------------*/
 static void SystemClock_Config(void);
@@ -38,14 +39,16 @@ int main(void)
 	/* Configure USARTx (USART IP configuration and related GPIO initialization) */
 	Configure_USART();
 
+	HAL_Delay(2);
+
 	/* initialize logging */
 	logging_init();
 
 	/* Create all tasks */
-	taskCreateAll();
+//	taskCreateAll();
 
 	/* Start RTOS Scheduler */
-	vTaskStartScheduler();
+//	vTaskStartScheduler();
 
 	/* Function should never reach this point once scheduler is started */
 	for(;;);
