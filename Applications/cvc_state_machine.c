@@ -15,6 +15,8 @@ volatile cvc_state_t cvc_state = BAMO_INIT;
 static cvc_fault_status_t cvc_fault = CVC_OK;
 static cvc_error_code_t cvc_error = NONE;
 
+static int voltage_check_timer = 0;
+static uint8_t voltage_check_timer_started = 0;
 static int precharge_timer = 0;
 static uint8_t precharge_90p_voltage = 0;
 static uint8_t precharge_timer_started = 0;
@@ -77,7 +79,7 @@ void state_machine()
 		xSemaphoreGive(CAN_Inputs_Vector_Mutex);
 
 		/* check batt & bamo voltages */
-		if (pack_voltage > 250 && bus_voltage < 10)
+		if (pack_voltage > MIN_BATTERY_VOLTAGE_THRESHOLD && bus_voltage < MAX_BAMO_BUS_VOLTAGE_THRESHOLD)
 		{
 			/* set SPI outputs */
 			xSemaphoreTake(SPI_Outputs_Vector_Mutex, portMAX_DELAY);
@@ -90,11 +92,25 @@ void state_machine()
 			xSemaphoreGive(SPI_Outputs_Vector_Mutex);
 
 			cvc_state = PRECHARGE;
+			voltage_check_timer = 0;
+			voltage_check_timer_started = 0;
+		}
+		else if ( voltage_check_timer_started == 0)
+		{
+			voltage_check_timer_started = 1;
+			voltage_check_timer = VOlTAGE_CHECK_TIMEOUT_LOAD;
+			cvc_state = VOLTAGE_CHECK;
+		}
+		else if ( voltage_check_timer_started == 1 && voltage_check_timer == 0)
+		{
+			error_handler(CVC_HARD_FAULT, VOLTAGE_ERR);
+			voltage_check_timer = 0;
+			voltage_check_timer_started = 0;
 		}
 		else
 		{
-			// TODO: add timeout for voltage check state
 			cvc_state = VOLTAGE_CHECK;
+			voltage_check_timer--;
 		}
 
 		break;
@@ -143,9 +159,7 @@ void state_machine()
 		/* send Bamocar set message when precharge complete to close second AIR */
 		if (precharge_complete)
 		{
-			//bamo_var1_set();
-			error_handler(CVC_HARD_FAULT, NONE);
-
+			bamo_var1_set();
 			cvc_state = READY_TO_DRIVE;
 			precharge_90p_voltage = 0;
 			precharge_timer_started = 0;
