@@ -16,6 +16,7 @@ volatile cvc_state_t cvc_state = BAMO_INIT;
 static cvc_fault_status_t cvc_fault = CVC_OK;
 static cvc_error_code_t cvc_error = NONE;
 
+static int Dash_BRB_Pressed = 0;
 static int voltage_check_timer = 0;
 static uint8_t voltage_check_timer_started = 0;
 static int precharge_timer = 0;
@@ -40,6 +41,11 @@ void state_machine()
 	{
 		cvc_state = FAULT;
 	}
+
+	xSemaphoreTake(SPI_Inputs_Vector_Mutex, portMAX_DELAY);
+	Dash_BRB_Pressed = SPI_inputs_vector.Dash_BRB_press;
+	xSemaphoreGive(SPI_Inputs_Vector_Mutex);
+
 
 	switch(cvc_state)
 	{
@@ -222,6 +228,11 @@ void state_machine()
 
 		xSemaphoreGive(SPI_Outputs_Vector_Mutex);
 
+		if (Dash_BRB_Pressed == 1)
+		{
+			cvc_state = DASH_BRB;
+		}
+
 		break;
 
 	case DRIVE:
@@ -238,6 +249,11 @@ void state_machine()
 
 		cvc_state = DRIVE;
 
+		if (Dash_BRB_Pressed == 1)
+		{
+			cvc_state = DASH_BRB;
+		}
+
 		break;
 
 	case FAULT:
@@ -251,6 +267,32 @@ void state_machine()
 		SPI_outputs_vector.rfg = 0;
 
 		xSemaphoreGive(SPI_Outputs_Vector_Mutex);
+
+		break;
+
+	case DASH_BRB:
+
+		/* set SPI outputs */
+		xSemaphoreTake(SPI_Outputs_Vector_Mutex, portMAX_DELAY);
+
+		/* set safety-out pin */
+		SPI_outputs_vector.safety = 1;
+		SPI_outputs_vector.ready_to_drive = 0;
+		SPI_outputs_vector.rfg = 0;
+
+		xSemaphoreGive(SPI_Outputs_Vector_Mutex);
+
+		precharge_90p_voltage = 0;
+		precharge_timer_started = 0;
+		precharge_complete = 0;
+
+		if (Dash_BRB_Pressed == 0)
+		{
+			cvc_state = PRECHARGE;
+
+			/* send Bamocar reset message */
+			bamo_var1_reset();
+		}
 
 		break;
 

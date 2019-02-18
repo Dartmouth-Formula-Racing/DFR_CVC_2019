@@ -30,6 +30,7 @@ typedef enum cvc_state_e
 	READY_TO_DRIVE = 3,
 	DRIVE = 4,
 	FAULT = 5,
+	DASH_BRB = 6,
 
 } cvc_state_t;
 
@@ -59,5 +60,7 @@ extern volatile cvc_state_t cvc_state;
 /* Function Prototypes ------------------------------------------------------------------------*/
 void state_machine();
 void error_handler(cvc_fault_status_t fault, cvc_error_code_t error);
+void safety_monitor(void);
+
 
 #endif /* INC_CVC_STATE_MACHINE_H_ */

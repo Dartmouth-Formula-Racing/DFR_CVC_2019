@@ -9,11 +9,11 @@
 #include "cvc_can.h"
 #include "cvc_state_machine.h"
 
-uint32_t coolant_temp;
-uint32_t air_temp;
-uint32_t oil_temp;
-int coolant_timer = -1;
-int coolant_timer_started = 0;
+static uint32_t coolant_temp;
+static uint32_t air_temp;
+static uint32_t oil_temp;
+static int coolant_timer = -1;
+static int coolant_timer_started = 0;
 
 void monitor_engine(void)
 {
