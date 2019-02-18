@@ -13,6 +13,9 @@
 #define MAX_COOLANT_TEMP	90
 #define MAX_OIL_TEMP		100
 
+#define COOLANT_TIMER_LOAD	10		// 0.1 seconds, @ 100 Hz = 10 ticks
+
+
 
 void monitor_temps(void);
 void monitor_engine(void);
