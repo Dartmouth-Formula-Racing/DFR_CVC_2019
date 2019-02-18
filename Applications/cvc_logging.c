@@ -18,11 +18,12 @@
 
 void logging_error();
 
-static uint8_t wtext[] = "text to write logical disk"; /* File write buffer */
+static uint8_t wtext[] = "Leina,Alex,Trammell,John\n1,2,3,4\n"; /* File write buffer */
 static FATFS SD_FatFs; /* File system object for User logical drive */
 static FIL MyFile; /* File object */
 static char SDPath[4]; /* SD disk logical drive path */
 static uint32_t wbytes; /* File write counts */
+static uint32_t rbytes; /* File read counts */
 
 
 void logging_init()
@@ -41,13 +42,14 @@ void logging_init()
 		logging_error();
 	}
 	BSP_LED_Init(LED_GREEN);
+	BSP_LED_Init(LED_BLUE);
 }
 
 void fatTask(void * parameters)
 {
 	while(1)
 	{
-		if (f_open(&MyFile, "STM32.TXT", FA_CREATE_ALWAYS | FA_WRITE) == FR_OK)
+		if (f_open(&MyFile, "STM32.csv", FA_CREATE_ALWAYS | FA_WRITE) == FR_OK)
 		{
 			if(f_write(&MyFile, wtext, sizeof(wtext), (void *)&wbytes) != FR_OK)
 			{
@@ -63,6 +65,26 @@ void fatTask(void * parameters)
 			logging_error();
 		}
 
+//		FSIZE_t size = f_size(&MyFile);
+
+		if (f_open(&MyFile, "STM32.csv", FA_OPEN_EXISTING | FA_READ) == FR_OK)
+		{
+			uint8_t *result = pvPortMalloc(wbytes);
+			if(f_read(&MyFile, result, wbytes, (void *)&rbytes) != FR_OK)
+			{
+				f_close(&MyFile);
+				vPortFree(result);
+				logging_error();
+			}
+			f_close(&MyFile);
+
+			BSP_LED_On(LED_BLUE);
+			vPortFree(result);
+		}
+		else
+		{
+			logging_error();
+		}
 
 
 		vTaskSuspend(NULL);
