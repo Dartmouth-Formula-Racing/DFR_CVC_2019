@@ -10,6 +10,7 @@
 #include "cvc_spi.h"
 #include "cvc_can.h"
 #include "bamocar.h"
+#include "ice.h"
 
 volatile cvc_state_t cvc_state = BAMO_INIT;
 static cvc_fault_status_t cvc_fault = CVC_OK;
@@ -257,6 +258,15 @@ void state_machine()
 		break;
 	}
 }
+
+
+void safety_monitor(void)
+{
+	monitor_engine();
+	//monitor_bamocar()
+	//monitor_bms()
+}
+
 
 void error_handler(cvc_fault_status_t fault, cvc_error_code_t error)
 {

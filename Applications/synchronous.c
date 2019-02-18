@@ -29,6 +29,7 @@ void _10_ms_Task(void * parameters)
 		if (cvc_state == DRIVE)
 		{
 			torque_command();
+			safety_monitor();
 		}
 
 	}

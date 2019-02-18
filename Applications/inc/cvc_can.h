@@ -65,9 +65,9 @@ typedef enum input_index_e
 	ENG_RPM,			// 11
 	ENG_TPS,			// 12, Throttle Position %
 	ENG_MAP,			// 13, Manifold Air Pressure
-	ENG_TEMP,			// 14
+	ENG_TEMP,			// 14, Engine coolant temperature
 	AIR_TEMP,			// 15
-	OIL_TEMP,			// 16
+	OIL_TEMP,			// 16, Engine oil temperature
 	KL15_BATT_VOLTAGE,	// 17
 	KL30_BATT_VOLTAGE,	// 18
 	BARO,				// 19
