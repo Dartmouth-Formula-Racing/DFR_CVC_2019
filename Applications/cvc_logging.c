@@ -90,11 +90,11 @@ void loggingTask(void * parameters)
 
 			if (j<n_outputs-1)
 			{
-				*(pbuff+i) = 44;	// insert ASCII code for "," character
+				*(pbuff+i) = ',';	// separate values of same row by commas
 			}
 			else
 			{
-				*(pbuff+i) = 10;		// inset ASCII code for null terminator
+				*(pbuff+i) = '\n';		// insert new line at end of row
 			}
 			i++;
 		}
