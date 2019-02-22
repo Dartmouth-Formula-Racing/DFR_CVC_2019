@@ -49,10 +49,10 @@ int main(void)
 
 
 	/* Configure the SPI1 parameters */
-	Configure_SPI();
+//	Configure_SPI();
 
 	/* Enable the SPI1 peripheral */
-	Activate_SPI();
+//	Activate_SPI();
 
 	/* Create all tasks */
 	taskCreateAll();
