@@ -16,15 +16,27 @@
 #include "cvc_serial.h"
 #include "ff_test.h"
 #include "cvc_sd.h"
+#include "cvc_can.h"
+#include "cvc_spi.h"
+
+/* Uncomment this line to use the board as master, if not it is used as slave */
+//#define MASTER_BOARD
 
 /* Private function prototypes -----------------------------------------------*/
 static void SystemClock_Config(void);
 static void CPU_CACHE_Enable(void);
-static void Error_Handler(void);
+
+/* Private Variables ----------------------------------------------------*/
+uint8_t ubKeyNumber = 0x0;
+
+/* External Variables -------------------------------------------------------*/
 
 
-
-/* Private functions ---------------------------------------------------------*/
+/**
+  * @brief	 Main program
+  * @param	 None
+  * @retval	 None
+  */
 int main(void)
 {
 	/* Enable the CPU Cache */
@@ -36,8 +48,15 @@ int main(void)
 	/* Configure the system clock to 216 MHz */
 	SystemClock_Config();
 
-	/* Configure USARTx (USART IP configuration and related GPIO initialization) */
-	Configure_USART();
+	/* Initialize CAN */
+	CAN_Init();
+
+
+	/* Configure the SPI1 parameters */
+	Configure_SPI();
+
+	/* Enable the SPI1 peripheral */
+	Activate_SPI();
 
 	HAL_Delay(2);
 
@@ -50,8 +69,16 @@ int main(void)
 	/* Start RTOS Scheduler */
 	vTaskStartScheduler();
 
+
+	/* Wait for the end of the transfer and check received data */
+	/* LED blinking FAST during waiting time */
+
 	/* Function should never reach this point once scheduler is started */
-	for(;;);
+	/* Infinite loop */
+	while(1)
+	{
+
+	}
 }
 
 
@@ -65,7 +92,7 @@ int main(void)
   *            APB1 Prescaler                 = 4
   *            APB2 Prescaler                 = 2
   *            HSE Frequency(Hz)              = 25000000
-  *            PLL_M                          = 25
+  *            PLL_M                          = 8
   *            PLL_N                          = 432
   *            PLL_P                          = 2
   *            PLL_Q                          = 9
@@ -126,6 +153,7 @@ static void SystemClock_Config(void)
   {
     Error_Handler();
   }
+
 }
 
 /**
@@ -140,17 +168,4 @@ static void CPU_CACHE_Enable(void)
 
   /* Enable D-Cache */
   SCB_EnableDCache();
-}
-
-/**
-  * @brief  This function is executed in case of error occurrence.
-  * @param  None
-  * @retval None
-  */
-static void Error_Handler(void)
-{
-  /* User may add here some code to deal with this error */
-  while(1)
-  {
-  }
 }

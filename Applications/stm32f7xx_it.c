@@ -11,17 +11,18 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f7xx_hal.h"
 #include "stm32f7xx.h"
-#include "stm32f7xx_nucleo_144.h"
 #ifdef USE_RTOS_SYSTICK
 #include <cmsis_os.h>
 #endif
 #include "stm32f7xx_it.h"
-#include "cvc_serial.h"
+#include "cvc_can.h"
+#include "cvc_spi.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
+extern CAN_HandleTypeDef	CanHandle;
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
 
@@ -187,44 +188,35 @@ void DebugMon_Handler(void)
 /******************************************************************************/
 
 #if USE_PRINTF == 0
+
 /**
-  * Brief   This function handles USARTx Instance interrupt request.
-  * Param   None
-  * Retval  None
+  * @brief	This function handles CAN1 RX0 interrupt requests
+  * @param	None
+  * @retval	None
   */
-void USARTx_IRQHandler(void)
+void CANx_RX_IRQHandler(void)
 {
-  if(LL_USART_IsEnabledIT_TXE(USARTx_INSTANCE) && LL_USART_IsActiveFlag_TXE(USARTx_INSTANCE))
-  {
-    /* TXE flag will be automatically cleared when writing new data in TDR register */
-
-    /* Call function in charge of handling empty DR => will lead to transmission of next character */
-    USART_TXEmpty_Callback();
-  }
-
-  if(LL_USART_IsEnabledIT_TC(USARTx_INSTANCE) && LL_USART_IsActiveFlag_TC(USARTx_INSTANCE))
-  {
-    /* Clear TC flag */
-    LL_USART_ClearFlag_TC(USARTx_INSTANCE);
-    /* Call function in charge of handling end of transmission of sent character
-       and prepare next charcater transmission */
-    USART_CharTransmitComplete_Callback();
-  }
-
-  if(LL_USART_IsEnabledIT_ERROR(USARTx_INSTANCE) && LL_USART_IsActiveFlag_NE(USARTx_INSTANCE))
-  {
-    /* Call Error function */
-    Error_Callback();
-  }
-
+	HAL_CAN_IRQHandler(&CanHandle);
 }
+
+
+
 
 #endif /* USE_PRINTF == 0 */
 
 /**
-  * @}
+  * @brief  This function handles SPI1 interrupt request.
+  * @param  None
+  * @retval None
   */
+void SPI1_IRQHandler(void)
+{
 
-/**
-  * @}
-  */
+	if(LL_SPI_IsActiveFlag_RXNE(SPI1))
+	{
+		//SPI_routine();
+		PLC_routine_ISR_callback();
+	}
+
+
+}

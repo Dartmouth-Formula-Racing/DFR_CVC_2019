@@ -10,8 +10,6 @@
 #include "stm32f7xx_nucleo_144.h"
 #include "FreeRTOS.h"
 #include "task.h"
-#include "cvc_serial.h"
-
 
 void demoTask(void * parameters)	{
 
@@ -24,7 +22,32 @@ void demoTask(void * parameters)	{
 		vTaskDelay((TickType_t) 1000/portTICK_PERIOD_MS);
 
 		BSP_LED_Toggle(LED_BLUE);
+	}
+}
 
-		console_write("\n\r toggled \n\r");
+/**
+  * @brief	Turns on/off the dedicated LED
+  * @param	LedStatus: LED number from 1 to 3
+  * @retval	None
+  */
+void LED_Display(uint8_t LedStatus)
+{
+	BSP_LED_Off(LED1);
+	BSP_LED_Off(LED2);
+	BSP_LED_Off(LED3);
+
+	switch(LedStatus)
+	{
+		case (1):
+			BSP_LED_On(LED1);
+			break;
+		case (2):
+			BSP_LED_On(LED2);
+			break;
+		case (3):
+			BSP_LED_On(LED3);
+			break;
+		default:
+			break;
 	}
 }

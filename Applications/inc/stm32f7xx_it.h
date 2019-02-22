@@ -42,11 +42,22 @@
 #endif 
 
 /* Includes ------------------------------------------------------------------*/
-#include "FreeRTOSConfig.h"
+#include "stm32f7xx_ll_bus.h"
+#include "stm32f7xx_ll_rcc.h"
+#include "stm32f7xx_ll_system.h"
+#include "stm32f7xx_ll_utils.h"
+#include "stm32f7xx_ll_gpio.h"
+#include "stm32f7xx_ll_exti.h"
+#include "stm32f7xx_ll_spi.h"
+#include "stm32f7xx_ll_pwr.h"
+
+
+ /* Demo pushbutton settings --------------------------------------------------*/
+
+
+
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
-#define MAX_IRQ_PRIORITY		configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY
-
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */
 
@@ -64,6 +75,9 @@ void SVC_Handler(void);
 void DebugMon_Handler(void);
 void PendSV_Handler(void);
 void SysTick_Handler(void);
+
+void USER_BUTTON_IRQHANDLER(void);
+void SPI1_IRQHandler(void);
 
 #ifdef __cplusplus
 }
