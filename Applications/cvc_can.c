@@ -470,6 +470,18 @@ void HAL_CAN_MspInit(CAN_HandleTypeDef *hcan)
 
   HAL_GPIO_Init(CANx_RX_GPIO_PORT, &GPIO_InitStruct);
 
+#if CVC_PROTOTYPE == 0
+
+  /* CAN1 SC GPIO pin configuration */
+  GPIO_InitStruct.Pin = CANx_SC_PIN;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+
+  HAL_GPIO_Init(CANx_SC_GPIO_PORT, &GPIO_InitStruct);
+
+#endif /* CVC_PROTOTYPE == 0 */
+
   /*##-3- Configure the NVIC (Interrupt) #################################################*/
   /* NVIC configuration for CAN1 Reception complete interrupt */
   HAL_NVIC_SetPriority(CANx_RX_IRQn, configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY, configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY);
