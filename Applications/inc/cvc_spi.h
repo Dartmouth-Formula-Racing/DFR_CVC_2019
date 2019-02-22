@@ -22,6 +22,7 @@
 #include "stm32f7xx_it.h"
 #include "FreeRTOS.h"
 #include "semphr.h"
+#include "cvc_config.h"
 
 /* Defines -------------------------------------------------------------------*/
 
@@ -30,6 +31,7 @@
 #define LL_GPIOA_CLK_ENABLE		LL_AHB1_GRP1_PERIPH_GPIOA
 #define LL_GPIOD_CLK_ENABLE		LL_AHB1_GRP1_PERIPH_GPIOD
 #define LL_GPIOE_CLK_ENABLE		LL_AHB1_GRP1_PERIPH_GPIOE
+#define LL_GPIOB_CLK_ENABLE		LL_AHB1_GRP1_PERIPH_GPIOB
 
 
 /* Definition of PLC SPI pins */
@@ -44,8 +46,18 @@
 #define PLC_MISO_AF				LL_GPIO_AF_5
 
 /* MOSI pin */
+#if CVC_PROTOTYPE == 1
+
 #define PLC_MOSI_PIN			LL_GPIO_PIN_7	// Pin 5 for PCB
 #define PLC_MOSI_GPIO_PORT		GPIOA			// GPIOB for PCB
+
+#else
+
+#define PLC_MOSI_PIN			LL_GPIO_PIN_5
+#define PLC_MOSI_GPIO_PORT		GPIOB
+
+#endif /* CVC_PROTOTYPE == 1 */
+
 #define PLC_MOSI_AF				LL_GPIO_AF_5
 
 /* CS1 (for CLT01-38SQ7) */

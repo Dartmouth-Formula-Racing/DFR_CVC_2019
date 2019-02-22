@@ -55,7 +55,7 @@ int main(void)
 	Activate_SPI();
 
 	/* Create all tasks */
-	BaseType_t status = taskCreateAll();
+	taskCreateAll();
 
 	/* Start RTOS Scheduler */
 	vTaskStartScheduler();

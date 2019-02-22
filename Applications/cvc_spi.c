@@ -331,6 +331,10 @@ void Configure_SPI(void)
 	LL_AHB1_GRP1_EnableClock(LL_GPIOD_CLK_ENABLE);
 	LL_AHB1_GRP1_EnableClock(LL_GPIOE_CLK_ENABLE);
 
+#if CVC_PROTOTYPE == 0
+	LL_AHB1_GRP1_EnableClock(LL_GPIOB_CLK_ENABLE);
+#endif	/*CVC_PROTOTYPE == 0 */
+
 	/* Configure SCK Pin connected to pin 10 of CN7 connector */
 	LL_GPIO_SetPinMode(PLC_SCK_GPIO_PORT, PLC_SCK_PIN, LL_GPIO_MODE_ALTERNATE);
 	LL_GPIO_SetAFPin_0_7(PLC_SCK_GPIO_PORT, PLC_SCK_PIN, PLC_SCK_AF);
