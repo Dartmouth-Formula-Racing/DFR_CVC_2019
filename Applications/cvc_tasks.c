@@ -16,7 +16,7 @@
 /* list of all program tasks */
 static task_t taskList[] = {
 //		{demoTask, "demo", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 1, NULL},		/* demo blinky task */
-		{fatTask, "fatTest", 2*configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 1, NULL},
+		{loggingTask, "loggingTest", 2*configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 1, NULL},
 };
 
 /* Public Functions ----------------------------------------------------------*/
