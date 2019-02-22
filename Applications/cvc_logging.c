@@ -6,22 +6,11 @@
  */
 
 /* Includes ------------------------------------------------------------------*/
-#include "stm32f7xx_hal.h"
-#include "stm32f7xx_nucleo_144.h"
-#include "FreeRTOS.h"
-#include "task.h"
-#include "ff_test.h"
 #include "cvc_logging.h"
-#include "diskio.h"
-#include "ff_gen_drv.h"
-#include "sd_diskio_dma.h"
-#include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
+
 
 void logging_error();
 
-//static uint8_t wtext[] = "Leina,Alex,Trammell,John\n1,2,3,4\n"; /* File write buffer */
 static uint32_t buff[100U];
 static FATFS SD_FatFs; /* File system object for User logical drive */
 static FIL LogFile; /* File object */
@@ -30,9 +19,13 @@ static char SDPath[4]; /* SD disk logical drive path */
 static uint32_t wbytes; /* File write counts */
 static uint32_t rbytes; /* File read counts */
 
+static uint8_t n_outputs;	/* number of outputs to log */
+static uint32_t n_writes = 0;	/* number of writes since power cycle */
+
+
 uint32_t logging_outputs[10] = {11111,22222,33333,44444,55555,66666,77777,88888,99999,00000};
 
-//#define WRITER
+#define WRITER
 
 void logging_init()
 {
@@ -49,11 +42,21 @@ void logging_init()
 	{
 		logging_error();
 	}
+
+	/* get number of logging outputs */
+	n_outputs = sizeof(CAN_logging) / sizeof(CAN_input_t);
+
 	BSP_LED_Init(LED_GREEN);
 	BSP_LED_Init(LED_BLUE);
 	BSP_LED_Init(LED_RED);
 }
 
+
+void log_data(void)
+{
+	char *pbuff = (char *) buff;
+
+}
 void loggingTask(void * parameters)
 {
 	char *pbuff = (char *) buff;

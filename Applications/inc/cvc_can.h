@@ -66,7 +66,7 @@
 /* Type Definitions ------------------------------------------------------------------------*/
 
 /* enum for inputs vector index */
-typedef enum input_index_e
+typedef enum CAN_input_e
 {
 	BAMO_STATUS = 0,	// 0
 	MOTOR_RPM,			// 1
@@ -103,7 +103,7 @@ typedef enum input_index_e
 
 	NUM_INPUTS,			// 32, Must be last!
 
-} input_index_t;
+} CAN_input_t;
 
 /* CAN data union */
 typedef union CAN_data_u
@@ -120,7 +120,7 @@ typedef union CAN_data_u
 /* Struct to hold CAN input map (follows big endian) */
 typedef struct input_map_s
 {
-	input_index_t 	index;			/* index in inputs array */
+	CAN_input_t 	index;			/* index in inputs array */
 	uint8_t 		start_byte;		/* input start byte (MSB) in CAN data field */
 	uint8_t 		start_bit;		/* input start bit */
 	uint8_t 		size;			/* input size in bytes */
