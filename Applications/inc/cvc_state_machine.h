@@ -16,7 +16,7 @@
 #define BUZZER_TIMER_LOAD 200 // 2 seconds --> (2 s)/(0.01 s) = 200 ticks
 #define PRE_CHARGE_TIMER_LOAD 250 // 2.5 seconds --> (2.5 s)/(0.01 s) = 250 ticks
 
-#define VOlTAGE_CHECK_TIMEOUT_LOAD 1000 // 10 seconds --> (10 s)/(0.01 s) = 1000 ticks
+#define VOLTAGE_CHECK_TIMEOUT_LOAD 1000 // 10 seconds --> (10 s)/(0.01 s) = 1000 ticks
 #define MIN_BATTERY_VOLTAGE_THRESHOLD	240 // 240 V minimum for battery to pre-charge
 #define MAX_BAMO_BUS_VOLTAGE_THRESHOLD	20	// 20 V maximum for bamocar to pre-charge
 

@@ -6,12 +6,17 @@
  */
 
 /* Includes ------------------------------------------------------------------*/
+
 #include "cvc_logging.h"
 
+
 /* Function Prototypes ------------------------------------------------------------------*/
+
 void logging_error();
 
+
 /* Private Global Variables ------------------------------------------------------------------*/
+
 static uint32_t buff[100U];
 static FATFS SD_FatFs; /* File system object for User logical drive */
 static FIL LogFile; /* File object */

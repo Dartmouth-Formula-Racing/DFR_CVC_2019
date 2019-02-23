@@ -5,100 +5,24 @@
  *      Author: f002bc7
  */
 
+/* Includes ------------------------------------------------------------------*/
+
 #include "cvc_sd.h"
 
-/* Standard includes. */
-#include <stdlib.h>
-#include <string.h>
-#include <stdarg.h>
-#include <stdio.h>
 
-/* FreeRTOS Includes */
-#include "FreeRTOS.h"
+/* Private Variables -----------------------------------------------------------*/
 
-/* ST HAL includes. */
-#include "stm32f7xx_hal.h"
-#include "stm32f7xx_hal_sd.h"
-
-/* Configuration Defines */
-#define BUS_4BITS							1
-#define configSD_DETECT_PIN					GPIO_PIN_0
-#define configSD_DETECT_GPIO_PORT			GPIOG
-
-/* Misc definitions. */
-#define sdSIGNATURE 			0x41404342UL
-#define sdHUNDRED_64_BIT		( 100ull )
-#define sdBYTES_PER_MB			( 1024ull * 1024ull )
-#define sdSECTORS_PER_MB		( sdBYTES_PER_MB / 512ull )
-#define sdIOMAN_MEM_SIZE		4096
-
-/* DMA constants. */
-#define SD_DMAx_Tx_CHANNEL					DMA_CHANNEL_4
-#define SD_DMAx_Rx_CHANNEL					DMA_CHANNEL_4
-#define SD_DMAx_Tx_STREAM					DMA2_Stream6
-#define SD_DMAx_Rx_STREAM					DMA2_Stream3
-#define SD_DMAx_Tx_IRQn						DMA2_Stream6_IRQn
-#define SD_DMAx_Rx_IRQn						DMA2_Stream3_IRQn
-#define __DMAx_TxRx_CLK_ENABLE				__DMA2_CLK_ENABLE
-#define configSDIO_DMA_INTERRUPT_PRIORITY	( configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY )
-
-/* Define a time-out for all DMA transactions in msec. */
-#ifndef sdMAX_TIME_TICKS
-	#define sdMAX_TIME_TICKS	pdMS_TO_TICKS( 2000UL )
-#endif
-
-#ifndef configSD_DETECT_PIN
-	#error configSD_DETECT_PIN must be defined in FreeRTOSConfig.h to the pin used to detect if the SD card is present.
-#endif
-
-#ifndef configSD_DETECT_GPIO_PORT
-	#error configSD_DETECT_GPIO_PORT must be defined in FreeRTOSConfig.h to the port on which configSD_DETECT_PIN is located.
-#endif
-
-#ifndef sdCARD_DETECT_DEBOUNCE_TIME_MS
-	/* Debouncing time is applied only after card gets inserted. */
-	#define sdCARD_DETECT_DEBOUNCE_TIME_MS	( 5000 )
-#endif
-
-#ifndef sdARRAY_SIZE
-	#define	sdARRAY_SIZE( x )	( int )( sizeof( x ) / sizeof( x )[ 0 ] )
-#endif
-
-
-/* The Instance of the MMC peripheral. */
-#define	SDIO	SDMMC1
-
-#ifdef GPIO_AF12_SDIO
-	#undef GPIO_AF12_SDIO
-#endif
-#define GPIO_AF12_SDIO						GPIO_AF12_SDMMC1
-
-#define SDIO_CLOCK_EDGE_RISING				SDMMC_CLOCK_EDGE_RISING
-#define SDIO_CLOCK_BYPASS_DISABLE			SDMMC_CLOCK_BYPASS_DISABLE
-#define SDIO_CLOCK_POWER_SAVE_DISABLE		SDMMC_CLOCK_POWER_SAVE_DISABLE
-#define SDIO_BUS_WIDE_1B					SDMMC_BUS_WIDE_1B
-#define SDIO_BUS_WIDE_4B					SDMMC_BUS_WIDE_4B
-#define SDIO_HARDWARE_FLOW_CONTROL_DISABLE	SDMMC_HARDWARE_FLOW_CONTROL_DISABLE
-
-
-#define SD_SDIO_DISABLED					SD_SDMMC_DISABLED
-#define SD_SDIO_FUNCTION_BUSY				SD_SDMMC_FUNCTION_BUSY
-#define SD_SDIO_FUNCTION_FAILED				SD_SDMMC_FUNCTION_FAILED
-#define SD_SDIO_UNKNOWN_FUNCTION			SD_SDMMC_UNKNOWN_FUNCTION
-
-#define SDIO_IRQn							SDMMC1_IRQn
-
-
-/* Private Variables */
 static SD_HandleTypeDef SDHandle;
 
-/* Private Function Prototypes */
+
+/* Private Function Prototypes -----------------------------------------------------------*/
+
 static void GPIO_SD_Init(SD_HandleTypeDef* hsp);
 static void SDIO_SD_Init( void );
 static BaseType_t SDDetect( void );
 static void SDIO_DMA_Init( void );
 
-/*-----------------------------------------------------------*/
+/* Functions -----------------------------------------------------------*/
 
 /**
   * @brief  Returns information about specific card.
@@ -124,7 +48,6 @@ uint8_t BSP_SD_GetCardInfo(BSP_SD_CardInfo *pCardInfo)
   * @param  WriteAddr: Address from where data is to be written. The address is counted
   *                   in blocks of 512bytes
   * @param  NumOfBlocks: Number of SD blocks to write
-  * @param  Timeout: This parameter is used for compatibility with BSP implementation
   * @retval SD status
   */
 uint8_t BSP_SD_WriteBlocks_DMA(uint8_t *pData, uint32_t WriteAddr, uint32_t NumOfBlocks)
@@ -139,7 +62,6 @@ uint8_t BSP_SD_WriteBlocks_DMA(uint8_t *pData, uint32_t WriteAddr, uint32_t NumO
   * @param  ReadAddr: Address from where data is to be read. The address is counted
   *                   in blocks of 512bytes
   * @param  NumOfBlocks: Number of SD blocks to read
-  * @param  Timeout: This parameter is used for compatibility with BSP implementation
   * @retval SD status
   */
 uint8_t BSP_SD_ReadBlocks_DMA(uint8_t *pData, uint32_t ReadAddr, uint32_t NumOfBlocks)
@@ -262,6 +184,15 @@ GPIO_InitTypeDef GPIO_InitStruct;
 		GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;
 		GPIO_InitStruct.Alternate = GPIO_AF12_SDIO;
 		HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
+
+		/* SD Detect Pin configuration */
+		GPIO_InitStruct.Pin = SD_DETECT_PIN;
+		GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+		GPIO_InitStruct.Pull = GPIO_PULLUP;
+		GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;
+
+		HAL_GPIO_Init(SD_DETECT_GPIO_PORT, &GPIO_InitStruct);
+
 	}
 }
 
@@ -289,7 +220,7 @@ static BaseType_t SDDetect( void )
 int ret;
 
 	/*!< Check GPIO to detect SD */
-	if( HAL_GPIO_ReadPin( configSD_DETECT_GPIO_PORT, configSD_DETECT_PIN ) != 0 )
+	if( HAL_GPIO_ReadPin( SD_DETECT_GPIO_PORT, SD_DETECT_PIN ) != 0 )
 	{
 		/* The internal pull-up makes the signal high. */
 		ret = 0;

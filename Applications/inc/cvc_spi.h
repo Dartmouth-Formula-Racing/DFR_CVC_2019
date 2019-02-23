@@ -203,6 +203,7 @@ typedef enum SPI_io_states_t
 
 
 /* External Variables ------------------------------------------------------------*/
+
 extern volatile	CLT_Read_u_t CLT_Read;
 extern volatile uint16_t	CLT_Write;	//random 16 bits to initiate transfer with CLT
 extern volatile VNI_Read_u_t VNI_Read;
@@ -216,6 +217,7 @@ extern volatile SemaphoreHandle_t SPI_Inputs_Vector_Mutex;
 extern volatile SemaphoreHandle_t SPI_Outputs_Vector_Mutex;
 
 /* Function prototypes -----------------------------------------------*/
+
 void PLC_Routine_Task(void * parameters);
 void PLC_routine_ISR_callback(void);
 

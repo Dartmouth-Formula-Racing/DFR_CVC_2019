@@ -105,7 +105,7 @@ void state_machine()
 		else if ( voltage_check_timer_started == 0)
 		{
 			voltage_check_timer_started = 1;
-			voltage_check_timer = VOlTAGE_CHECK_TIMEOUT_LOAD;
+			voltage_check_timer = VOLTAGE_CHECK_TIMEOUT_LOAD;
 			cvc_state = VOLTAGE_CHECK;
 		}
 		else if ( voltage_check_timer_started == 1 && voltage_check_timer == 0)

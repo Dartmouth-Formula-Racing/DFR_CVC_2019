@@ -102,20 +102,6 @@
 							</tool>
 						</toolChain>
 					</folderInfo>
-					<folderInfo id="fr.ac6.managedbuild.config.gnu.cross.exe.debug.771055163.177834694" name="/" resourcePath="Middlewares/STM32_USB_Host_Library">
-						<toolChain id="fr.ac6.managedbuild.toolchain.gnu.cross.exe.debug.255565872" name="Ac6 STM32 MCU GCC" superClass="fr.ac6.managedbuild.toolchain.gnu.cross.exe.debug" unusedChildren="">
-							<option id="fr.ac6.managedbuild.option.gnu.cross.mcu.1555458077.836778592" name="Mcu" superClass="fr.ac6.managedbuild.option.gnu.cross.mcu.1555458077"/>
-							<option id="fr.ac6.managedbuild.option.gnu.cross.fpu.1998694153.1200096841" name="Floating point hardware" superClass="fr.ac6.managedbuild.option.gnu.cross.fpu.1998694153"/>
-							<option id="fr.ac6.managedbuild.option.gnu.cross.floatabi.779188953.1209737387" name="Floating-point ABI" superClass="fr.ac6.managedbuild.option.gnu.cross.floatabi.779188953"/>
-							<option id="fr.ac6.managedbuild.option.gnu.cross.board.81725610.839231887" name="Board" superClass="fr.ac6.managedbuild.option.gnu.cross.board.81725610"/>
-							<tool id="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.1888760461" name="MCU GCC Compiler" superClass="fr.ac6.managedbuild.tool.gnu.cross.c.compiler.546825199"/>
-							<tool id="fr.ac6.managedbuild.tool.gnu.cross.cpp.compiler.1420034672" name="MCU G++ Compiler" superClass="fr.ac6.managedbuild.tool.gnu.cross.cpp.compiler.1288755315"/>
-							<tool id="fr.ac6.managedbuild.tool.gnu.cross.c.linker.2074919186" name="MCU GCC Linker" superClass="fr.ac6.managedbuild.tool.gnu.cross.c.linker.1447664464"/>
-							<tool id="fr.ac6.managedbuild.tool.gnu.cross.cpp.linker.453595739" name="MCU G++ Linker" superClass="fr.ac6.managedbuild.tool.gnu.cross.cpp.linker.1734882110"/>
-							<tool id="fr.ac6.managedbuild.tool.gnu.archiver.215681581" name="MCU GCC Archiver" superClass="fr.ac6.managedbuild.tool.gnu.archiver.1874150149"/>
-							<tool id="fr.ac6.managedbuild.tool.gnu.cross.assembler.1152121743" name="MCU GCC Assembler" superClass="fr.ac6.managedbuild.tool.gnu.cross.assembler.1363883066"/>
-						</toolChain>
-					</folderInfo>
 					<fileInfo id="fr.ac6.managedbuild.config.gnu.cross.exe.debug.771055163.257679099" name="sd_diskio_dma.h" rcbsApplicability="disable" resourcePath="Middlewares/FatFs/src/drivers/sd_diskio_dma.h" toolsToInvoke=""/>
 					<fileInfo id="fr.ac6.managedbuild.config.gnu.cross.exe.debug.771055163.95663806" name="stm32f7_diskio_dma_rtos.h" rcbsApplicability="disable" resourcePath="Middlewares/FatFs/src/drivers/stm32f7_diskio_dma_rtos.h" toolsToInvoke=""/>
 					<sourceEntries>
