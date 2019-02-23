@@ -5,12 +5,12 @@
  *      Author: f002bc7
  */
 
-#include <stdint.h>
+/* Includes ------------------------------------------------------------------------*/
+
 #include "cvc_state_machine.h"
-#include "cvc_spi.h"
-#include "cvc_can.h"
-#include "bamocar.h"
-#include "ice.h"
+
+
+/* Private Variables ------------------------------------------------------------------------*/
 
 volatile cvc_state_t cvc_state = BAMO_INIT;
 static cvc_fault_status_t cvc_fault = CVC_OK;
@@ -110,7 +110,7 @@ void state_machine()
 		}
 		else if ( voltage_check_timer_started == 1 && voltage_check_timer == 0)
 		{
-			error_handler(CVC_HARD_FAULT, VOLTAGE_ERR);
+			cvc_error_handler(CVC_HARD_FAULT, VOLTAGE_ERR);
 			voltage_check_timer = 0;
 			voltage_check_timer_started = 0;
 		}
@@ -310,10 +310,17 @@ void safety_monitor(void)
 }
 
 
-void error_handler(cvc_fault_status_t fault, cvc_error_code_t error)
+void cvc_error_handler(cvc_fault_status_t fault, cvc_error_code_t error)
 {
 	// TODO: account for pre-scheduler errors (init fault handler, probably just infinite loop)
 
+	BSP_LED_On(LED_RED);
 	cvc_fault = fault;
 	cvc_error = error;
+}
+
+void init_fault_handler(void)
+{
+	BSP_LED_On(LED_RED);
+	while(1);
 }

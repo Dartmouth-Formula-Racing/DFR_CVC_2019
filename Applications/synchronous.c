@@ -18,12 +18,12 @@ void _10_ms_Task(void * parameters)
 		vTaskDelay((TickType_t) 10/portTICK_PERIOD_MS);
 
 		TickType_t start = xTaskGetTickCount();
-		state_machine();
+//		state_machine();
 //
 //		if (cvc_state == DRIVE)
 //		{
-			torque_command();
-			safety_monitor();
+//			torque_command();
+//			safety_monitor();
 //		}
 
 		TickType_t end = xTaskGetTickCount();

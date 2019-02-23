@@ -41,7 +41,7 @@ void monitor_temps(void)
 
 	if (coolant_timer_started == 1 && coolant_timer == 0)
 	{
-		error_handler(CVC_HARD_FAULT, ENGINE_ERR);
+		cvc_error_handler(CVC_HARD_FAULT, ENGINE_ERR);
 		coolant_timer_started = 0;
 		coolant_timer = -2;
 	}
@@ -56,6 +56,6 @@ void monitor_temps(void)
 //
 //	if (oil_temp > MAX_OIL_TEMP)
 //	{
-//		error_handler(CVC_HARD_FAULT, ENGINE_ERR);
+//		cvc_error_handler(CVC_HARD_FAULT, ENGINE_ERR);
 //	}
 }

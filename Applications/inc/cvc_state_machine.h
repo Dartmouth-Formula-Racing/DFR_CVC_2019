@@ -8,6 +8,14 @@
 #ifndef INC_CVC_STATE_MACHINE_H_
 #define INC_CVC_STATE_MACHINE_H_
 
+/* Includes ------------------------------------------------------------------------*/
+
+#include <stdint.h>
+#include "cvc_spi.h"
+#include "cvc_can.h"
+#include "bamocar.h"
+#include "ice.h"
+#include "stm32f7xx_nucleo_144.h"
 
 /* Defines ------------------------------------------------------------------------*/
 //#define BUZZER_TIMER_LOAD 40 // 2 seconds --> (2 s)/(0.05 s) = 40 ticks
@@ -52,6 +60,7 @@ typedef enum cvc_error_code_e
 	CAN_ERR = 2,
 	VOLTAGE_ERR = 3,
 	ENGINE_ERR = 4,
+	LOGGING_ERR = 5,
 } cvc_error_code_t;
 
 /* Variables to Export ------------------------------------------------------------------------*/
@@ -59,8 +68,9 @@ extern volatile cvc_state_t cvc_state;
 
 /* Function Prototypes ------------------------------------------------------------------------*/
 void state_machine();
-void error_handler(cvc_fault_status_t fault, cvc_error_code_t error);
+void cvc_error_handler(cvc_fault_status_t fault, cvc_error_code_t error);
 void safety_monitor(void);
+void init_fault_handler(void);
 
 
 #endif /* INC_CVC_STATE_MACHINE_H_ */

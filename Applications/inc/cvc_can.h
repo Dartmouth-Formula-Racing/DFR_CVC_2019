@@ -164,7 +164,7 @@ extern volatile SemaphoreHandle_t CAN_Outputs_Vector_Mutex;
 /* Function Prototypes ------------------------------------------------------------------------*/
 void CAN_Init(void)	;
 HAL_StatusTypeDef CAN_Polling(void);
-void Error_Handler(void);
+//void Error_Handler(void);
 void CAN_Rx_Task(void * parameters);
 void CAN_Tx_Task(void * parameters);
 void CAN_Send(queue_msg_t Tx_msg);

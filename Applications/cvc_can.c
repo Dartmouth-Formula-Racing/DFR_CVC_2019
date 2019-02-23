@@ -160,7 +160,7 @@ void CAN_Tx_Task(void * parameters)
 
 		if (HAL_CAN_AddTxMessage(&CanHandle, &Tx_msg.Tx_header, Tx_msg.data._8, &TxMailbox) != HAL_OK)
 		{
-			error_handler(CVC_HARD_FAULT, CAN_ERR);
+			cvc_error_handler(CVC_HARD_FAULT, CAN_ERR);
 		}
 	}
 }
@@ -173,7 +173,7 @@ void CAN_Send(queue_msg_t Tx_msg)
 	/* TODO: check that CAN message is valid */
 	if (xQueueSend(TxQueue, &Tx_msg, portMAX_DELAY) != pdPASS)
 	{
-		error_handler(CVC_HARD_FAULT, QUEUE_ERR);
+		cvc_error_handler(CVC_HARD_FAULT, QUEUE_ERR);
 	}
 }
 
@@ -296,26 +296,26 @@ void CAN_Init(void)
 	RxQueue = xQueueCreate(CAN_Rx_QUEUE_LENGTH, sizeof(queue_msg_t));
 	if (RxQueue == NULL)
 	{
-		Error_Handler();
+		init_fault_handler();
 	}
 
 	TxQueue = xQueueCreate(CAN_Tx_QUEUE_LENGTH, sizeof(queue_msg_t));
 	if (TxQueue == NULL)
 	{
-		Error_Handler();
+		init_fault_handler();
 	}
 
 	/* Initialize CAN Input and Output Vector Mutex's */
 	CAN_Inputs_Vector_Mutex = xSemaphoreCreateMutex();
 	if (CAN_Inputs_Vector_Mutex == NULL)
 	{
-		Error_Handler();
+		init_fault_handler();
 	}
 
 	CAN_Outputs_Vector_Mutex = xSemaphoreCreateMutex();
 	if (CAN_Outputs_Vector_Mutex == NULL)
 	{
-		Error_Handler();
+		init_fault_handler();
 	}
 
 }
@@ -348,7 +348,7 @@ static void CAN_Config(void)
 	if (HAL_CAN_Init(&CanHandle) != HAL_OK)
 	{
 		/* Initialization Error */
-		Error_Handler();
+		init_fault_handler();
 	}
 
 	/* 2. Configure the CAN Filer ----------------------------------------------------*/
@@ -366,7 +366,7 @@ static void CAN_Config(void)
 	if (HAL_CAN_ConfigFilter(&CanHandle, &sFilterConfig) != HAL_OK)
 	{
 		/* Filter Configuration Error */
-		Error_Handler();
+		init_fault_handler();
 	}
 
 
@@ -374,14 +374,14 @@ static void CAN_Config(void)
 	if (HAL_CAN_Start(&CanHandle) != HAL_OK)
 	{
 		/* Start Error */
-		Error_Handler();
+		init_fault_handler();
 	}
 
 	/* 4. Activate CAN RX notification -----------------------------------------------*/
 	if (HAL_CAN_ActivateNotification(&CanHandle, CAN_IT_RX_FIFO0_MSG_PENDING) != HAL_OK)
 	{
 		/* Notification Error */
-		Error_Handler();
+		init_fault_handler();
 	}
 
 }
@@ -403,7 +403,7 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 	/* Get RX message */
 	if (HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &(RxHeader), RxData) != HAL_OK)
 	{
-		error_handler(CVC_HARD_FAULT, CAN_ERR);
+		cvc_error_handler(CVC_HARD_FAULT, CAN_ERR);
 	}
 
 	/* Add message to RxQueue */
@@ -413,22 +413,9 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 	}
 	if (xQueueSendFromISR(RxQueue, &Rx_msg, NULL) != pdPASS)
 	{
-		error_handler(CVC_HARD_FAULT, QUEUE_ERR);
+		cvc_error_handler(CVC_HARD_FAULT, QUEUE_ERR);
 	}
 
-}
-
-
-/**
-  * @brief	This function is executed in the case of an error
-  * @param	None
-  * @retval	None
-  */
-void Error_Handler(void)
-{
-	while(1)
-	{
-	}
 }
 
 

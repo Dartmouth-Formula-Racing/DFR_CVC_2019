@@ -9,18 +9,31 @@
 #define INC_CVC_LOGGING_H_
 
 /* Includes ------------------------------------------------------------------*/
-#include "stm32f7xx_hal.h"
-#include "stm32f7xx_nucleo_144.h"
-#include "FreeRTOS.h"
-#include "task.h"
-#include "ff_test.h"
-#include "cvc_can.h"
-#include "diskio.h"
-#include "ff_gen_drv.h"
-#include "sd_diskio_dma.h"
+
+/* Standard Includes */
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
+
+/* STM Includes */
+#include "stm32f7xx_hal.h"
+#include "stm32f7xx_nucleo_144.h"
+
+/* FreeRTOS Includes */
+#include "FreeRTOS.h"
+#include "task.h"
+
+/* FatFS Includes */
+#include "ff_test.h"
+#include "diskio.h"
+#include "ff_gen_drv.h"
+#include "sd_diskio_dma.h"
+
+/* CVC Includes */
+#include "cvc_can.h"
+#include "cvc_state_machine.h"
+
+
 
 /* Function Declarations -----------------------------------------------------*/
 void logging_init();

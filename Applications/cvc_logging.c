@@ -10,10 +10,6 @@
 #include "cvc_logging.h"
 
 
-/* Function Prototypes ------------------------------------------------------------------*/
-
-void logging_error();
-
 
 /* Private Global Variables ------------------------------------------------------------------*/
 
@@ -48,12 +44,12 @@ void logging_init()
 		/* mount disk */
 		if (f_mount(&SD_FatFs, (char const*) SDPath, 0) != FR_OK)
 		{
-			logging_error();
+			init_fault_handler();
 		}
 	}
 	else
 	{
-		logging_error();
+		init_fault_handler();
 	}
 
 	/* get number of logging outputs */
@@ -109,7 +105,7 @@ void log_data(void)
 		if(f_write(&LogFile, pbuff, i, (void *)&wbytes) != FR_OK)
 		{
 			f_close(&LogFile);
-			logging_error();
+			cvc_error_handler(CVC_WARNING, LOGGING_ERR);
 		}
 		f_close(&LogFile);
 
@@ -120,7 +116,7 @@ void log_data(void)
 	}
 	else
 	{
-		logging_error();
+		cvc_error_handler(CVC_WARNING, LOGGING_ERR);
 	}
 
 //	taskEXIT_CRITICAL();
@@ -153,13 +149,13 @@ void copy_file(void)
 			{
 				f_close(&LogFile);
 				f_close(&CopyFile);
-				logging_error();
+				cvc_error_handler(CVC_WARNING, LOGGING_ERR);
 			}
 			if(f_write(&CopyFile, pbuff, rbytes, (void *)&wbytes) != FR_OK)
 			{
 				f_close(&LogFile);
 				f_close(&CopyFile);
-				logging_error();
+				cvc_error_handler(CVC_WARNING, LOGGING_ERR);
 			}
 		}
 
@@ -170,13 +166,8 @@ void copy_file(void)
 	}
 	else
 	{
-		logging_error();
+		cvc_error_handler(CVC_WARNING, LOGGING_ERR);
 	}
 }
 
-
-void logging_error()
-{
-	while(1);
-}
 

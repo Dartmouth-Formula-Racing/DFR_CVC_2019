@@ -288,6 +288,11 @@ void HAL_MspInit(void)
 	BSP_LED_Init(LED_RED);
 	BSP_LED_Init(LED_GREEN);
 	BSP_LED_Init(LED_BLUE);
+
+	BSP_LED_Off(LED_RED);
+	BSP_LED_Off(LED_GREEN);
+	BSP_LED_Off(LED_BLUE);
+
 }
 
 /**

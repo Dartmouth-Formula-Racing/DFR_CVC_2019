@@ -86,7 +86,7 @@ void PLC_Routine_Task(void * parameters)
 			{
 				xSemaphoreGive(SPI_Inputs_Vector_Mutex);	//give SPI mutex
 				xSemaphoreGive(SPI_Outputs_Vector_Mutex);	//give SPI mutex
-				error_handler(CVC_HARD_FAULT, QUEUE_ERR);
+				cvc_error_handler(CVC_HARD_FAULT, QUEUE_ERR);
 			}
 			xSemaphoreGive(SPI_Inputs_Vector_Mutex);	//give SPI mutex
 			xSemaphoreGive(SPI_Outputs_Vector_Mutex);	//give SPI mutex
@@ -112,7 +112,7 @@ void PLC_routine_ISR_callback(void)
 	{
 		if (xQueueSendFromISR(PLC_transmit_queue, &PLC_transmission_message, NULL) != pdPASS)
 		{
-			error_handler(CVC_HARD_FAULT, QUEUE_ERR);
+			cvc_error_handler(CVC_HARD_FAULT, QUEUE_ERR);
 		}
 	}
 }
