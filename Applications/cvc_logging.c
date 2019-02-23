@@ -27,10 +27,6 @@ static uint32_t n_writes = 0;	/* number of writes since power cycle */
 CAN_input_t CAN_logging[] = {BAMO_BUS_VOLTAGE};		/* CAN inputs to log */
 char * header = "TICKS,BAMO_BUS_VOLTAGE\n";	/* labels for file contents (separate by commas for csv */
 
-/* Defines ------------------------------------------------------------------*/
-#define WRITER
-
-
 /* Functions ------------------------------------------------------------------*/
 
 /**
@@ -100,7 +96,7 @@ void log_data(void)
 	}
 
 	/* write data to file */
-	if (f_open(&LogFile, "CAN_LOG.csv", FA_OPEN_APPEND | FA_WRITE) == FR_OK)
+	if (f_open(&LogFile, "LOG_FILE_1.csv", FA_OPEN_APPEND | FA_WRITE) == FR_OK)
 	{
 		if(f_write(&LogFile, pbuff, i, (void *)&wbytes) != FR_OK)
 		{
@@ -121,11 +117,15 @@ void log_data(void)
 
 //	taskEXIT_CRITICAL();
 
+#if LOGGING_TEST
+
 	if (n_writes >= 20)
 	{
 		BSP_LED_On(LED_BLUE);
 		vTaskSuspend(NULL);
 	}
+
+#endif	/* LOGGING_TEST */
 
 }
 

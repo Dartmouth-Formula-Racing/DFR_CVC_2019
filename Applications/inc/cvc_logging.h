@@ -34,6 +34,9 @@
 #include "cvc_state_machine.h"
 
 
+/* Defines ------------------------------------------------------------------*/
+
+#define LOGGING_TEST		1
 
 /* Function Declarations -----------------------------------------------------*/
 void logging_init();
