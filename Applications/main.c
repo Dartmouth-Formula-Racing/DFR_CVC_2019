@@ -13,7 +13,6 @@
 #include "stm32f7xx_hal.h"
 #include "stm32f7xx_nucleo_144.h"
 #include "cvc_tasks.h"
-#include "cvc_serial.h"
 #include "ff_test.h"
 #include "cvc_sd.h"
 #include "cvc_can.h"
@@ -51,14 +50,11 @@ int main(void)
 	/* Initialize CAN */
 	CAN_Init();
 
-
 	/* Configure the SPI1 parameters */
 	Configure_SPI();
 
 	/* Enable the SPI1 peripheral */
 	Activate_SPI();
-
-	HAL_Delay(2);
 
 	/* initialize logging */
 	logging_init();

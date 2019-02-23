@@ -19,7 +19,6 @@
 #include "sd_diskio_dma.h"
 #include "ffconf.h"
 #include "stm32f7xx_nucleo_144.h"
-#include "cvc_serial.h"
 #include "FreeRTOS.h"
 #include "task.h"
 

@@ -52,9 +52,9 @@
    
 /* To be defined only if the board is provided with the related shield */
 /* https://www.adafruit.com/products/802 */
-#ifndef ADAFRUIT_TFT_JOY_SD_ID802
-#define ADAFRUIT_TFT_JOY_SD_ID802
-#endif
+//#ifndef ADAFRUIT_TFT_JOY_SD_ID802
+//#define ADAFRUIT_TFT_JOY_SD_ID802
+//#endif
    
 /** @addtogroup BSP
   * @{

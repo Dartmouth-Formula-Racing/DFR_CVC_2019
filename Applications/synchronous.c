@@ -6,14 +6,7 @@
  */
 
 /* Includes ------------------------------------------------------------------*/
-#include "stm32f7xx_hal.h"
-#include "stm32f7xx_nucleo_144.h"
-#include "FreeRTOS.h"
-#include "task.h"
-#include "cvc_spi.h"
-#include "semphr.h"
-#include "cvc_state_machine.h"
-#include "torque_command.h"
+#include "synchronous.h"
 
 /**
   * @brief Fast synchronous task (100 Hz)
@@ -24,14 +17,20 @@ void _10_ms_Task(void * parameters)
 	{
 		vTaskDelay((TickType_t) 10/portTICK_PERIOD_MS);
 
+		TickType_t start = xTaskGetTickCount();
 		state_machine();
-
-		if (cvc_state == DRIVE)
-		{
+//
+//		if (cvc_state == DRIVE)
+//		{
 			torque_command();
 			safety_monitor();
-		}
+//		}
 
+		TickType_t end = xTaskGetTickCount();
+
+		if(end > start) {
+			int good = 1;
+		}
 	}
 }
 
@@ -46,7 +45,7 @@ void _50_ms_Task(void * parameters)
 	{
 		vTaskDelay((TickType_t) 50/portTICK_PERIOD_MS);
 
-
+		log_data();
 
 	}
 

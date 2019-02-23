@@ -23,12 +23,8 @@
 #include <stdio.h>
 
 /* Function Declarations -----------------------------------------------------*/
-void loggingTask(void * parameters);
 void logging_init();
+void log_data(void);
 
-CAN_input_t CAN_logging[] =
-{
-	BAMO_BUS_VOLTAGE,
-};
 
 #endif /* INC_CVC_LOGGING_H_ */

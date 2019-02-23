@@ -8,9 +8,10 @@
 /* Includes ------------------------------------------------------------------*/
 #include "cvc_logging.h"
 
-
+/* Function Prototypes ------------------------------------------------------------------*/
 void logging_error();
 
+/* Private Global Variables ------------------------------------------------------------------*/
 static uint32_t buff[100U];
 static FATFS SD_FatFs; /* File system object for User logical drive */
 static FIL LogFile; /* File object */
@@ -22,11 +23,18 @@ static uint32_t rbytes; /* File read counts */
 static uint8_t n_outputs;	/* number of outputs to log */
 static uint32_t n_writes = 0;	/* number of writes since power cycle */
 
+CAN_input_t CAN_logging[] = {BAMO_BUS_VOLTAGE};		/* CAN inputs to log */
+char * header = "TICKS,BAMO_BUS_VOLTAGE\n";	/* labels for file contents (separate by commas for csv */
 
-uint32_t logging_outputs[10] = {11111,22222,33333,44444,55555,66666,77777,88888,99999,00000};
-
+/* Defines ------------------------------------------------------------------*/
 #define WRITER
 
+
+/* Functions ------------------------------------------------------------------*/
+
+/**
+ * @brief initialize logging functionality
+ */
 void logging_init()
 {
 	/* link/initialize SD driver */
@@ -46,9 +54,6 @@ void logging_init()
 	/* get number of logging outputs */
 	n_outputs = sizeof(CAN_logging) / sizeof(CAN_input_t);
 
-	BSP_LED_Init(LED_GREEN);
-	BSP_LED_Init(LED_BLUE);
-	BSP_LED_Init(LED_RED);
 }
 
 
@@ -56,126 +61,114 @@ void log_data(void)
 {
 	char *pbuff = (char *) buff;
 
-}
-void loggingTask(void * parameters)
-{
-	char *pbuff = (char *) buff;
-	uint8_t n_outputs = sizeof(logging_outputs)/sizeof(uint32_t);
-	uint8_t n_writes = 0;
+	TickType_t ticks = xTaskGetTickCount();
+	uint8_t i = 0;
 
-	while(1)
+	/* add header to buffer */
+	if (n_writes == 0)
 	{
-
-#ifdef WRITER
-		uint8_t i = 0;
-
-		TickType_t ticks = xTaskGetTickCount();
-
-		/* add header*/
-		if (n_writes == 0)
-		{
-			strcpy(pbuff+i, "ticks,one,two,three,four,five,six,seven,eight,nine,zero\n");
-			i+=strlen(pbuff+i);
-		}
-
-		/* add current ticks to log file */
-		utoa(ticks, pbuff+i, 10);
+		strcpy(pbuff+i, header);
 		i+=strlen(pbuff+i);
-		*(pbuff+i) = 44;	// insert ASCII code for "," character
+	}
+
+	/* add current ticks to buffer */
+	utoa(ticks, pbuff+i, 10);
+	i+=strlen(pbuff+i);
+	*(pbuff+i) = ',';	// insert ASCII code for "," character
+	i++;
+
+	/* loop through logging outputs and add to buffer */
+	// TODO: add critical sections around fopen->fclose
+	for (uint8_t j = 0; j < n_outputs; j++)
+	{
+		xSemaphoreTake(CAN_Inputs_Vector_Mutex, portMAX_DELAY);
+		utoa(CAN_inputs[CAN_logging[j]], pbuff+i, 10);
+		xSemaphoreGive(CAN_Inputs_Vector_Mutex);
+
+		i+=strlen(pbuff+i);
+
+		if (j<n_outputs-1)
+		{
+			*(pbuff+i) = ',';	// separate values of same row by commas
+		}
+		else
+		{
+			*(pbuff+i) = '\n';		// insert new line at end of row
+		}
 		i++;
+	}
 
-		/* loop through logging outputs and write to file */
-		// TODO: add critical sections around fopen->fclose
-		for (uint8_t j = 0; j < n_outputs; j++)
+	/* write data to file */
+	if (f_open(&LogFile, "CAN_LOG.csv", FA_OPEN_APPEND | FA_WRITE) == FR_OK)
+	{
+		if(f_write(&LogFile, pbuff, i, (void *)&wbytes) != FR_OK)
 		{
-			utoa(logging_outputs[j], pbuff+i, 10);
-			i+=strlen(pbuff+i);
-
-			if (j<n_outputs-1)
-			{
-				*(pbuff+i) = ',';	// separate values of same row by commas
-			}
-			else
-			{
-				*(pbuff+i) = '\n';		// insert new line at end of row
-			}
-			i++;
-		}
-
-		/* write data to file */
-		if (f_open(&, "STM32.csv", FA_OPEN_APPEND | FA_WRITE) == FR_OK)
-		{
-			if(f_write(&LogFile, pbuff, i, (void *)&wbytes) != FR_OK)
-			{
-				f_close(&LogFile);
-				logging_error();
-			}
 			f_close(&LogFile);
-
-			/* increase number of writes */
-			n_writes++;
-
-			BSP_LED_On(LED_GREEN);
-		}
-		else
-		{
 			logging_error();
 		}
+		f_close(&LogFile);
 
-		if (ticks < 10000)
-		{
-			vTaskDelay(1000);
-		}
-		else
-		{
-			BSP_LED_On(LED_RED);
-			vTaskSuspend(NULL);
-		}
+		/* increase number of writes */
+		n_writes++;
 
-#else
-		/* read back data to check for success */
-		if (f_open(&LogFile, "STM32.csv", FA_OPEN_EXISTING | FA_READ) == FR_OK && f_open(&CopyFile, "STM32_copy.csv", FA_OPEN_ALWAYS | FA_WRITE) == FR_OK)
-		{
-			FSIZE_t file_size = f_size(&LogFile);
-			int buff_size = sizeof(buff);
+		BSP_LED_On(LED_GREEN);
+	}
+	else
+	{
+		logging_error();
+	}
 
-			int n = file_size / buff_size;
-			int r = file_size % buff_size;
+//	taskEXIT_CRITICAL();
 
-			for (int j = 0; j <= n; j++)
-			{
-
-				if(f_read(&LogFile, pbuff, (j < n) ? buff_size : r, (void *)&rbytes) != FR_OK)
-				{
-					f_close(&LogFile);
-					f_close(&CopyFile);
-					logging_error();
-				}
-				if(f_write(&CopyFile, pbuff, rbytes, (void *)&wbytes) != FR_OK)
-				{
-					f_close(&LogFile);
-					f_close(&CopyFile);
-					logging_error();
-				}
-			}
-
-			f_close(&LogFile);
-			f_close(&CopyFile);
-
-			BSP_LED_On(LED_BLUE);
-		}
-		else
-		{
-			logging_error();
-		}
-
+	if (n_writes >= 20)
+	{
+		BSP_LED_On(LED_BLUE);
 		vTaskSuspend(NULL);
-
-#endif /* WRITER */
-
 	}
 
 }
+
+void copy_file(void)
+{
+	char *pbuff = (char *) buff;
+
+	/* create copy of existing file */
+	if (f_open(&LogFile, "STM32.csv", FA_OPEN_EXISTING | FA_READ) == FR_OK && f_open(&CopyFile, "STM32_copy.csv", FA_OPEN_ALWAYS | FA_WRITE) == FR_OK)
+	{
+		FSIZE_t file_size = f_size(&LogFile);
+		int buff_size = sizeof(buff);
+
+		int n = file_size / buff_size;
+		int r = file_size % buff_size;
+
+		for (int j = 0; j <= n; j++)
+		{
+
+			if(f_read(&LogFile, pbuff, (j < n) ? buff_size : r, (void *)&rbytes) != FR_OK)
+			{
+				f_close(&LogFile);
+				f_close(&CopyFile);
+				logging_error();
+			}
+			if(f_write(&CopyFile, pbuff, rbytes, (void *)&wbytes) != FR_OK)
+			{
+				f_close(&LogFile);
+				f_close(&CopyFile);
+				logging_error();
+			}
+		}
+
+		f_close(&LogFile);
+		f_close(&CopyFile);
+
+		BSP_LED_On(LED_BLUE);
+	}
+	else
+	{
+		logging_error();
+	}
+}
+
 
 void logging_error()
 {
