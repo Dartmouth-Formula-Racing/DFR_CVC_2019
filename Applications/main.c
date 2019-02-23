@@ -45,14 +45,14 @@ int main(void)
 	SystemClock_Config();
 
 	/* Initialize CAN */
-	CAN_Init();
+//	CAN_Init();
 
 
 	/* Configure the SPI1 parameters */
-//	Configure_SPI();
+	Configure_SPI();
 
 	/* Enable the SPI1 peripheral */
-//	Activate_SPI();
+	Activate_SPI();
 
 	/* Create all tasks */
 	taskCreateAll();
@@ -109,11 +109,21 @@ static void SystemClock_Config(void)
   __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
 
   /* Enable HSE Oscillator and activate PLL with HSE as source */
+
+#if USE_HSI == 1
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
+  RCC_OscInitStruct.HSIState = RCC_HSI_ON;
+  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
+  RCC_OscInitStruct.PLL.PLLM = 16;		// CRYSTAL OVERRIDE: Changed to 8 from 25 to match HSE crystal
+
+#else
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
-  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
   RCC_OscInitStruct.PLL.PLLM = 8;		// CRYSTAL OVERRIDE: Changed to 8 from 25 to match HSE crystal
+#endif
+
+  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLN = 432;
   RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
   RCC_OscInitStruct.PLL.PLLQ = 9;
