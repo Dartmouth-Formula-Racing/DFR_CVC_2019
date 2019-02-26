@@ -17,6 +17,7 @@ void _10_ms_Task(void * parameters)
 	{
 		vTaskDelay((TickType_t) 10/portTICK_PERIOD_MS);
 
+#if LOGGING_TEST == 0
 		TickType_t start = xTaskGetTickCount();
 		state_machine();
 
@@ -31,6 +32,8 @@ void _10_ms_Task(void * parameters)
 		if(end > start) {
 			int good = 1;
 		}
+#endif
+
 	}
 }
 

@@ -52,6 +52,10 @@
 #define PLC_MOSI_PIN			LL_GPIO_PIN_7	// Pin 5 for PCB
 #define PLC_MOSI_GPIO_PORT		GPIOA			// GPIOB for PCB
 
+/* OUTEN (for VNI8200XP) */
+#define PLC_OUTEN_PIN			LL_GPIO_PIN_9
+#define PLC_OUTEN_GPIO_PORT		GPIOE
+
 #else
 
 /* MOSI pin */
@@ -73,11 +77,6 @@
 /* CS2 (for VNI8200XP) */
 #define PLC_CS2_PIN				LL_GPIO_PIN_14
 #define	PLC_CS2_GPIO_PORT		GPIOD
-
-/* OUTEN (for VNI8200XP) */
-#define PLC_OUTEN_PIN			LL_GPIO_PIN_9
-#define PLC_OUTEN_GPIO_PORT		GPIOE
-
 
 /* Definitions for Queues */
 #define PLC_TRANSMIT_QUEUE_LENGTH		100U

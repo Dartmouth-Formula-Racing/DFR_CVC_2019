@@ -53,7 +53,7 @@ int logging_init()
 	/* get number of logging outputs */
 	n_outputs = sizeof(CAN_logging) / sizeof(CAN_input_t);
 
-	if (f_open(&LogFile, "LOG_FILE_2.csv", FA_OPEN_ALWAYS | FA_WRITE) != FR_OK)
+	if (f_open(&LogFile, "LOG_FILE_2.csv", FA_CREATE_ALWAYS | FA_WRITE) != FR_OK)
 	{
 		return -3;
 //		cvc_error_handler(CVC_WARNING, LOGGING_ERR);
@@ -124,7 +124,7 @@ void log_data(void)
 
 #if LOGGING_TEST
 
-	if (n_writes >= 20)
+	if (n_writes >= 100)
 	{
 		BSP_LED_On(LED_BLUE);
 		f_close(&LogFile);
