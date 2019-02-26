@@ -137,7 +137,7 @@ void log_data(void)
 
 #if LOGGING_TEST
 
-	if (n_writes >= 500)
+	if (n_writes >= 1000)
 	{
 		BSP_LED_On(LED_BLUE);
 		f_close(&LogFile);

@@ -28,7 +28,7 @@ static task_t taskList[] = {
 		{CAN_Rx_Task,"canRx", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 2, NULL},		/* CAN Rx task */
 		{CAN_Tx_Task,"canTx", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 2, NULL},		/* CAN Tx task */
 		{_10_ms_Task,"10ms", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 1, NULL},
-		{_50_ms_Task,"50ms", 2*configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 1, NULL},
+		{_20_ms_Task,"50ms", 2*configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 1, NULL},
 		{PLC_Routine_Task, "plc_task", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 3, NULL },
 };
 
