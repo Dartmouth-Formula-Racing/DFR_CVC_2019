@@ -263,8 +263,8 @@ void SPI_PLC_Set_Outputs(void)
 	VNI_Write.bit.IN4 = SPI_outputs_vector.ready_to_drive;
 	VNI_Write.bit.IN5 = SPI_outputs_vector.rfg;
 	VNI_Write.bit.IN6 = 1;						//ignition kill
-	VNI_Write.bit.IN7 = 1;
-	VNI_Write.bit.IN8 = 1;
+	VNI_Write.bit.IN7 = 0;
+	VNI_Write.bit.IN8 = 0;
 
 	set_SPI_parity_check_bit_outputs(&VNI_Write);
 }

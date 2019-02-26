@@ -32,6 +32,10 @@ static uint8_t ready_to_drive = 0;
 static float pack_voltage;
 static float bus_voltage;
 
+static uint8_t log_disable_prev = 0xFF;
+static uint8_t log_disable_temp = 0xFF;
+static uint8_t log_disable_counter = 0;
+
 void state_machine()
 {
 	// add any checks that must be done in all states here
@@ -44,8 +48,23 @@ void state_machine()
 
 	xSemaphoreTake(SPI_Inputs_Vector_Mutex, portMAX_DELAY);
 	Dash_BRB_Pressed = SPI_inputs_vector.Dash_BRB_press;
+	log_disable_temp = SPI_inputs_vector.Motor_enable;
 	xSemaphoreGive(SPI_Inputs_Vector_Mutex);
 
+	/* compare log_disable switch value to previous */
+	if (log_disable_prev != 0xFF && log_disable_temp != log_disable_prev)
+	{
+		log_disable_counter++;	/* debounce */
+	}
+	else
+	{
+		log_disable_prev = log_disable_temp;
+	}
+
+	if (log_disable_counter == 5)
+	{
+		LOG_FLAG = 0;
+	}
 
 	switch(cvc_state)
 	{

@@ -16,6 +16,7 @@
 #include "bamocar.h"
 #include "ice.h"
 #include "stm32f7xx_nucleo_144.h"
+#include "cvc_logging.h"
 
 /* Defines ------------------------------------------------------------------------*/
 //#define BUZZER_TIMER_LOAD 40 // 2 seconds --> (2 s)/(0.05 s) = 40 ticks

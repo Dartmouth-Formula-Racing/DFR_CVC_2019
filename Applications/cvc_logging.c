@@ -9,7 +9,9 @@
 
 #include "cvc_logging.h"
 
+/* Global Variables ------------------------------------------------------------------*/
 
+uint8_t LOG_FLAG = 1;
 
 /* Private Global Variables ------------------------------------------------------------------*/
 
@@ -123,6 +125,14 @@ void log_data(void)
 #if LOGGING_TEST
 
 	if (n_writes >= 20)
+	{
+		BSP_LED_On(LED_BLUE);
+		f_close(&LogFile);
+		vTaskSuspend(NULL);
+	}
+#else
+
+	if (LOG_FLAG == 0)
 	{
 		BSP_LED_On(LED_BLUE);
 		f_close(&LogFile);

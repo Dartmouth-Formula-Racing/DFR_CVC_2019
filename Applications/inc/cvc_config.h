@@ -9,6 +9,6 @@
 #define INC_CVC_CONFIG_H_
 
 /* define target */
-#define CVC_PROTOTYPE		1
+#define CVC_PROTOTYPE		0
 
 #endif /* INC_CVC_CONFIG_H_ */
