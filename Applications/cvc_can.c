@@ -14,6 +14,7 @@
 #include "semphr.h"
 #include "bamocar.h"
 #include "cvc_state_machine.h"
+#include "stm32f7xx_ll_gpio.h"
 
 
 
@@ -479,6 +480,7 @@ void HAL_CAN_MspInit(CAN_HandleTypeDef *hcan)
   GPIO_InitStruct.Pull = GPIO_PULLDOWN;
 
   HAL_GPIO_Init(CANx_SC_GPIO_PORT, &GPIO_InitStruct);
+
 
 #endif /* CVC_PROTOTYPE == 0 */
 

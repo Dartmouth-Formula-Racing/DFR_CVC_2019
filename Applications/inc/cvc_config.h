@@ -9,7 +9,7 @@
 #define INC_CVC_CONFIG_H_
 
 /* define target */
-#define CVC_PROTOTYPE		1		// CVC final if 0
+#define CVC_PROTOTYPE		0		// CVC final if 0
 
 #define USE_HSI				1		// Use HSE if 0
 

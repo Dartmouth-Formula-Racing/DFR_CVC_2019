@@ -328,13 +328,8 @@ void Configure_SPI(void)
 {
 	/* (1) Enables GPIO clock and configures the SPI1 pins ********************/
 	/* Enable the peripheral clock of GPIOA */
-	LL_AHB1_GRP1_EnableClock(LL_GPIOA_CLK_ENABLE);
-	LL_AHB1_GRP1_EnableClock(LL_GPIOD_CLK_ENABLE);
-	LL_AHB1_GRP1_EnableClock(LL_GPIOE_CLK_ENABLE);
+	SPI1_GPIO_CLK_ENABLE();
 
-#if CVC_PROTOTYPE == 0
-	LL_AHB1_GRP1_EnableClock(LL_GPIOB_CLK_ENABLE);
-#endif	/*CVC_PROTOTYPE == 0 */
 
 	/* Configure SCK Pin connected to pin 10 of CN7 connector */
 	LL_GPIO_SetPinMode(PLC_SCK_GPIO_PORT, PLC_SCK_PIN, LL_GPIO_MODE_ALTERNATE);
@@ -378,7 +373,7 @@ void Configure_SPI(void)
 	/* Configure OUT_EN PE9 VNI8200XP */
 	LL_GPIO_SetPinMode(PLC_OUTEN_GPIO_PORT, PLC_OUTEN_PIN, LL_GPIO_MODE_OUTPUT);
 	LL_GPIO_SetPinSpeed(PLC_OUTEN_GPIO_PORT, PLC_OUTEN_PIN, LL_GPIO_SPEED_FREQ_LOW);
-	LL_GPIO_SetPinPull(PLC_OUTEN_GPIO_PORT, PLC_OUTEN_PIN, LL_GPIO_PULL_NO);
+	LL_GPIO_SetPinPull(PLC_OUTEN_GPIO_PORT, PLC_OUTEN_PIN, LL_GPIO_PULL_UP);
 	LL_GPIO_SetPinOutputType(PLC_OUTEN_GPIO_PORT, PLC_OUTEN_PIN, LL_GPIO_OUTPUT_PUSHPULL);
 
 
@@ -399,7 +394,7 @@ void Configure_SPI(void)
 	/* (3) Configure SPI1 functional parameters ********************************/
 
 	/* Enable the peripheral clock of GPIOA */
-	LL_APB2_GRP1_EnableClock(SPI1_PERIPH_CLK_ENABLE);
+	SPI1_CLK_ENABLE();
 
 	/* Configure SPI1 communication */
 	LL_SPI_SetBaudRatePrescaler(SPI1, LL_SPI_BAUDRATEPRESCALER_DIV32);

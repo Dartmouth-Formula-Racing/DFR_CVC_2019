@@ -27,12 +27,21 @@
 /* Defines -------------------------------------------------------------------*/
 
 /* Definition of PLC clk configs*/
-#define SPI1_PERIPH_CLK_ENABLE	LL_APB2_GRP1_PERIPH_SPI1
-#define LL_GPIOA_CLK_ENABLE		LL_AHB1_GRP1_PERIPH_GPIOA
-#define LL_GPIOD_CLK_ENABLE		LL_AHB1_GRP1_PERIPH_GPIOD
-#define LL_GPIOE_CLK_ENABLE		LL_AHB1_GRP1_PERIPH_GPIOE
-#define LL_GPIOB_CLK_ENABLE		LL_AHB1_GRP1_PERIPH_GPIOB
 
+#define SPI1_CLK_ENABLE()			LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_SPI1)
+
+#if PROTOTYPE == 1
+#define SPI1_GPIO_CLK_ENABLE()		LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOA);\
+									LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOD);\
+									LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOG)
+#else
+
+#define SPI1_GPIO_CLK_ENABLE()		LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOA);\
+									LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOD);\
+									LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOG);\
+									LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOB)
+
+#endif /*CVC_PROTOTYPE == 0 */
 
 /* Definition of PLC SPI pins */
 /* SCK Pin */
@@ -69,8 +78,8 @@
 #define	PLC_CS2_GPIO_PORT		GPIOD
 
 /* OUTEN (for VNI8200XP) */
-#define PLC_OUTEN_PIN			LL_GPIO_PIN_9
-#define PLC_OUTEN_GPIO_PORT		GPIOE
+#define PLC_OUTEN_PIN			LL_GPIO_PIN_12
+#define PLC_OUTEN_GPIO_PORT		GPIOG
 
 
 /* Definitions for Queues */

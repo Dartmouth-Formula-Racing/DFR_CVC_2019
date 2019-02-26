@@ -44,6 +44,7 @@ int main(void)
 	/* Configure the system clock to 216 MHz */
 	SystemClock_Config();
 
+
 	/* Initialize CAN */
 //	CAN_Init();
 
