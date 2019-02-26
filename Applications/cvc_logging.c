@@ -26,8 +26,24 @@ static uint32_t rbytes; /* File read counts */
 static uint8_t n_outputs;	/* number of outputs to log */
 static uint32_t n_writes = 0;	/* number of writes since power cycle */
 
-CAN_input_t CAN_logging[] = {BAMO_BUS_VOLTAGE};		/* CAN inputs to log */
-char * header = "TICKS,BAMO_BUS_VOLTAGE\n";	/* labels for file contents (separate by commas for csv */
+/* CAN inputs to log */
+CAN_input_t CAN_logging[] =
+{
+	BAMO_BUS_VOLTAGE,
+	MOTOR_RPM,
+	MOTOR_CURRENT,
+	MOTOR_TORQUE,
+	MOTOR_VOLTAGE,
+	MOTOR_TEMP,
+	ENG_RPM,
+	ENG_TPS,
+	ENG_TEMP,
+	AIR_TEMP,
+	BATT_VOLTAGE,
+	BATT_CURRENT
+};
+
+char * header = "TICKS,BAMO_BUS_VOLTAGE,MOTOR_RPM,MOTOR_CURRENT,MOTOR_TORQUE,MOTOR_VOLTAGE,MOTOR_TEMP,ENG_RPM,ENG_TPS,ENG_TEMP,AIR_TEMP,BATT_VOLTAGE,BATT_CURRENT\n";	/* labels for file contents (separate by commas for csv */
 
 /* Functions ------------------------------------------------------------------*/
 
@@ -56,7 +72,6 @@ int logging_init()
 	if (f_open(&LogFile, "LOG_FILE_2.csv", FA_CREATE_ALWAYS | FA_WRITE) != FR_OK)
 	{
 		return -3;
-//		cvc_error_handler(CVC_WARNING, LOGGING_ERR);
 	}
 
 	return 1;
@@ -69,7 +84,6 @@ void log_data(void)
 	char *pbuff = (char *) buff;
 
 	TickType_t ticks = xTaskGetTickCount();
-	TickType_t start, end;
 	uint8_t i = 0;
 
 	/* add header to buffer */
@@ -114,7 +128,6 @@ void log_data(void)
 		f_close(&LogFile);
 		cvc_error_handler(CVC_WARNING, LOGGING_ERR);
 	}
-	start = xTaskGetTickCount();
 
 	/* increase number of writes */
 	n_writes++;
@@ -124,7 +137,7 @@ void log_data(void)
 
 #if LOGGING_TEST
 
-	if (n_writes >= 100)
+	if (n_writes >= 500)
 	{
 		BSP_LED_On(LED_BLUE);
 		f_close(&LogFile);
