@@ -11,11 +11,16 @@
 #include "cvc_can.h"
 #include "cvc_spi.h"
 #include "synchronous.h"
+#include "cvc_state_machine.h"
 
 /* Defines -------------------------------------------------------------------*/
-#define TASKLIST_SIZE 	4
+#define TASKLIST_SIZE 	5
+
+/* Private Function Prototypes ---------------------------------------------------------*/
+void Init_Task(void *parameters);
 
 /* Private Variables ---------------------------------------------------------*/
+static task_t init = {Init_Task, "init", 2*configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 1, NULL};	/* task to create all other tasks */
 
 /* list of all program tasks */
 static task_t taskList[] = {
@@ -24,15 +29,57 @@ static task_t taskList[] = {
 		{CAN_Tx_Task,"canTx", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 2, NULL},		/* CAN Tx task */
 		{_10_ms_Task,"10ms", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 1, NULL},
 		{_50_ms_Task,"50ms", 2*configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 1, NULL},
-//		{PLC_Routine_Task, "plc_task", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 3, NULL },
+		{PLC_Routine_Task, "plc_task", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 3, NULL },
 };
 
 /* Public Functions ----------------------------------------------------------*/
+/**
+ * Create initialization task
+ */
+void initTaskCreate(void)
+{
+	if (xTaskCreate(init.function, init.name, init.stackSize, init.parameters, init.priority, init.handle) != pdPASS)
+	{
+		init_fault_handler();
+	}
+}
+
+/**
+ * Call initialization functions and create application tasks
+ */
+void Init_Task(void *parameters)
+{
+	/* initialize data logging */
+	if (logging_init() == pdPASS)
+	{
+		CAN_Init();
+
+		Configure_SPI();
+
+		Activate_SPI();
+
+		if (taskCreateAll() != pdPASS)
+		{
+			init_fault_handler();
+		}
+	}
+	else
+	{
+		init_fault_handler();
+	}
+	vTaskDelete(NULL);
+
+	while(1)
+	{
+		vTaskSuspend(NULL);
+	}
+}
 
 /**
  * Create all tasks in task list
  */
-BaseType_t taskCreateAll()	{
+BaseType_t taskCreateAll()
+{
 	BaseType_t status = pdPASS;
 
 	configASSERT(TASKLIST_SIZE == sizeof(taskList)/sizeof(task_t));

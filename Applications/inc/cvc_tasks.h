@@ -31,6 +31,7 @@ typedef struct	{
 /*********************************************************************************
  	 	 	 	 	 	 	  Function Declarations
 **********************************************************************************/
+void initTaskCreate(void);
 BaseType_t taskCreateAll();
 void vApplicationStackOverflowHook( TaskHandle_t xTask,
                                     signed char *pcTaskName );

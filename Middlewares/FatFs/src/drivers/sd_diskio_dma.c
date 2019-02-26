@@ -286,6 +286,7 @@ DRESULT SD_write(BYTE lun, const BYTE *buff, DWORD sector, UINT count)
 			}
 		}
 	}
+
 	return res;
 }
 #endif /* _USE_WRITE == 1 */

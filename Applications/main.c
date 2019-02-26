@@ -48,19 +48,22 @@ int main(void)
 	SystemClock_Config();
 
 	/* Initialize CAN */
-	CAN_Init();
+//	CAN_Init();
 
 	/* Configure the SPI1 parameters */
-	Configure_SPI();
+//	Configure_SPI();
 
 	/* Enable the SPI1 peripheral */
-	Activate_SPI();
+//	Activate_SPI();
 
 	/* initialize logging */
-	logging_init();
+//	logging_init();
 
 	/* Create all tasks */
-	taskCreateAll();
+//	taskCreateAll();
+
+	/* Create initialization task */
+	initTaskCreate();
 
 	/* Start RTOS Scheduler */
 	vTaskStartScheduler();

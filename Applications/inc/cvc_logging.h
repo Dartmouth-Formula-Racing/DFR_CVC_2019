@@ -39,7 +39,7 @@
 #define LOGGING_TEST		1
 
 /* Function Declarations -----------------------------------------------------*/
-void logging_init();
+int logging_init();
 void log_data(void);
 
 

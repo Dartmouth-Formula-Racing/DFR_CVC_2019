@@ -32,24 +32,32 @@ char * header = "TICKS,BAMO_BUS_VOLTAGE\n";	/* labels for file contents (separat
 /**
  * @brief initialize logging functionality
  */
-void logging_init()
+int logging_init()
 {
 	/* link/initialize SD driver */
 	if (FATFS_LinkDriver(&SD_Driver, SDPath) == 0)
 	{
 		/* mount disk */
-		if (f_mount(&SD_FatFs, (char const*) SDPath, 0) != FR_OK)
+		if (f_mount(&SD_FatFs, (char const*) SDPath, 1) != FR_OK)
 		{
-			init_fault_handler();
+			return -2;
 		}
 	}
 	else
 	{
-		init_fault_handler();
+		return -1;
 	}
 
 	/* get number of logging outputs */
 	n_outputs = sizeof(CAN_logging) / sizeof(CAN_input_t);
+
+	if (f_open(&LogFile, "LOG_FILE_2.csv", FA_OPEN_ALWAYS | FA_WRITE) != FR_OK)
+	{
+		return -3;
+//		cvc_error_handler(CVC_WARNING, LOGGING_ERR);
+	}
+
+	return 1;
 
 }
 
@@ -59,6 +67,7 @@ void log_data(void)
 	char *pbuff = (char *) buff;
 
 	TickType_t ticks = xTaskGetTickCount();
+	TickType_t start, end;
 	uint8_t i = 0;
 
 	/* add header to buffer */
@@ -95,33 +104,28 @@ void log_data(void)
 		i++;
 	}
 
+
+
 	/* write data to file */
-	if (f_open(&LogFile, "LOG_FILE_1.csv", FA_OPEN_APPEND | FA_WRITE) == FR_OK)
+	if(f_write(&LogFile, pbuff, i, (void *)&wbytes) != FR_OK)
 	{
-		if(f_write(&LogFile, pbuff, i, (void *)&wbytes) != FR_OK)
-		{
-			f_close(&LogFile);
-			cvc_error_handler(CVC_WARNING, LOGGING_ERR);
-		}
 		f_close(&LogFile);
-
-		/* increase number of writes */
-		n_writes++;
-
-		BSP_LED_On(LED_GREEN);
-	}
-	else
-	{
 		cvc_error_handler(CVC_WARNING, LOGGING_ERR);
 	}
+	start = xTaskGetTickCount();
 
-//	taskEXIT_CRITICAL();
+	/* increase number of writes */
+	n_writes++;
+
+	BSP_LED_On(LED_GREEN);
+
 
 #if LOGGING_TEST
 
 	if (n_writes >= 20)
 	{
 		BSP_LED_On(LED_BLUE);
+		f_close(&LogFile);
 		vTaskSuspend(NULL);
 	}
 

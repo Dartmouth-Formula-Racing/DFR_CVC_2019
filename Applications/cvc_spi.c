@@ -263,8 +263,8 @@ void SPI_PLC_Set_Outputs(void)
 	VNI_Write.bit.IN4 = SPI_outputs_vector.ready_to_drive;
 	VNI_Write.bit.IN5 = SPI_outputs_vector.rfg;
 	VNI_Write.bit.IN6 = 1;						//ignition kill
-	VNI_Write.bit.IN7 = 0;
-	VNI_Write.bit.IN8 = 0;
+	VNI_Write.bit.IN7 = 1;
+	VNI_Write.bit.IN8 = 1;
 
 	set_SPI_parity_check_bit_outputs(&VNI_Write);
 }
@@ -329,10 +329,12 @@ void Configure_SPI(void)
 	/* Enable the peripheral clock of GPIOA */
 	LL_AHB1_GRP1_EnableClock(LL_GPIOA_CLK_ENABLE);
 	LL_AHB1_GRP1_EnableClock(LL_GPIOD_CLK_ENABLE);
-	LL_AHB1_GRP1_EnableClock(LL_GPIOE_CLK_ENABLE);
+	LL_AHB1_GRP1_EnableClock(LL_GPIOG_CLK_ENABLE);
 
 #if CVC_PROTOTYPE == 0
 	LL_AHB1_GRP1_EnableClock(LL_GPIOB_CLK_ENABLE);
+#else
+	LL_AHB1_GRP1_EnableClock(LL_GPIOE_CLK_ENABLE);
 #endif	/*CVC_PROTOTYPE == 0 */
 
 	/* Configure SCK Pin connected to pin 10 of CN7 connector */
