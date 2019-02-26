@@ -36,7 +36,7 @@
 
 /* Defines ------------------------------------------------------------------*/
 
-#define LOGGING_TEST		1
+#define LOGGING_TEST		0
 
 /* Global variables ------------------------------------------------------------------*/
 extern uint8_t LOG_FLAG;
