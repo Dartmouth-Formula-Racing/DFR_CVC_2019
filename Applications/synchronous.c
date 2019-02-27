@@ -17,7 +17,7 @@ void _10_ms_Task(void * parameters)
 
 	while(1)
 	{
-		vTaskDelay((TickType_t) 10/portTICK_PERIOD_MS);
+		vTaskDelayUntil(&LastWakeTime, (TickType_t) 10/portTICK_PERIOD_MS);
 
 #if LOGGING_TEST == 0
 		TickType_t start = xTaskGetTickCount();
@@ -51,7 +51,7 @@ void _20_ms_Task(void * parameters)
 
 	while(1)
 	{
-		vTaskDelay((TickType_t) 20/portTICK_PERIOD_MS);
+		vTaskDelayUntil(&LastWakeTime, (TickType_t) 20/portTICK_PERIOD_MS);
 
 		if (cvc_state > VOLTAGE_CHECK)
 		{

@@ -31,6 +31,7 @@
 
 #define MOTOR_TORQUE_COMMAND_REGID			0x2F	//offset and scale REGID
 
+
 /* Function Prototypes */
 uint8_t bamo_init(void);
 void bamo_var1_reset(void);
