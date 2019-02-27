@@ -100,7 +100,6 @@ void log_data(void)
 	i++;
 
 	/* loop through logging outputs and add to buffer */
-	// TODO: add critical sections around fopen->fclose
 	for (uint8_t j = 0; j < n_outputs; j++)
 	{
 		xSemaphoreTake(CAN_Inputs_Vector_Mutex, portMAX_DELAY);
