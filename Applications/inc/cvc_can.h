@@ -48,9 +48,9 @@
 #define CANx_SC_PIN					GPIO_PIN_0
 #define CANx_SC_GPIO_PORT			GPIOE
 
+#define CANx_GPIO_CLK_ENABLE()		__HAL_RCC_GPIOD_CLK_ENABLE();\
+									__HAL_RCC_GPIOE_CLK_ENABLE()
 
-
-#define CANx_GPIO_CLK_ENABLE()		__HAL_RCC_GPIOD_CLK_ENABLE()
 
 #endif /* CVC_PROTOTYPE ==1 */
 
