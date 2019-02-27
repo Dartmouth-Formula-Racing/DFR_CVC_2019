@@ -30,7 +30,9 @@ uint32_t 				TxMailbox;
 
 
 /* CAN message input maps */
-/* INDEX, START BYTE, START BIT, BYTE SIZE */
+/* INPUT_INDEX, START BYTE, START BIT, BYTE SIZE */
+
+/* ATHENA Engine ECU CAN message maps */
 input_map_t ATHENA1_map[] =
 {
 		{ENG_REV_COUNT, 0, 0, 2},

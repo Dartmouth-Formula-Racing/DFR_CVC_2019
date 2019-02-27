@@ -47,32 +47,11 @@ int main(void)
 	/* Configure the system clock to 216 MHz */
 	SystemClock_Config();
 
-
-
-	/* Initialize CAN */
-//	CAN_Init();
-
-	/* Configure the SPI1 parameters */
-//	Configure_SPI();
-
-	/* Enable the SPI1 peripheral */
-//	Activate_SPI();
-
-	/* initialize logging */
-//	logging_init();
-
-	/* Create all tasks */
-//	taskCreateAll();
-
 	/* Create initialization task */
 	initTaskCreate();
 
 	/* Start RTOS Scheduler */
 	vTaskStartScheduler();
-
-
-	/* Wait for the end of the transfer and check received data */
-	/* LED blinking FAST during waiting time */
 
 	/* Function should never reach this point once scheduler is started */
 	/* Infinite loop */

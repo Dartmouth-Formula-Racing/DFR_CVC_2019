@@ -97,17 +97,26 @@ uint8_t bamo_init(void)
 	}
 }
 
+/**
+ * @brief reset Bamocar pin that closes second AIR
+ */
 void bamo_var1_reset(void)
 {
 	CAN_Send(bamocar_var1_reset_msg);
 }
 
+/**
+ * @brief set Bamocar pin that closes second AIR
+ */
 void bamo_var1_set(void)
 {
 	CAN_Send(bamocar_var1_msg);
 }
 
-
+/**
+ * @brief send torque command to Bamocar
+ * @param torque command value
+ */
 void bamo_torque_command(uint16_t torque_command)
 {
 

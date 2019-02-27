@@ -61,9 +61,9 @@ void Init_Task(void *parameters)
 
 		/* Initialize SPI */
 		Configure_SPI();
-
 		Activate_SPI();
 
+		/* Create functional tasks */
 		if (taskCreateAll() != pdPASS)
 		{
 			init_fault_handler();
@@ -73,6 +73,8 @@ void Init_Task(void *parameters)
 	{
 		init_fault_handler();
 	}
+
+	/* delete task */
 	vTaskDelete(NULL);
 
 	while(1)
@@ -82,7 +84,7 @@ void Init_Task(void *parameters)
 }
 
 /**
- * Create all tasks in task list
+ * @brief Create all tasks in task list
  */
 BaseType_t taskCreateAll()
 {
@@ -104,6 +106,9 @@ BaseType_t taskCreateAll()
 	return status;
 }
 
+/**
+ * @brief handle FreeRTOS task stack overflow exceptions
+ */
 void vApplicationStackOverflowHook( TaskHandle_t xTask,
                                     signed char *pcTaskName )
 {

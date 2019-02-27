@@ -91,12 +91,6 @@
   * @}
   */ 
 
-/** @defgroup STM32F7XX_NUCLEO_144_LOW_LEVEL_Private_Macros
-  * @{
-  */ 
-/**
-  * @}
-  */ 
 
 /** @defgroup STM32F7XX_NUCLEO_144_LOW_LEVEL_Private_Variables
   * @{
@@ -283,6 +277,9 @@ uint32_t BSP_PB_GetState(Button_TypeDef Button)
   return HAL_GPIO_ReadPin(BUTTON_PORT[Button], BUTTON_PIN[Button]);
 }
 
+/**
+ * @brief Initialize board LEDs (Called by HAL_Init)
+ */
 void HAL_MspInit(void)
 {
 	BSP_LED_Init(LED_RED);
