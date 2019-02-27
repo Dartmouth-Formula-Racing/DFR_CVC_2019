@@ -72,7 +72,6 @@ void PLC_Routine_Task(void * parameters)
 		{
 			vTaskDelay((TickType_t) 10/portTICK_PERIOD_MS);		// Running at 100 Hz
 
-			xSemaphoreTake(SPI_Inputs_Vector_Mutex, portMAX_DELAY);	//get mutex
 			xSemaphoreTake(SPI_Outputs_Vector_Mutex, portMAX_DELAY);	//get mutex
 
 			taskENTER_CRITICAL();
@@ -84,11 +83,9 @@ void PLC_Routine_Task(void * parameters)
 			/* get message from queue */
 			if (xQueueReceive( PLC_transmit_queue, &PLC_transmission_message, 5/portTICK_PERIOD_MS ) != pdPASS) //change portMAX_DELAY to some # of ticks
 			{
-				xSemaphoreGive(SPI_Inputs_Vector_Mutex);	//give SPI mutex
 				xSemaphoreGive(SPI_Outputs_Vector_Mutex);	//give SPI mutex
 				cvc_error_handler(CVC_HARD_FAULT, QUEUE_ERR);
 			}
-			xSemaphoreGive(SPI_Inputs_Vector_Mutex);	//give SPI mutex
 			xSemaphoreGive(SPI_Outputs_Vector_Mutex);	//give SPI mutex
 		}
 }

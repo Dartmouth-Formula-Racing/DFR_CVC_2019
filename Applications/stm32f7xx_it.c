@@ -17,6 +17,7 @@
 #include "stm32f7xx_it.h"
 #include "cvc_can.h"
 #include "cvc_spi.h"
+#include "stm32f7xx_nucleo_144.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -126,6 +127,7 @@ volatile unsigned char JUNK;
       // Bus Fault Address Register
       _BFAR = (*((volatile unsigned long *)(0xE000ED38))) ;
 
+      BSP_LED_On(LED_RED);
     /* When the following line is hit, the variables contain the register values. */
     for( ;; );
 }
@@ -151,6 +153,8 @@ void HardFault_Handler(void)
 
 void MemManage_Handler(void)
 {
+    BSP_LED_On(LED_RED);
+
 	while(1)
 	{
 
@@ -158,6 +162,8 @@ void MemManage_Handler(void)
 }
 void BusFault_Handler(void)
 {
+    BSP_LED_On(LED_RED);
+
 	while(1)
 	{
 
@@ -165,6 +171,8 @@ void BusFault_Handler(void)
 }
 void UsageFault_Handler(void)
 {
+    BSP_LED_On(LED_RED);
+
 	while(1)
 	{
 
@@ -173,6 +181,8 @@ void UsageFault_Handler(void)
 
 void DebugMon_Handler(void)
 {
+    BSP_LED_On(LED_RED);
+
 	while(1)
 	{
 

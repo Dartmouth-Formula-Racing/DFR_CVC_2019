@@ -12,6 +12,7 @@
 #include "cvc_spi.h"
 #include "synchronous.h"
 #include "cvc_state_machine.h"
+#include "stm32f7xx_nucleo_144.h"
 
 /* Defines -------------------------------------------------------------------*/
 #define TASKLIST_SIZE 	5
@@ -49,11 +50,16 @@ void initTaskCreate(void)
  */
 void Init_Task(void *parameters)
 {
+	/* 1-second delay necessary to allow board to fully power up */
+	vTaskDelay(1000);
+
 	/* initialize data logging */
 	if (logging_init() == pdPASS)
 	{
+		/* Initialize CAN */
 		CAN_Init();
 
+		/* Initialize SPI */
 		Configure_SPI();
 
 		Activate_SPI();
@@ -101,6 +107,7 @@ BaseType_t taskCreateAll()
 void vApplicationStackOverflowHook( TaskHandle_t xTask,
                                     signed char *pcTaskName )
 {
+	BSP_LED_On(LED_RED);
 	for(;;);
 }
 

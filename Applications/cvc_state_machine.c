@@ -51,7 +51,7 @@ void state_machine()
 	log_disable_temp = SPI_inputs_vector.Motor_enable;
 	xSemaphoreGive(SPI_Inputs_Vector_Mutex);
 
-	/* compare log_disable switch value to previous */
+	/* TODO: better fix for closing out file compare log_disable switch value to previous */
 	if (log_disable_prev != 0xFF && log_disable_temp != log_disable_prev)
 	{
 		log_disable_counter++;	/* debounce */
