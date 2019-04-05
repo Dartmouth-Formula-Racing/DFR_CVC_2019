@@ -22,6 +22,6 @@
 /* Function Prototypes ------------------------------------------------ */
 void _10_ms_Task(void * parameters);
 void _20_ms_Task(void * parameters);
-
+void _50_ms_Task(void * parameters);
 
 #endif /* INC_SYNCHRONOUS_H_ */
