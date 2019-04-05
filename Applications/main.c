@@ -60,6 +60,10 @@ int main(void)
 	/* Configure TIM2 in PWM output mode */
 	Configure_TIMPWMOutput();
 
+	LL_TIM_OC_SetCompareCH1(TIM2, (LL_TIM_GetAutoReload(TIM2) / 6));
+
+
+
 	/* Infinite loop */
 	while (1)
 	{

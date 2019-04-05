@@ -172,7 +172,7 @@ void  Configure_TIMPWMOutput(void)
   LL_TIM_OC_SetMode(TIM2, LL_TIM_CHANNEL_CH1, LL_TIM_OCMODE_PWM1);
 
   /* Set compare value to half of the counter period (50% duty cycle )*/
-  LL_TIM_OC_SetCompareCH1(TIM2, (LL_TIM_GetAutoReload(TIM2) / 2));
+  LL_TIM_OC_SetCompareCH1(TIM2, (LL_TIM_GetAutoReload(TIM2) / 3));
 
   /* Enable TIM2_CCR1 register preload. Read/Write operations access the      */
   /* preload register. TIM2_CCR1 preload value is loaded in the active        */
