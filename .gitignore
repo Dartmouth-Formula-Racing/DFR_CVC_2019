@@ -26,6 +26,7 @@
 *.sql
 *.sqlite
 *.xml
+.settings/*
 
 # OS generated files #
 ######################
