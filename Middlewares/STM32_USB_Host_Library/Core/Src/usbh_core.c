@@ -112,7 +112,7 @@ USBH_StatusTypeDef  USBH_Init(USBH_HandleTypeDef *phost, void (*pUsrFunc)(USBH_H
   /* Check whether the USB Host handle is valid */
   if(phost == NULL)
   {
-    USBH_ErrLog("Invalid Host handle");
+//    USBH_ErrLog("Invalid Host handle");
     return USBH_FAIL;
   }
 

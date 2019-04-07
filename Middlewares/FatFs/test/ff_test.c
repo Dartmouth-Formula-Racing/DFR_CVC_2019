@@ -17,6 +17,7 @@
 #include "ff.h"         /* Declarations of sector size */
 #include "diskio.h"     /* Declarations of disk functions */
 #include "sd_diskio_dma.h"
+#include "usbh_diskio_dma.h"
 #include "ffconf.h"
 #include "stm32f7xx_nucleo_144.h"
 #include "cvc_serial.h"
@@ -367,8 +368,8 @@ int function_test_main (void)
 
     int rc;
 
-    char SDPath[4]; /* SD disk logical drive path */
-    FATFS_LinkDriver(&SD_Driver, SDPath);
+    char USBPath[4]; /* SD disk logical drive path */
+    FATFS_LinkDriver(&USBH_Driver, USBPath);
 
     /* Check function/compatibility of the physical drive #0 */
     rc = test_diskio(0, 3);//, buff, sizeof buff);

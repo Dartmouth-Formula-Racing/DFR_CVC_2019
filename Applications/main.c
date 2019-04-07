@@ -16,6 +16,7 @@
 #include "cvc_serial.h"
 #include "ff_test.h"
 
+
 /* Private function prototypes -----------------------------------------------*/
 static void SystemClock_Config(void);
 static void CPU_CACHE_Enable(void);
@@ -41,6 +42,8 @@ int main(void)
 	/* test FatFs */
 //	function_test_main();
 
+
+	/* RTOS INITIALIZATIONS */
 	/* Create all tasks */
 	taskCreateAll();
 
@@ -50,6 +53,7 @@ int main(void)
 	/* Function should never reach this point once scheduler is started */
 	for(;;);
 }
+
 
 
 /**

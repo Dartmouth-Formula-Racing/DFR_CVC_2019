@@ -12,13 +12,45 @@
 #include "task.h"
 #include "ff_test.h"
 #include "cvc_logging.h"
+#include "usbh_core.h"
+#include "usbh_msc.h"
+#include "cvc_usbh.h"
 
+extern
 
 void fatTask(void * parameters)
 {
+	osEvent event;
+
+	/* USB INITIALIZATIONS */
+	/* Start Host Library */
+	USBH_Init(&hUSBHost, USBH_UserProcess, 0);
+
+	/* Add Supported Class */
+	USBH_RegisterClass(&hUSBHost, USBH_MSC_CLASS);
+
+	/* Start Host Process */
+	USBH_Start(&hUSBHost);
+
 	while(1)
 	{
+		event = osMessageGet(AppliEvent, osWaitForever);
 
+		if(event.status == osEventMessage)
+		{
+		  switch(event.value.v)
+		  {
+		  case APPLICATION_DISCONNECT:
+			Appli_state = APPLICATION_DISCONNECT;
+			break;
+
+		  case APPLICATION_READY:
+			Appli_state = APPLICATION_READY;
+			break;
+		  default:
+			break;
+		  }
+		}
 		function_test_main();
 
 
