@@ -10,6 +10,7 @@
 #include "demo.h"
 #include "cvc_can.h"
 #include "cvc_spi.h"
+#include "cvc_pwm.h"
 #include "synchronous.h"
 #include "cvc_state_machine.h"
 #include "stm32f7xx_nucleo_144.h"
@@ -55,25 +56,31 @@ void Init_Task(void *parameters)
 	vTaskDelay(1000);
 
 	/* initialize data logging */
-	if (logging_init() == pdPASS)
-	{
-		/* Initialize CAN */
-		CAN_Init();
+//	if (logging_init() == pdPASS)
+//	{
+//		/* Initialize CAN */
+//		CAN_Init();
+//
+//		/* Initialize SPI */
+//		Configure_SPI();
+//		Activate_SPI();
+//
+//		pwm_init();
+//
+//		/* Create functional tasks */
+//		if (taskCreateAll() != pdPASS)
+//		{
+//			init_fault_handler();
+//		}
+//	}
+//	else
+//	{
+//		init_fault_handler();
+//	}
+//
 
-		/* Initialize SPI */
-		Configure_SPI();
-		Activate_SPI();
-
-		/* Create functional tasks */
-		if (taskCreateAll() != pdPASS)
-		{
-			init_fault_handler();
-		}
-	}
-	else
-	{
-		init_fault_handler();
-	}
+	taskCreateAll();
+	pwm_init();
 
 	/* delete task */
 	vTaskDelete(NULL);

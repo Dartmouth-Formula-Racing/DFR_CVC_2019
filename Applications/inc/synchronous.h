@@ -18,6 +18,7 @@
 #include "cvc_state_machine.h"
 #include "torque_command.h"
 #include "cvc_logging.h"
+#include "cvc_pwm.h"
 
 /* Function Prototypes ------------------------------------------------ */
 void _10_ms_Task(void * parameters);

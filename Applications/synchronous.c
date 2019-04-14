@@ -64,5 +64,14 @@ void _20_ms_Task(void * parameters)
 
 void _50_ms_Task(void * parameters)
 {
+	TickType_t LastWakeTime = xTaskGetTickCount();
 
+		while(1)
+		{
+			vTaskDelayUntil(&LastWakeTime, (TickType_t) 50/portTICK_PERIOD_MS);
+
+			__HAL_TIM_SetCompare(&htim4, TIM_CHANNEL_1, 1000);
+
+
+		}
 }
