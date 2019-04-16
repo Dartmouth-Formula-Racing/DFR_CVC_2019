@@ -32,6 +32,10 @@ void fatTask(void * parameters)
 	/* Start Host Process */
 	USBH_Start(&hUSBHost);
 
+	/* Create Application Queue */
+	osMessageQDef(osqueue, 1, uint16_t);
+	AppliEvent = osMessageCreate(osMessageQ(osqueue), NULL);
+
 	while(1)
 	{
 		event = osMessageGet(AppliEvent, osWaitForever);
@@ -46,12 +50,15 @@ void fatTask(void * parameters)
 
 		  case APPLICATION_READY:
 			Appli_state = APPLICATION_READY;
+
+			/* test disk driver once ready */
+			function_test_main();
+
 			break;
 		  default:
 			break;
 		  }
 		}
-		function_test_main();
 
 
 		vTaskSuspend(NULL);

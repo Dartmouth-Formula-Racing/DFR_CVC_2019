@@ -14,17 +14,16 @@
 #include "ff_gen_drv.h"
 #include "usbh_diskio_dma.h"
 
-extern FATFS USBH_fatfs;
-extern USBH_HandleTypeDef hUSBHost;
-extern osMessageQId AppliEvent;
-extern MSC_ApplicationTypeDef Appli_state;
-
 typedef enum {
   APPLICATION_IDLE,
   APPLICATION_DISCONNECT = 1,
   APPLICATION_READY,
 }MSC_ApplicationTypeDef;
 
+extern FATFS USBH_fatfs;
+extern USBH_HandleTypeDef hUSBHost;
+extern osMessageQId AppliEvent;
+extern MSC_ApplicationTypeDef Appli_state;
 
 /* Function Prototypes */
 void USBH_UserProcess(USBH_HandleTypeDef * phost, uint8_t id);

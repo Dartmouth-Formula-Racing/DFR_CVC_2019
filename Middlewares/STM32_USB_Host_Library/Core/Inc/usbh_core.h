@@ -86,7 +86,7 @@
 #define HOST_USER_CONNECTION                    0x04U
 #define HOST_USER_DISCONNECTION                 0x05U
 #define HOST_USER_UNRECOVERED_ERROR             0x06U
-#define USBH_PROCESS_PRIO						0x00U
+//#define USBH_PROCESS_PRIO						0x00U
 
 
 /**

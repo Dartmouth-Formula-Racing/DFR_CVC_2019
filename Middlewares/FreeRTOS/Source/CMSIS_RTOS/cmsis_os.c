@@ -1147,6 +1147,7 @@ osEvent osMessageGet (osMessageQId queue_id, uint32_t millisec)
   portBASE_TYPE taskWoken;
   TickType_t ticks;
   osEvent event;
+  volatile int y;
   
   event.def.message_id = queue_id;
   event.value.v = 0;
@@ -1180,12 +1181,15 @@ osEvent osMessageGet (osMessageQId queue_id, uint32_t millisec)
     portEND_SWITCHING_ISR(taskWoken);
   }
   else {
+	  y= 1;
     if (xQueueReceive(queue_id, &event.value.v, ticks) == pdTRUE) {
       /* We have mail */
       event.status = osEventMessage;
+      y = 1;
     }
     else {
       event.status = (ticks == 0) ? osOK : osEventTimeout;
+      y = 0;
     }
   }
   
