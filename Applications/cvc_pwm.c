@@ -8,6 +8,21 @@
 
 #include "cvc_pwm.h"
 
+/* Private typedef -----------------------------------------------------------*/
+#define  PERIOD_VALUE       (uint32_t)(900 - 1)  /* Period Value  */
+#define  PULSE1_VALUE       (uint32_t)(PERIOD_VALUE/2)        /* Capture Compare 1 Value  */
+
+/* Timer handler declaration */
+TIM_HandleTypeDef    TimHandle;
+
+/* Timer Output Compare Configuration Structure declaration */
+TIM_OC_InitTypeDef sConfig;
+
+
+/* Counter Prescaler value */
+uint32_t uhPrescalerValue = 0;
+
+
 void pwm_init(void)
 {
 	pwm_timer_init();
@@ -25,46 +40,46 @@ void pwm_timer_init(void)
 	TIM_MasterConfigTypeDef sMasterConfig;
 	TIM_OC_InitTypeDef sConfigOC;
 
-	htim4.Instance = TIM4;
-	htim4.Init.Prescaler = 15;
-	htim4.Init.Period = 3096;
-	htim4.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-	htim4.Init.CounterMode = TIM_COUNTERMODE_UP;
+	/* Compute the prescaler value to have TIM2 counter clock equal to 21600000 Hz */
+    uhPrescalerValue = (uint32_t)((SystemCoreClock/2) / 21600000) - 1;
 
-	if (HAL_TIM_Base_Init(&htim4) != HAL_OK)
+    TimHandle.Instance = TIMx;
+
+	TimHandle.Init.Prescaler         = uhPrescalerValue;
+	TimHandle.Init.Period            = PERIOD_VALUE;
+	TimHandle.Init.ClockDivision     = 0;
+	TimHandle.Init.CounterMode       = TIM_COUNTERMODE_UP;
+	TimHandle.Init.RepetitionCounter = 0;
+	TimHandle.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+
+
+	if (HAL_TIM_Base_Init(&TimHandle) != HAL_OK)
 	{
 
 	}
 
-	//sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
-	sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_ETRMODE1;
-	if (HAL_TIM_ConfigClockSource(&htim4, &sClockSourceConfig)!= HAL_OK)
-	{
 
-	}
+	/*##-2- Configure the PWM channels #########################################*/
+	/* Common configuration for all channels */
+	sConfig.OCMode       = TIM_OCMODE_PWM1;
+	sConfig.OCPolarity   = TIM_OCPOLARITY_HIGH;
+	sConfig.OCFastMode   = TIM_OCFAST_DISABLE;
+	sConfig.OCNPolarity  = TIM_OCNPOLARITY_HIGH;
+	sConfig.OCNIdleState = TIM_OCNIDLESTATE_RESET;
+	sConfig.OCIdleState  = TIM_OCIDLESTATE_RESET;
 
-	if (HAL_TIM_PWM_Init(&htim4) != HAL_OK)
-	{
+	 /* Set the pulse value for channel 1 */
+	  sConfig.Pulse = PULSE1_VALUE;
+	  if (HAL_TIM_PWM_ConfigChannel(&TimHandle, &sConfig, TIM_CHANNEL_1) != HAL_OK)
+	  {
+	    /* Configuration Error */
+	    Error_Handler();
+	  }
 
-	}
 
-	sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
-	sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
-	if (HAL_TIMEx_MasterConfigSynchronization(&htim4, &sMasterConfig) != HAL_OK)
-	{
+	  HAL_TIM_PWM_MspInit(TIM_HandleTypeDef *TimHandle);
 
-	}
 
-	sConfigOC.OCMode = TIM_OCMODE_PWM1;
-	sConfigOC.Pulse = 1953;
-	sConfigOC.OCPolarity =  TIM_OCPOLARITY_HIGH;
-	sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
-	if (HAL_TIM_PWM_ConfigChannel(&htim4, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
-	{
-
-	}
-
-	HAL_TIM_MspPostInit(&htim4);
 }
 
 
@@ -77,99 +92,45 @@ void set_duty(uint32_t duty_input)
 
 
 /* MSP functions ------------------------------------------------------------- */
-
-//void HAL_MspInit(void)
-//{
-//  /* USER CODE BEGIN MspInit 0 */
-//
-//  /* USER CODE END MspInit 0 */
-//
-//  __HAL_RCC_AFIO_CLK_ENABLE();
-//
-//  HAL_NVIC_SetPriorityGrouping(NVIC_PRIORITYGROUP_4);
-//
-//  /* System interrupt init*/
-//  /* MemoryManagement_IRQn interrupt configuration */
-//  HAL_NVIC_SetPriority(MemoryManagement_IRQn, 0, 0);
-//  /* BusFault_IRQn interrupt configuration */
-//  HAL_NVIC_SetPriority(BusFault_IRQn, 0, 0);
-//  /* UsageFault_IRQn interrupt configuration */
-//  HAL_NVIC_SetPriority(UsageFault_IRQn, 0, 0);
-//  /* SVCall_IRQn interrupt configuration */
-//  HAL_NVIC_SetPriority(SVCall_IRQn, 0, 0);
-//  /* DebugMonitor_IRQn interrupt configuration */
-//  HAL_NVIC_SetPriority(DebugMonitor_IRQn, 0, 0);
-//  /* PendSV_IRQn interrupt configuration */
-//  HAL_NVIC_SetPriority(PendSV_IRQn, 0, 0);
-//  /* SysTick_IRQn interrupt configuration */
-//  HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
-//
-//    /**DISABLE: JTAG-DP Disabled and SW-DP Disabled
-//    */
-//  __HAL_AFIO_REMAP_SWJ_DISABLE();
-//
-//  /* USER CODE BEGIN MspInit 1 */
-//
-//  /* USER CODE END MspInit 1 */
-//}
-
-void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base)
+/**
+  * @brief TIM MSP Initialization
+  *        This function configures the hardware resources used in this example:
+  *           - Peripheral's clock enable
+  *           - Peripheral's GPIO Configuration
+  * @param htim: TIM handle pointer
+  * @retval None
+  */
+void HAL_TIM_PWM_MspInit(TIM_HandleTypeDef *htim)
 {
+  GPIO_InitTypeDef   GPIO_InitStruct;
+  /*##-1- Enable peripherals and GPIO Clocks #################################*/
+  /* TIMx Peripheral clock enable */
+  TIMx_CLK_ENABLE();
 
-  if(htim_base->Instance==TIM4)
-  {
-  /* USER CODE BEGIN TIM4_MspInit 0 */
+  /* Enable all GPIO Channels Clock requested */
+  TIMx_CHANNEL_GPIO_PORT();
 
-  /* USER CODE END TIM4_MspInit 0 */
-    /* Peripheral clock enable */
-    __HAL_RCC_TIM4_CLK_ENABLE();
-  /* USER CODE BEGIN TIM4_MspInit 1 */
+  /* Configure PB.06  (TIM4_Channel1), PB.07  (TIM4_Channel2), PB.08  (TIM4_Channel3),
+     PB.09  (TIM4_Channel4) in output, push-pull, alternate function mode
+  */
+  /* Common configuration for all channels */
+  GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
 
-  /* USER CODE END TIM4_MspInit 1 */
-  }
+  GPIO_InitStruct.Alternate = TIMx_GPIO_AF_CHANNEL1;
+  GPIO_InitStruct.Pin = TIMx_GPIO_PIN_CHANNEL1;
+  HAL_GPIO_Init(TIMx_GPIO_PORT_CHANNEL1, &GPIO_InitStruct);
 
+  GPIO_InitStruct.Alternate = TIMx_GPIO_AF_CHANNEL2;
+  GPIO_InitStruct.Pin = TIMx_GPIO_PIN_CHANNEL2;
+  HAL_GPIO_Init(TIMx_GPIO_PORT_CHANNEL2, &GPIO_InitStruct);
+
+  GPIO_InitStruct.Alternate = TIMx_GPIO_AF_CHANNEL3;
+  GPIO_InitStruct.Pin = TIMx_GPIO_PIN_CHANNEL3;
+  HAL_GPIO_Init(TIMx_GPIO_PORT_CHANNEL3, &GPIO_InitStruct);
+
+  GPIO_InitStruct.Alternate = TIMx_GPIO_AF_CHANNEL4;
+  GPIO_InitStruct.Pin = TIMx_GPIO_PIN_CHANNEL4;
+  HAL_GPIO_Init(TIMx_GPIO_PORT_CHANNEL4, &GPIO_InitStruct);
 }
-
-void HAL_TIM_MspPostInit(TIM_HandleTypeDef* htim)
-{
-
-  GPIO_InitTypeDef GPIO_InitStruct;
-  if(htim->Instance==TIM4)
-  {
-  /* USER CODE BEGIN TIM4_MspPostInit 0 */
-
-  /* USER CODE END TIM4_MspPostInit 0 */
-
-    /**TIM4 GPIO Configuration
-    PB6     ------> TIM4_CH1
-    */
-    GPIO_InitStruct.Pin = PWM_PIN;
-    GPIO_InitStruct.Mode = PWM_AF;
-    GPIO_InitStruct.Speed = PWM_SPEED;
-    HAL_GPIO_Init(PWM_PORT, &GPIO_InitStruct);
-
-  /* USER CODE BEGIN TIM4_MspPostInit 1 */
-
-  /* USER CODE END TIM4_MspPostInit 1 */
-  }
-
-}
-
-void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* htim_base)
-{
-
-  if(htim_base->Instance==TIM4)
-  {
-  /* USER CODE BEGIN TIM4_MspDeInit 0 */
-
-  /* USER CODE END TIM4_MspDeInit 0 */
-    /* Peripheral clock disable */
-    __HAL_RCC_TIM4_CLK_DISABLE();
-  }
-  /* USER CODE BEGIN TIM4_MspDeInit 1 */
-
-  /* USER CODE END TIM4_MspDeInit 1 */
-
-}
-
-
