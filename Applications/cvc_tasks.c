@@ -79,8 +79,9 @@ void Init_Task(void *parameters)
 //	}
 //
 
-	taskCreateAll();
 	pwm_init();
+	taskCreateAll();
+
 
 	/* delete task */
 	vTaskDelete(NULL);

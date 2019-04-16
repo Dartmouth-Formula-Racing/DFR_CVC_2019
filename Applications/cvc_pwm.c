@@ -36,7 +36,8 @@ void pwm_timer_init(void)
 
 	}
 
-	sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+	//sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+	sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_ETRMODE1;
 	if (HAL_TIM_ConfigClockSource(&htim4, &sClockSourceConfig)!= HAL_OK)
 	{
 

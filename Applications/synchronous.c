@@ -70,7 +70,7 @@ void _50_ms_Task(void * parameters)
 		{
 			vTaskDelayUntil(&LastWakeTime, (TickType_t) 50/portTICK_PERIOD_MS);
 
-			__HAL_TIM_SetCompare(&htim4, TIM_CHANNEL_1, 1000);
+			__HAL_TIM_SetCompare(&htim4, TIM_CHANNEL_1, 0);
 
 
 		}
