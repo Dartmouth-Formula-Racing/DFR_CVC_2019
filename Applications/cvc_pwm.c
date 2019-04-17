@@ -9,11 +9,9 @@
 #include "cvc_pwm.h"
 
 /* Private typedef -----------------------------------------------------------*/
-#define  PERIOD_VALUE       (uint32_t)(900 - 1)  /* Period Value  */
 #define  PULSE1_VALUE       (uint32_t)(PERIOD_VALUE/2)        /* Capture Compare 1 Value  */
+#define PWM_COUNTER_FREQ	(uint32_t)(400000)			/* Counter frequency for output frequency = 50 Hz */
 
-/* Timer handler declaration */
-TIM_HandleTypeDef    TimHandle;
 
 /* Timer Output Compare Configuration Structure declaration */
 TIM_OC_InitTypeDef sConfig;
@@ -25,10 +23,10 @@ uint32_t uhPrescalerValue = 0;
 
 void pwm_init(void)
 {
+	HAL_TIM_PWM_MspInit(&TimHandle);
+
 	pwm_timer_init();
 
-	HAL_TIM_Base_Start(&htim4);
-	HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_1);
 }
 
 
@@ -36,12 +34,46 @@ void pwm_timer_init(void)
 {
 	__HAL_RCC_GPIOB_CLK_ENABLE();
 
-	TIM_ClockConfigTypeDef sClockSourceConfig;
-	TIM_MasterConfigTypeDef sMasterConfig;
-	TIM_OC_InitTypeDef sConfigOC;
+//	uint32_t sclk = HAL_RCC_GetSysClockFreq();
 
-	/* Compute the prescaler value to have TIM2 counter clock equal to 21600000 Hz */
-    uhPrescalerValue = (uint32_t)((SystemCoreClock/2) / 21600000) - 1;
+	/* Compute the prescaler value to have TIM2 counter clock equal to 200000 Hz */
+    uhPrescalerValue = (uint32_t)((SystemCoreClock/2) / PWM_COUNTER_FREQ) - 1;
+
+
+    /*##-1- Configure the TIM peripheral #######################################*/
+     /* -----------------------------------------------------------------------
+     TIM4 Configuration: generate 4 PWM signals with 4 different duty cycles.
+
+       In this example TIM4 input clock (TIM4CLK) is set to APB1 clock x 2,
+       since APB1 prescaler is equal to 4.
+         TIM4CLK = APB1CLK*2
+         APB1CLK = HCLK/4
+         => TIM4CLK = HCLK/2 = SystemCoreClock/2
+
+       To get TIM4 counter clock at 21.6 MHz, the prescaler is computed as follows:
+          Prescaler = (TIM4CLK / TIM4 counter clock) - 1
+          Prescaler = ((SystemCoreClock/2) /21.6 MHz) - 1
+
+       To get TIM4 output clock at 50 Hz, the period (ARR)) is computed as follows:
+          ARR = (TIM4 counter clock / TIM4 output clock) - 1
+              = 431999
+
+       Note:
+        SystemCoreClock variable holds HCLK frequency and is defined in system_stm32f7xx.c file.
+        Each time the core clock (HCLK) changes, user had to update SystemCoreClock
+        variable value. Otherwise, any configuration based on this variable will be incorrect.
+        This variable is updated in three ways:
+         1) by calling CMSIS function SystemCoreClockUpdate()
+         2) by calling HAL API function HAL_RCC_GetSysClockFreq()
+         3) each time HAL_RCC_ClockConfig() is called to configure the system clock frequency
+     ----------------------------------------------------------------------- */
+
+     /* Initialize TIMx peripheral as follows:
+          + Prescaler = ((SystemCoreClock/2) / 21600000) - 1
+          + Period = (432000 - 1)
+          + ClockDivision = 0
+          + Counter direction = Up
+     */
 
     TimHandle.Instance = TIMx;
 
@@ -53,9 +85,9 @@ void pwm_timer_init(void)
 	TimHandle.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
 
 
-	if (HAL_TIM_Base_Init(&TimHandle) != HAL_OK)
+	if (HAL_TIM_PWM_Init(&TimHandle) != HAL_OK)
 	{
-
+	    init_fault_handler();
 	}
 
 
@@ -68,16 +100,20 @@ void pwm_timer_init(void)
 	sConfig.OCNIdleState = TIM_OCNIDLESTATE_RESET;
 	sConfig.OCIdleState  = TIM_OCIDLESTATE_RESET;
 
-	 /* Set the pulse value for channel 1 */
-	  sConfig.Pulse = PULSE1_VALUE;
-	  if (HAL_TIM_PWM_ConfigChannel(&TimHandle, &sConfig, TIM_CHANNEL_1) != HAL_OK)
-	  {
-	    /* Configuration Error */
-	    Error_Handler();
-	  }
+	/* Set the pulse value for channel 1 */
+	sConfig.Pulse = 0;
+	if (HAL_TIM_PWM_ConfigChannel(&TimHandle, &sConfig, TIM_CHANNEL_1) != HAL_OK)
+	{
+		/* Configuration Error */
+		init_fault_handler();
+	}
 
-
-	  HAL_TIM_PWM_MspInit(TIM_HandleTypeDef *TimHandle);
+	/* Start channel 1 */
+	if (HAL_TIM_PWM_Start(&TimHandle, TIM_CHANNEL_1) != HAL_OK)
+	{
+		/* PWM Generation Error */
+		init_fault_handler();
+	}
 
 
 }
@@ -118,19 +154,8 @@ void HAL_TIM_PWM_MspInit(TIM_HandleTypeDef *htim)
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
 
-  GPIO_InitStruct.Alternate = TIMx_GPIO_AF_CHANNEL1;
-  GPIO_InitStruct.Pin = TIMx_GPIO_PIN_CHANNEL1;
-  HAL_GPIO_Init(TIMx_GPIO_PORT_CHANNEL1, &GPIO_InitStruct);
+  GPIO_InitStruct.Alternate = TIMx_GPIO_AF;
+  GPIO_InitStruct.Pin = TIMx_GPIO_PIN;
+  HAL_GPIO_Init(TIMx_GPIO_PORT, &GPIO_InitStruct);
 
-  GPIO_InitStruct.Alternate = TIMx_GPIO_AF_CHANNEL2;
-  GPIO_InitStruct.Pin = TIMx_GPIO_PIN_CHANNEL2;
-  HAL_GPIO_Init(TIMx_GPIO_PORT_CHANNEL2, &GPIO_InitStruct);
-
-  GPIO_InitStruct.Alternate = TIMx_GPIO_AF_CHANNEL3;
-  GPIO_InitStruct.Pin = TIMx_GPIO_PIN_CHANNEL3;
-  HAL_GPIO_Init(TIMx_GPIO_PORT_CHANNEL3, &GPIO_InitStruct);
-
-  GPIO_InitStruct.Alternate = TIMx_GPIO_AF_CHANNEL4;
-  GPIO_InitStruct.Pin = TIMx_GPIO_PIN_CHANNEL4;
-  HAL_GPIO_Init(TIMx_GPIO_PORT_CHANNEL4, &GPIO_InitStruct);
 }
