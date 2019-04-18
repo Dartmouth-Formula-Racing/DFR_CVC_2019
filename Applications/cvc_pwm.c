@@ -101,15 +101,15 @@ void pwm_timer_init(void)
 	sConfig.OCIdleState  = TIM_OCIDLESTATE_RESET;
 
 	/* Set the pulse value for channel 1 */
-	sConfig.Pulse = 0;
-	if (HAL_TIM_PWM_ConfigChannel(&TimHandle, &sConfig, TIM_CHANNEL_1) != HAL_OK)
+	sConfig.Pulse = PERIOD_VALUE;
+	if (HAL_TIM_PWM_ConfigChannel(&TimHandle, &sConfig, TIMx_CHANNEL) != HAL_OK)
 	{
 		/* Configuration Error */
 		init_fault_handler();
 	}
 
 	/* Start channel 1 */
-	if (HAL_TIM_PWM_Start(&TimHandle, TIM_CHANNEL_1) != HAL_OK)
+	if (HAL_TIM_PWM_Start(&TimHandle, TIMx_CHANNEL) != HAL_OK)
 	{
 		/* PWM Generation Error */
 		init_fault_handler();

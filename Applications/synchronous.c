@@ -73,7 +73,9 @@ void _50_ms_Task(void * parameters)
 			vTaskDelay((TickType_t) 5/portTICK_PERIOD_MS);
 
 			// set PWM duty cycle
-			__HAL_TIM_SetCompare(&TimHandle, TIM_CHANNEL_1, pwm);
+//			__HAL_TIM_SetCompare(&TimHandle, TIMx_CHANNEL, pwm);
+
+#if PULSE_SWEEP
 
 			if (pwm == MAX_PULSE_VALUE && inc == 1)
 			{
@@ -95,6 +97,8 @@ void _50_ms_Task(void * parameters)
 			{
 				pwm--;
 			}
+
+#endif /* PULSE_SWEEP */
 
 		}
 }
