@@ -22,6 +22,7 @@ static void CAN_Config(void);
 static void CAN_parser_std(queue_msg_t q_msg, uint8_t CAN_idx);
 static void CAN_parser_EMUS1(queue_msg_t q_msg, uint8_t CAN_idx);
 static void CAN_parser_BAMO(queue_msg_t q_msg, uint8_t CAN_idx);
+static void CAN_parser_ATHENA1(queue_msg_t q_msg, uint8_t CAN_idx);
 
 
 /* Private Variables ---------------------------------------------------------------*/
@@ -76,9 +77,9 @@ input_map_t EMUS3_map[] =
 static CAN_msg_t CAN_dict[]	=
 {
 		// ATHENA ECU MSGS messages
-		{0x200, STD, 0, 0, "ATHENA1", ATHENA1_map, 4, CAN_parser_std},	// ATHENA 1 (0)
-		{0x310, STD, 0, 0, "ATHENA2", ATHENA2_map, 6, CAN_parser_std},	// ATHENA 2 (1)
-		{0x312, STD, 0, 0, "ATHENA3", ATHENA3_map, 2, CAN_parser_std},	// ATHENA 3 (2)
+		{0x200, STD, 0, 0, "ATHENA1", ATHENA1_map, 4, CAN_parser_ATHENA1},	// ATHENA 1 (0)
+		{0x310, STD, 0, 0, "ATHENA2", ATHENA2_map, 6, CAN_parser_std},		// ATHENA 2 (1)
+		{0x312, STD, 0, 0, "ATHENA3", ATHENA3_map, 2, CAN_parser_std},		// ATHENA 3 (2)
 
 		// EMUS BMS messages
 		{0x1B6, STD, 0, 0, "EMUS1", NULL, 0, CAN_parser_EMUS1}, 		// EMUS BMS 1 (3)
@@ -186,6 +187,7 @@ void CAN_Send(queue_msg_t Tx_msg)
  */
 static void CAN_parser_std(queue_msg_t q_msg, uint8_t CAN_idx)
 {
+	volatile int FLAG = 0;
 	/* iterate over all inputs in data field */
 	for (int i = 0; i < CAN_dict[CAN_idx].num_inputs; i++)
 	{
@@ -198,6 +200,7 @@ static void CAN_parser_std(queue_msg_t q_msg, uint8_t CAN_idx)
 		{
 			result = result << 8 | (uint32_t) (q_msg.data._8[input.start_byte + j] << input.start_bit);
 		}
+
 
 		xSemaphoreTake(CAN_Inputs_Vector_Mutex, portMAX_DELAY);	//get CAN inputs mutex
 
@@ -223,6 +226,14 @@ static void CAN_parser_EMUS1(queue_msg_t q_msg, uint8_t CAN_idx)
 	CAN_inputs[BATT_VOLTAGE] = (uint32_t) q_msg.data._8[5] << 24 | (uint32_t) q_msg.data._8[6] << 16 | (uint32_t) q_msg.data._8[3] << 8 | (uint32_t) q_msg.data._8[4];
 
 	xSemaphoreGive(CAN_Inputs_Vector_Mutex);	//give CAN inputs mutex
+}
+
+static void CAN_parser_ATHENA1(queue_msg_t q_msg, uint8_t CAN_idx)
+{
+	if (q_msg.Rx_header.ExtId != 0xE4714)
+	{
+		CAN_parser_std(q_msg, CAN_idx);
+	}
 }
 
 /**
