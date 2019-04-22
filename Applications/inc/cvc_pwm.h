@@ -24,9 +24,9 @@
 #define TIMx_CLK_ENABLE()			__HAL_RCC_TIM2_CLK_ENABLE()
 
 /* Definition for TIMx Channel Pins */
-#define TIMx_CHANNEL_GPIO_PORT()	__HAL_RCC_GPIOA_CLK_ENABLE()
-#define TIMx_GPIO_PORT				GPIOA
-#define TIMx_GPIO_PIN				GPIO_PIN_3
+#define TIMx_CHANNEL_GPIO_PORT()	__HAL_RCC_GPIOB_CLK_ENABLE()
+#define TIMx_GPIO_PORT				GPIOB
+#define TIMx_GPIO_PIN				GPIO_PIN_11
 #define TIMx_GPIO_AF				GPIO_AF1_TIM2
 
 /* Exported macro ------------------------------------------------------------*/

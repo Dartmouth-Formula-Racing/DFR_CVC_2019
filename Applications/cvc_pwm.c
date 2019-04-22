@@ -37,7 +37,7 @@ void pwm_timer_init(void)
 //	uint32_t sclk = HAL_RCC_GetSysClockFreq();
 
 	/* Compute the prescaler value to have TIM2 counter clock equal to 200000 Hz */
-    uhPrescalerValue = (uint32_t)((SystemCoreClock/2) / PWM_COUNTER_FREQ) - 1;
+    uhPrescalerValue = (uint32_t)(((SystemCoreClock/2) / PWM_COUNTER_FREQ) - 1);
 
 
     /*##-1- Configure the TIM peripheral #######################################*/
@@ -101,7 +101,7 @@ void pwm_timer_init(void)
 	sConfig.OCIdleState  = TIM_OCIDLESTATE_RESET;
 
 	/* Set the pulse value for channel 1 */
-	sConfig.Pulse = PERIOD_VALUE;
+	sConfig.Pulse = MID_PULSE_VALUE;
 	if (HAL_TIM_PWM_ConfigChannel(&TimHandle, &sConfig, TIMx_CHANNEL) != HAL_OK)
 	{
 		/* Configuration Error */
