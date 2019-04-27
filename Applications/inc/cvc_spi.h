@@ -104,6 +104,7 @@ volatile typedef struct SPI_outputs_vector_s
 	uint8_t ignition_kill;			// PLC output 4
 	uint8_t	downshift_solenoid;		// PLC output 5
 	uint8_t upshift_solenoid;		// PLC output 6
+	uint8_t ic_fan_enable;
 	//extra output					// PLC output 7
 	//extra output					// PLC output 8
 

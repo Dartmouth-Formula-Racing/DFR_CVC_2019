@@ -249,7 +249,7 @@ void SPI_PLC_Set_Outputs(void)
 	VNI_Write.bit.IN6 = SPI_outputs_vector.ready_to_drive;
 	VNI_Write.bit.IN7 = SPI_outputs_vector.rfg;
 	VNI_Write.bit.IN8 = 1;						//ignition kill
-	VNI_Write.bit.IN1 = 0;
+	VNI_Write.bit.IN1 = 1;		// ic fan enable
 	VNI_Write.bit.IN2 = 0;
 
 #endif /* CVC_PROTOTYPE == 0 */
