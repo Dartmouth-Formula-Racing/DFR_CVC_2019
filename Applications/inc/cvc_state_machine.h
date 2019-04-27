@@ -62,6 +62,7 @@ typedef enum cvc_error_code_e
 	VOLTAGE_ERR = 3,
 	ENGINE_ERR = 4,
 	LOGGING_ERR = 5,
+	TPS_ERR = 6,
 } cvc_error_code_t;
 
 /* Variables to Export ------------------------------------------------------------------------*/

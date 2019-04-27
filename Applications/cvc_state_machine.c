@@ -209,7 +209,6 @@ void state_machine()
 
 		xSemaphoreGive(SPI_Inputs_Vector_Mutex);
 
-
 		/* wait for push button */
 		if (push_button != 0 && !buzzer_timer_started)
 		{
@@ -252,6 +251,14 @@ void state_machine()
 			cvc_state = DASH_BRB;
 		}
 
+		pack_voltage = (float) CAN_inputs[BATT_VOLTAGE]/100.0f;
+		bus_voltage = (float) CAN_inputs[BAMO_BUS_VOLTAGE]/50.4;
+
+		if(Dash_BRB_Pressed != 1 && bus_voltage <= pack_voltage*0.6)
+		{
+			cvc_state = PRECHARGE;
+		}
+
 		break;
 
 	case DRIVE:
@@ -271,6 +278,14 @@ void state_machine()
 		if (Dash_BRB_Pressed == 1)
 		{
 			cvc_state = DASH_BRB;
+		}
+
+		pack_voltage = (float) CAN_inputs[BATT_VOLTAGE]/100.0f;
+		bus_voltage = (float) CAN_inputs[BAMO_BUS_VOLTAGE]/50.4;
+
+		if(Dash_BRB_Pressed != 1 && bus_voltage <= pack_voltage*0.6)
+		{
+			cvc_state = PRECHARGE;
 		}
 
 		break;
@@ -324,6 +339,7 @@ void state_machine()
 void safety_monitor(void)
 {
 	monitor_engine();
+	monitor_tps();
 	//monitor_bamocar()
 	//monitor_bms()
 }
