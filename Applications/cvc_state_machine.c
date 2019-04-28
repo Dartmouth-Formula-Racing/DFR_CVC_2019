@@ -36,6 +36,8 @@ static uint8_t log_disable_prev = 0xFF;
 static uint8_t log_disable_temp = 0xFF;
 static uint8_t log_disable_counter = 0;
 
+static int voltage_drop_timer = 0;
+
 void state_machine()
 {
 	// add any checks that must be done in all states here
@@ -251,13 +253,22 @@ void state_machine()
 			cvc_state = DASH_BRB;
 		}
 
-		pack_voltage = (float) CAN_inputs[BATT_VOLTAGE]/100.0f;
-		bus_voltage = (float) CAN_inputs[BAMO_BUS_VOLTAGE]/50.4;
-
-		if(Dash_BRB_Pressed != 1 && bus_voltage <= pack_voltage*0.6)
-		{
-			cvc_state = PRECHARGE;
-		}
+//		pack_voltage = (float) CAN_inputs[BATT_VOLTAGE]/100.0f;
+//		bus_voltage = (float) CAN_inputs[BAMO_BUS_VOLTAGE]/50.4;
+//
+//		if(Dash_BRB_Pressed != 1 && bus_voltage <= pack_voltage*0.6)
+//		{
+//			voltage_drop_timer++;
+//
+//			if (voltage_drop_timer >= VOLTAGE_DROP_TIMEOUT_LOAD)
+//			{
+//				cvc_state = PRECHARGE;
+//			}
+//		}
+//		else
+//		{
+//			voltage_drop_timer = 0;
+//		}
 
 		break;
 
@@ -280,13 +291,22 @@ void state_machine()
 			cvc_state = DASH_BRB;
 		}
 
-		pack_voltage = (float) CAN_inputs[BATT_VOLTAGE]/100.0f;
-		bus_voltage = (float) CAN_inputs[BAMO_BUS_VOLTAGE]/50.4;
-
-		if(Dash_BRB_Pressed != 1 && bus_voltage <= pack_voltage*0.6)
-		{
-			cvc_state = PRECHARGE;
-		}
+//		pack_voltage = (float) CAN_inputs[BATT_VOLTAGE]/100.0f;
+//		bus_voltage = (float) CAN_inputs[BAMO_BUS_VOLTAGE]/50.4;
+//
+//		if(Dash_BRB_Pressed != 1 && bus_voltage <= pack_voltage*0.6)
+//		{
+//			voltage_drop_timer++;
+//
+//			if (voltage_drop_timer >= VOLTAGE_DROP_TIMEOUT_LOAD)
+//			{
+//				cvc_state = PRECHARGE;
+//			}
+//		}
+//		else
+//		{
+//			voltage_drop_timer = 0;
+//		}
 
 		break;
 
