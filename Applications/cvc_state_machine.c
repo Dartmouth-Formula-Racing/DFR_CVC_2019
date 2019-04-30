@@ -17,6 +17,7 @@ static cvc_fault_status_t cvc_fault = CVC_OK;
 static cvc_error_code_t cvc_error = NONE;
 
 static int Dash_BRB_Pressed = 0;
+static int TSMS_closed = 1;
 static int voltage_check_timer = 0;
 static uint8_t voltage_check_timer_started = 0;
 static int precharge_timer = 0;
@@ -51,6 +52,7 @@ void state_machine()
 	xSemaphoreTake(SPI_Inputs_Vector_Mutex, portMAX_DELAY);
 	Dash_BRB_Pressed = SPI_inputs_vector.Dash_BRB_press;
 	log_disable_temp = SPI_inputs_vector.Motor_enable;
+	TSMS_closed = SPI_inputs_vector.TSMS_closed;
 	xSemaphoreGive(SPI_Inputs_Vector_Mutex);
 
 	/* TODO: better fix for closing out file compare log_disable switch value to previous */
@@ -253,22 +255,11 @@ void state_machine()
 			cvc_state = DASH_BRB;
 		}
 
-//		pack_voltage = (float) CAN_inputs[BATT_VOLTAGE]/100.0f;
-//		bus_voltage = (float) CAN_inputs[BAMO_BUS_VOLTAGE]/50.4;
-//
-//		if(Dash_BRB_Pressed != 1 && bus_voltage <= pack_voltage*0.6)
-//		{
-//			voltage_drop_timer++;
-//
-//			if (voltage_drop_timer >= VOLTAGE_DROP_TIMEOUT_LOAD)
-//			{
-//				cvc_state = PRECHARGE;
-//			}
-//		}
-//		else
-//		{
-//			voltage_drop_timer = 0;
-//		}
+
+		if (TSMS_closed == 0)
+		{
+			cvc_state = PRECHARGE;
+		}
 
 		break;
 
@@ -291,22 +282,10 @@ void state_machine()
 			cvc_state = DASH_BRB;
 		}
 
-//		pack_voltage = (float) CAN_inputs[BATT_VOLTAGE]/100.0f;
-//		bus_voltage = (float) CAN_inputs[BAMO_BUS_VOLTAGE]/50.4;
-//
-//		if(Dash_BRB_Pressed != 1 && bus_voltage <= pack_voltage*0.6)
-//		{
-//			voltage_drop_timer++;
-//
-//			if (voltage_drop_timer >= VOLTAGE_DROP_TIMEOUT_LOAD)
-//			{
-//				cvc_state = PRECHARGE;
-//			}
-//		}
-//		else
-//		{
-//			voltage_drop_timer = 0;
-//		}
+		if (TSMS_closed == 0)
+		{
+			cvc_state = PRECHARGE;
+		}
 
 		break;
 
