@@ -92,7 +92,7 @@ volatile typedef struct SPI_inputs_vector_s
 	uint8_t	IMD_safety_circuit_fault;		// PLC input 5
 	uint8_t BMS_safety_circuit_fault;		// PLC input 6
 	uint8_t Bamocar_safety_circuit_fault;	// PLC input 7
-	//extra input							// PLC input 8
+	uint8_t TSMS_closed;					// PLC input 8
 
 } SPI_inputs_vector_t;
 

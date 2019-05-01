@@ -15,7 +15,7 @@
 #define OFFSET_MAX (16384.0f)
 #define LOWER_TPS_LIMIT (3.0f)
 #define UPPER_TPS_LIMIT (232.0f)
-#define MULTIPLIER (1.0f)
+#define MULTIPLIER (0.15f)
 
 
 void torque_command(void);

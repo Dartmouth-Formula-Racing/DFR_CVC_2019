@@ -17,6 +17,7 @@ static cvc_fault_status_t cvc_fault = CVC_OK;
 static cvc_error_code_t cvc_error = NONE;
 
 static int Dash_BRB_Pressed = 0;
+static int TSMS_closed = 1;
 static int voltage_check_timer = 0;
 static uint8_t voltage_check_timer_started = 0;
 static int precharge_timer = 0;
@@ -36,6 +37,7 @@ static uint8_t log_disable_prev = 0xFF;
 static uint8_t log_disable_temp = 0xFF;
 static uint8_t log_disable_counter = 0;
 
+
 void state_machine()
 {
 	// add any checks that must be done in all states here
@@ -49,6 +51,7 @@ void state_machine()
 	xSemaphoreTake(SPI_Inputs_Vector_Mutex, portMAX_DELAY);
 	Dash_BRB_Pressed = SPI_inputs_vector.Dash_BRB_press;
 	log_disable_temp = SPI_inputs_vector.Motor_enable;
+	TSMS_closed = SPI_inputs_vector.TSMS_closed;
 	xSemaphoreGive(SPI_Inputs_Vector_Mutex);
 
 	/* TODO: better fix for closing out file compare log_disable switch value to previous */
@@ -209,7 +212,6 @@ void state_machine()
 
 		xSemaphoreGive(SPI_Inputs_Vector_Mutex);
 
-
 		/* wait for push button */
 		if (push_button != 0 && !buzzer_timer_started)
 		{
@@ -247,9 +249,17 @@ void state_machine()
 
 		xSemaphoreGive(SPI_Outputs_Vector_Mutex);
 
+		/* check for dash BRB */
 		if (Dash_BRB_Pressed == 1)
 		{
 			cvc_state = DASH_BRB;
+		}
+
+
+		/* check for open Tractive System Master Switch */
+		if (TSMS_closed == 0)
+		{
+			cvc_state = PRECHARGE;
 		}
 
 		break;
@@ -268,9 +278,16 @@ void state_machine()
 
 		cvc_state = DRIVE;
 
+		/* check for dash BRB */
 		if (Dash_BRB_Pressed == 1)
 		{
 			cvc_state = DASH_BRB;
+		}
+
+		/* check for open Tractive System Master Switch */
+		if (TSMS_closed == 0)
+		{
+			cvc_state = PRECHARGE;
 		}
 
 		break;
@@ -324,6 +341,7 @@ void state_machine()
 void safety_monitor(void)
 {
 	monitor_engine();
+	monitor_tps();
 	//monitor_bamocar()
 	//monitor_bms()
 }

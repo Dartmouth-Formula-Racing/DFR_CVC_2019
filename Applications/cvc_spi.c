@@ -229,6 +229,7 @@ void SPI_PLC_Set_Inputs(void)
 	SPI_inputs_vector.Motor_enable 					= CLT_Read.bit.IN4;
 	SPI_inputs_vector.Ready_to_drive 				= CLT_Read.bit.IN5;
 	SPI_inputs_vector.Dash_BRB_press 				= !CLT_Read.bit.IN6;
+	SPI_inputs_vector.TSMS_closed					= CLT_Read.bit.IN8;
 
 #endif /* CVC_PROTOTYPE == 0 */
 }
