@@ -37,7 +37,6 @@ static uint8_t log_disable_prev = 0xFF;
 static uint8_t log_disable_temp = 0xFF;
 static uint8_t log_disable_counter = 0;
 
-static int voltage_drop_timer = 0;
 
 void state_machine()
 {
@@ -250,12 +249,14 @@ void state_machine()
 
 		xSemaphoreGive(SPI_Outputs_Vector_Mutex);
 
+		/* check for dash BRB */
 		if (Dash_BRB_Pressed == 1)
 		{
 			cvc_state = DASH_BRB;
 		}
 
 
+		/* check for open Tractive System Master Switch */
 		if (TSMS_closed == 0)
 		{
 			cvc_state = PRECHARGE;
@@ -277,11 +278,13 @@ void state_machine()
 
 		cvc_state = DRIVE;
 
+		/* check for dash BRB */
 		if (Dash_BRB_Pressed == 1)
 		{
 			cvc_state = DASH_BRB;
 		}
 
+		/* check for open Tractive System Master Switch */
 		if (TSMS_closed == 0)
 		{
 			cvc_state = PRECHARGE;

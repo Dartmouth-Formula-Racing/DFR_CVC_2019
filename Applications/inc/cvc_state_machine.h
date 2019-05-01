@@ -29,8 +29,6 @@
 #define MIN_BATTERY_VOLTAGE_THRESHOLD	240 // 240 V minimum for battery to pre-charge
 #define MAX_BAMO_BUS_VOLTAGE_THRESHOLD	20	// 20 V maximum for bamocar to pre-charge
 
-#define VOLTAGE_DROP_TIMEOUT_LOAD 50 // 0.5 seconds
-
 /* Type Defines ------------------------------------------------------------------------*/
 typedef enum cvc_state_e
 {
