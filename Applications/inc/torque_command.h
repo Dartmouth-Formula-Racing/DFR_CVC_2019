@@ -14,7 +14,7 @@
 
 #define OFFSET_MAX (16384.0f)
 #define LOWER_TPS_LIMIT (16.0f)
-#define UPPER_TPS_LIMIT (202.0f)
+#define UPPER_TPS_LIMIT (165.0f)
 #define MULTIPLIER (1.0f)
 
 

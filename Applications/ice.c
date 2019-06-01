@@ -66,7 +66,8 @@ void monitor_temps(void)
 // Check tps for fault (short to power or to ground) and throw fault after 0.06 secs
 void monitor_tps(void)
 {
-	if (CAN_inputs[ENG_TPS] <= MIN_TPS_THRESHOLD || CAN_inputs[ENG_TPS] >= MAX_TPS_THRESHOLD)
+	//if (CAN_inputs[ENG_TPS] <= MIN_TPS_THRESHOLD || CAN_inputs[ENG_TPS] >= MAX_TPS_THRESHOLD)
+	if (CAN_inputs[ENG_TPS] >= MAX_TPS_THRESHOLD)
 	{
 		tps_fault_counter++;
 
