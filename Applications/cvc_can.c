@@ -302,6 +302,15 @@ static void CAN_parser_std(queue_msg_t q_msg, uint8_t CAN_idx)
 	{
 		uint32_t result = 0;
 		input_map_t input = CAN_dict[CAN_idx].input_map[i];
+		int offset = 0;
+
+		//Set a offset variable if the message is from Rinehart pm100 2
+		if( (CAN_ID_OFFSET2 <= CAN_dict[CAN_idx].msg_ID) & (CAN_dict[CAN_idx].msg_ID <= (CAN_ID_OFFSET2 +0x0F)))
+		{
+			//Set the offset variable to the number of CAN inputs from one Rinehart
+			offset = DIAGNOSTIC_DATA - MODULE_A_TEMP + 1;
+
+		}
 
 
 		/* iterate over all bytes of input */
@@ -314,7 +323,7 @@ static void CAN_parser_std(queue_msg_t q_msg, uint8_t CAN_idx)
 		xSemaphoreTake(CAN_Inputs_Vector_Mutex, portMAX_DELAY);	//get CAN inputs mutex
 
 		/* store result in CAN_inputs table */
-		CAN_inputs[input.index] = result;
+		CAN_inputs[input.index + offset] = result;
 
 		xSemaphoreGive(CAN_Inputs_Vector_Mutex);	//give CAN inputs mutex
 	}

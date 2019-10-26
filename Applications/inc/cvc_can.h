@@ -85,7 +85,7 @@ typedef enum CAN_input_e
 	BATT_CHARGE,		// 8
 	BATT_SOC,
 
-	//First Drive inverter, pm-100, rinehart !!PRESERVE ORDER!!
+	//First Drive inverter, pm-100, rinehart !!PRESERVE ORDER!! if changing any of this, remember to change standard parser
 	MODULE_A_TEMP,
 	MODULE_B_TEMP,
 	MODULE_C_TEMP,
