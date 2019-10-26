@@ -14,6 +14,7 @@
 #include "semphr.h"
 #include "bamocar.h"
 #include "cvc_state_machine.h"
+#include "pm100.h"
 
 
 
@@ -21,8 +22,7 @@
 static void CAN_Config(void);
 static void CAN_parser_std(queue_msg_t q_msg, uint8_t CAN_idx);
 static void CAN_parser_EMUS1(queue_msg_t q_msg, uint8_t CAN_idx);
-static void CAN_parser_BAMO(queue_msg_t q_msg, uint8_t CAN_idx);
-static void CAN_parser_ATHENA1(queue_msg_t q_msg, uint8_t CAN_idx);
+
 
 
 /* Private Variables ---------------------------------------------------------------*/
@@ -33,30 +33,6 @@ uint32_t 				TxMailbox;
 /* CAN message input maps */
 /* INPUT_INDEX, START BYTE, START BIT, BYTE SIZE */
 
-/* ATHENA Engine ECU CAN message maps */
-input_map_t ATHENA1_map[] =
-{
-		{ENG_REV_COUNT, 0, 0, 2},
-		{ENG_RPM, 2, 0, 2},
-		{ENG_TPS, 4, 0, 1},
-		{ENG_MAP, 6, 0, 2}
-};
-
-input_map_t ATHENA2_map[] =
-{
-		{ENG_TEMP, 0, 0, 1},
-		{AIR_TEMP, 1, 0, 1},
-		{OIL_TEMP, 2, 0, 1},
-		{KL15_BATT_VOLTAGE, 3, 0, 1},
-		{KL30_BATT_VOLTAGE, 4, 0, 1},
-		{BARO, 6, 0, 2},
-};
-
-input_map_t ATHENA3_map[] =
-{
-		{FLAG_OVERHEAT, 4, 5, 1},
-		{ACTIVE_MAP, 5, 0, 1},
-};
 
 input_map_t EMUS2_map[] =
 {
@@ -72,29 +48,168 @@ input_map_t EMUS3_map[] =
 		{BATT_SOC, 6, 0, 1},
 };
 
+//Rinehart pm-100 maps
+
+input_map_t TEMP1_map[] =
+{
+		{MODULE_A_TEMP, 0, 0 ,2},
+		{MODULE_B_TEMP, 2, 0,2},
+		{MODULE_C_TEMP, 4, 0,2},
+		{GATE_DRIVER_BOARD_TEMP, 6, 0,2},
+};
+
+input_map_t TEMP2_map[] =
+{
+		{CONTROL_BOARD_TEMPERATURE, 0, 0 ,2},
+		{RTD_1_TEMP, 2, 0,2},
+		{RTD_2_TEMP, 4, 0,2},
+		{RTD_3_TEMP, 6, 0,2},
+};
+
+input_map_t TEMP3_map[] =
+{
+		{RTD_4_TEMP, 0, 0 ,2},
+		{RTD_5_TEMP, 2, 0,2},
+		{MOTOR_TEMP, 4, 0,2},
+		{TORQUE_SHUDDER, 6, 0,2},
+};
+
+input_map_t DIGI_map[] =
+{
+		{DIGITAL_INPUT_1, 0, 0 ,1},
+		{DIGITAL_INPUT_2, 1, 0 ,1},
+		{DIGITAL_INPUT_3, 2, 0 ,1},
+		{DIGITAL_INPUT_4, 3, 0 ,1},
+		{DIGITAL_INPUT_5, 4, 0 ,1},
+		{DIGITAL_INPUT_6, 5, 0 ,1},
+		{DIGITAL_INPUT_7, 6, 0 ,1},
+		{DIGITAL_INPUT_8, 7, 0 ,1},
+};
+
+input_map_t MOTORPOS_map[] =
+{
+		{MOTOR_ANGLE_ELECTRICAL, 0, 0 ,2},
+		{MOTOR_SPEED, 2, 0,2},
+		{ELECTRICAL_OUTPUT_FREQ, 4, 0,2},
+		{DELTA_RESOLVER_FILTERED, 6, 0,2},
+};
+
+input_map_t CURRENTINF_map[] =
+{
+
+		{PHASE_A_CURRENT, 0, 0, 2},
+		{PHASE_B_CURRENT, 2, 0, 2},
+		{PHASE_C_CURRENT, 4, 0, 2},
+		{DC_BUS_CURRENT, 6, 0, 2},
+};
+
+input_map_t VOLTINF_map[] =
+{
+		{DC_BUS_VOLTAGE, 0, 0, 2},
+		{OUTPUT_VOLTAGE, 2, 0, 2},
+		{VAB_VD_VOLTAGE, 4, 0, 2},
+		{VBC_VQ_VOLTAGE, 6, 0, 2},
+};
+
+input_map_t FLUXINF_map[] =
+{
+		{FLUX_COMMAND, 0, 0 ,2},
+		{FLUX_FEEDBACK, 2, 0,2},
+		{ID_FEEDBACK, 4, 0,2},
+		{IQ_FEEDBACK, 6, 0,2},
+};
+
+input_map_t INTVOLT_map[] =
+{
+
+		{REFERENCE_VOLTAGE_1ANDHALFV, 0, 0 ,2},
+		{REFERENCE_VOLTAGE_2ANDHALFV, 2, 0,2},
+		{REFERENCE_VOLTAGE_5V, 4, 0,2},
+		{REFERENCE_VOLTAGE_12V, 6, 0,2},
+
+};
+
+input_map_t FAULTCODES_map[] =
+{
+
+		{POST_FAULT_LO, 0, 0 ,2},
+		{POST_FAULT_HI, 2, 0,2},
+		{RUN_FAULT_LO, 4, 0,2},
+		{RUN_FAULT_HI, 6, 0,2},
+};
+
+input_map_t TORQTIM_map[] =
+{
+		{COMMANDED_TORQUE, 0, 0, 2},
+		{TORQUE_FEEDBACK, 2, 0, 2},
+		{POWER_ON_TIMER, 4, 0, 8},
+};
+
+input_map_t MODFLUX_map[] =
+{
+
+		{MODULATION_INDEX, 0, 0 ,2},
+		{FLUX_WEAKENING_OUTPUT, 2, 0,2},
+		{ID_COMMAND, 4, 0,2},
+		{IQ_COMMAND, 6, 0,2},
+};
+
+input_map_t FIRMINF_map[] =
+{
+
+		{EEPROM_VERSION, 0, 0 ,2},
+		{SOFTWARE_VERSION, 2, 0,2},
+		{DATE_CODE_MD, 4, 0,2},
+		{DATE_CODE_YY, 6, 0,2},
+};
 
 /* CAN message dictionary */
 static CAN_msg_t CAN_dict[]	=
 {
-		// ATHENA ECU MSGS messages
-		{0x200, STD, 0, 0, "ATHENA1", ATHENA1_map, 4, CAN_parser_ATHENA1},	// ATHENA 1 (0)
-		{0x310, STD, 0, 0, "ATHENA2", ATHENA2_map, 6, CAN_parser_std},		// ATHENA 2 (1)
-		{0x312, STD, 0, 0, "ATHENA3", ATHENA3_map, 2, CAN_parser_std},		// ATHENA 3 (2)
+
 
 		// EMUS BMS messages
-		{0x1B6, STD, 0, 0, "EMUS1", NULL, 0, CAN_parser_EMUS1}, 		// EMUS BMS 1 (3)
-		{0x1B7, STD, 0, 0, "EMUS2", EMUS2_map, 3, CAN_parser_std}, 		// EMSU BMS 2 (4)
-		{0x1BA, STD, 0, 0, "EMUS3", EMUS3_map, 3, CAN_parser_std}, 		// EMSU BMS 3 (5)
+		{0x1B6, STD, 0, "EMUS1", NULL, 0, CAN_parser_EMUS1}, 		// EMUS BMS 1 (3)
+		{0x1B7, STD, 0, "EMUS2", EMUS2_map, 3, CAN_parser_std}, 		// EMSU BMS 2 (4)
+		{0x1BA, STD, 0, "EMUS3", EMUS3_map, 3, CAN_parser_std}, 		// EMSU BMS 3 (5)
 
-		// BAMOCAR messages
-		{0x180, STD, MOTOR_RPM_REGID, 0, "BAMO1", NULL, 0, CAN_parser_BAMO}, 			// BAMOCAR 1 - Motor RPM (6)
-		{0x180, STD, MOTOR_CURRENT_REGID, 0, "BAMO2", NULL, 0, CAN_parser_BAMO}, 		// BAMOCAR 2 - Motor Current (7)
-		{0x180, STD, MOTOR_TORQUE_REGID, 0, "BAMO3", NULL, 0, CAN_parser_BAMO}, 		// BAMOCAR 3 - Motor Torque (8)
-		{0x180, STD, MOTOR_VOLTAGE_REGID, 0, "BAMO4", NULL, 0, CAN_parser_BAMO}, 		// BAMOCAR 4 - Motor Voltage (9)
-		{0x180, STD, BAMOCAR_D_OUT_2_REGID, 0, "BAMO5", NULL, 0, CAN_parser_BAMO}, 		// BAMOCAR 5 - BAMOCAR D_OUT2 (10)
-		{0x180, STD, BAMOCAR_FAULT_REGID, 0, "BAMO6", NULL, 0, CAN_parser_BAMO}, 		// BAMOCAR 6 - BAMOCAR_Fault (11)
-		{0x180, STD, BAMOCAR_BUS_VOLTAGE_REGID, 0, "BAMO7", NULL, 0, CAN_parser_BAMO}, 	// BAMOCAR 7 - BAMOCAR Bus Voltage (12)
-		{0x180, STD, BAMOCAR_D_OUT_1_REGID, 0, "BAMO8", NULL, 0, CAN_parser_BAMO}, 		// BAMOCAR 8 - BAMOCAR D_OUT 1 (13)
+
+		//Rinehart pm-100 messages #1
+		{CAN_ID_OFFSET1+0x00, STD, 0, "1_Temp_1", TEMP1_map, 4, CAN_parser_std},
+		{CAN_ID_OFFSET1+0x01, STD, 0, "1_Temp_2", TEMP2_map, 4, CAN_parser_std},
+		{CAN_ID_OFFSET1+0x02, STD, 0, "1_Temp_3_Torque_Shudder", TEMP3_map, 4, CAN_parser_std},
+		{CAN_ID_OFFSET1+0x03, STD, 0, "1_Analog_Input_Volt", NULL, 0, CAN_parser_std}, //TODO: needs special parser
+		{CAN_ID_OFFSET1+0x04, STD, 0, "1_Digital_Input_Stat", DIGI_map, 8, CAN_parser_std},
+		{CAN_ID_OFFSET1+0x05, STD, 0, "1_Motor_Position_Info", MOTORPOS_map, 4, CAN_parser_std},
+		{CAN_ID_OFFSET1+0x06, STD, 0, "1_Current_Info", CURRENTINF_map, 4, CAN_parser_std},
+		{CAN_ID_OFFSET1+0x07, STD, 0, "1_Voltage_Info", VOLTINF_map, 4, CAN_parser_std},
+		{CAN_ID_OFFSET1+0x08, STD, 0, "1_Flux_Info", FLUXINF_map, 4, CAN_parser_std},
+		{CAN_ID_OFFSET1+0x09, STD, 0, "1_Internal_Volt", INTVOLT_map, 4, CAN_parser_std},
+		{CAN_ID_OFFSET1+0x0A, STD, 0, "1_Internal_States", NULL, 0, CAN_parser_std},//TODO: needs special parser
+		{CAN_ID_OFFSET1+0x0B, STD, 0, "1_Fault_Codes", FAULTCODES_map, 4, CAN_parser_std},
+		{CAN_ID_OFFSET1+0x0C, STD, 0, "1_Torque_Timer_Info", TORQTIM_map, 3, CAN_parser_std},
+		{CAN_ID_OFFSET1+0x0D, STD, 0, "1_Mod_Indx_FluxWeak", MODFLUX_map, 4, CAN_parser_std},
+		{CAN_ID_OFFSET1+0x0E, STD, 0, "1_Firm_Info", FIRMINF_map, 4, CAN_parser_std},
+		{CAN_ID_OFFSET1+0x0F, STD, 0, "1_Diagnostic", NULL, 0, CAN_parser_std}, //TODO: needs special parser
+
+		//Rinehart pm-100 messages #2
+		{CAN_ID_OFFSET2+0x00, STD, 0, "2_Temp_1", TEMP1_map, 4, CAN_parser_std},
+		{CAN_ID_OFFSET2+0x01, STD, 0, "2_Temp_2", TEMP2_map, 4, CAN_parser_std},
+		{CAN_ID_OFFSET2+0x02, STD, 0, "2_Temp_3_Torque_Shudder", TEMP3_map, 4, CAN_parser_std},
+		{CAN_ID_OFFSET2+0x03, STD, 0, "2_Analog_Input_Volt", NULL, 0, CAN_parser_std}, //TODO: needs special parser
+		{CAN_ID_OFFSET2+0x04, STD, 0, "2_Digital_Input_Stat", DIGI_map, 8, CAN_parser_std},
+		{CAN_ID_OFFSET2+0x05, STD, 0, "2_Motor_Position_Info", MOTORPOS_map, 4, CAN_parser_std},
+		{CAN_ID_OFFSET2+0x06, STD, 0, "2_Current_Info", CURRENTINF_map, 4, CAN_parser_std},
+		{CAN_ID_OFFSET2+0x07, STD, 0, "2_Voltage_Info", VOLTINF_map, 4, CAN_parser_std},
+		{CAN_ID_OFFSET2+0x08, STD, 0, "2_Flux_Info", FLUXINF_map, 4, CAN_parser_std},
+		{CAN_ID_OFFSET2+0x09, STD, 0, "2_Internal_Volt", INTVOLT_map, 4, CAN_parser_std},
+		{CAN_ID_OFFSET2+0x0A, STD, 0, "2_Internal_States", NULL, 0, CAN_parser_std},//TODO: needs special parser
+		{CAN_ID_OFFSET2+0x0B, STD, 0, "2_Fault_Codes", FAULTCODES_map, 4, CAN_parser_std},
+		{CAN_ID_OFFSET2+0x0C, STD, 0, "2_Torque_Timer_Info", TORQTIM_map, 3, CAN_parser_std},
+		{CAN_ID_OFFSET2+0x0D, STD, 0, "2_Mod_Indx_FluxWeak", MODFLUX_map, 4, CAN_parser_std},
+		{CAN_ID_OFFSET2+0x0E, STD, 0, "2_Firm_Info", FIRMINF_map, 4, CAN_parser_std},
+		{CAN_ID_OFFSET2+0x0F, STD, 0, "2_Diagnostic", NULL, 0, CAN_parser_std}, //TODO: needs special parser
+
 };
 
 
@@ -133,16 +248,10 @@ void CAN_Rx_Task(void * parameters)
 		{
 			if (Rx_msg.Rx_header.StdId == CAN_dict[i].msg_ID)
 			{
-				if (Rx_msg.Rx_header.StdId != 0x180)
-				{
 					CAN_dict[i].parser(Rx_msg, i);	// call message parser
 					done = 1;
-				}
-				else if (Rx_msg.data._8[0] == CAN_dict[i].reg_ID)
-				{
-					CAN_dict[i].parser(Rx_msg, i);
-					done = 1;
-				}
+
+
 			}
 			i++;
 		}
@@ -228,73 +337,9 @@ static void CAN_parser_EMUS1(queue_msg_t q_msg, uint8_t CAN_idx)
 	xSemaphoreGive(CAN_Inputs_Vector_Mutex);	//give CAN inputs mutex
 }
 
-static void CAN_parser_ATHENA1(queue_msg_t q_msg, uint8_t CAN_idx)
-{
-	if (q_msg.Rx_header.ExtId != 0xE4714)
-	{
-		CAN_parser_std(q_msg, CAN_idx);
-	}
-}
 
-/**
- * @brief special parser for Bamocar CAN messages
- * @param q_msg: incoming CAN message
- * @param CAN_msg: reference message from CAN_dict w/ message metadata
- */
-static void CAN_parser_BAMO(queue_msg_t q_msg, uint8_t CAN_idx)
-{
-	uint32_t result = 0;
 
-	/* unpack data based on DLC (little endian) */
-	if (q_msg.Rx_header.DLC == 0x3 || q_msg.Rx_header.DLC == 0x4)
-	{
-		/* 2 data bytes */
-		result = (uint32_t) q_msg.data._8[2] << 8 | (uint32_t) q_msg.data._8[1];
-	}
-	else
-	{
-		/* 4 data bytes */
-		result = (uint32_t) q_msg.data._8[4] << 24 | (uint32_t) q_msg.data._8[3] << 16 | (uint32_t) q_msg.data._8[2] << 8 | (uint32_t) q_msg.data._8[1];
-	}
 
-	xSemaphoreTake(CAN_Inputs_Vector_Mutex, portMAX_DELAY);	//get CAN inputs mutex
-
-	/* store in CAN_inputs table */
-	switch (CAN_dict[CAN_idx].reg_ID)
-	{
-	case 0x30:
-		CAN_inputs[MOTOR_RPM] = result;
-		break;
-	case 0x5F:
-		CAN_inputs[MOTOR_CURRENT] = result;
-		break;
-	case 0xA0:
-		CAN_inputs[MOTOR_TORQUE] = result;
-		break;
-	case 0x8A:
-		CAN_inputs[MOTOR_VOLTAGE] = result;
-		break;
-	case 0x49:
-		CAN_inputs[MOTOR_TEMP] = result;
-		break;
-	case 0x8F:
-		CAN_inputs[BAMO_FAULT] = result;
-		break;
-	case 0xEB:
-		CAN_inputs[BAMO_BUS_VOLTAGE] = result;
-		break;
-	case 0xE0:
-		CAN_inputs[BAMO_D_1_OUT_1] = result;
-		break;
-	case 0xE1:
-		CAN_inputs[BAMO_D_1_OUT_2] = result;
-		break;
-	default:
-		break;
-	}
-
-	xSemaphoreGive(CAN_Inputs_Vector_Mutex);	//give CAN inputs mutex
-}
 
 
 /**
