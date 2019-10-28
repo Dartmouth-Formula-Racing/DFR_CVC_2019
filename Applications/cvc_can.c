@@ -21,9 +21,11 @@
 /* Private Function Prototypes ---------------------------------------------------------------*/
 static void CAN_Config(void);
 static void CAN_parser_std(queue_msg_t q_msg, uint8_t CAN_idx);
+static void CAN_parser_std_Rinehart(queue_msg_t q_msg, uint8_t CAN_idx);
 static void CAN_parser_EMUS1(queue_msg_t q_msg, uint8_t CAN_idx);
-
-
+static void CAN_parser_ANALOGVOLT(queue_msg_t q_msg, uint8_t CAN_idx);
+static void CAN_parser_INTST(queue_msg_t q_msg, uint8_t CAN_idx);
+static void CAN_parser_DIAGNOSTIC(queue_msg_t q_msg, uint8_t CAN_idx);
 
 /* Private Variables ---------------------------------------------------------------*/
 CAN_HandleTypeDef		CanHandle;
@@ -175,40 +177,40 @@ static CAN_msg_t CAN_dict[]	=
 
 
 		//Rinehart pm-100 messages #1
-		{CAN_ID_OFFSET1+0x00, STD, 0, "1_Temp_1", TEMP1_map, 4, CAN_parser_std},
-		{CAN_ID_OFFSET1+0x01, STD, 0, "1_Temp_2", TEMP2_map, 4, CAN_parser_std},
-		{CAN_ID_OFFSET1+0x02, STD, 0, "1_Temp_3_Torque_Shudder", TEMP3_map, 4, CAN_parser_std},
-		{CAN_ID_OFFSET1+0x03, STD, 0, "1_Analog_Input_Volt", NULL, 0, CAN_parser_std}, //TODO: needs special parser
-		{CAN_ID_OFFSET1+0x04, STD, 0, "1_Digital_Input_Stat", DIGI_map, 8, CAN_parser_std},
-		{CAN_ID_OFFSET1+0x05, STD, 0, "1_Motor_Position_Info", MOTORPOS_map, 4, CAN_parser_std},
-		{CAN_ID_OFFSET1+0x06, STD, 0, "1_Current_Info", CURRENTINF_map, 4, CAN_parser_std},
-		{CAN_ID_OFFSET1+0x07, STD, 0, "1_Voltage_Info", VOLTINF_map, 4, CAN_parser_std},
-		{CAN_ID_OFFSET1+0x08, STD, 0, "1_Flux_Info", FLUXINF_map, 4, CAN_parser_std},
-		{CAN_ID_OFFSET1+0x09, STD, 0, "1_Internal_Volt", INTVOLT_map, 4, CAN_parser_std},
-		{CAN_ID_OFFSET1+0x0A, STD, 0, "1_Internal_States", NULL, 0, CAN_parser_std},//TODO: needs special parser
-		{CAN_ID_OFFSET1+0x0B, STD, 0, "1_Fault_Codes", FAULTCODES_map, 4, CAN_parser_std},
-		{CAN_ID_OFFSET1+0x0C, STD, 0, "1_Torque_Timer_Info", TORQTIM_map, 3, CAN_parser_std},
-		{CAN_ID_OFFSET1+0x0D, STD, 0, "1_Mod_Indx_FluxWeak", MODFLUX_map, 4, CAN_parser_std},
-		{CAN_ID_OFFSET1+0x0E, STD, 0, "1_Firm_Info", FIRMINF_map, 4, CAN_parser_std},
-		{CAN_ID_OFFSET1+0x0F, STD, 0, "1_Diagnostic", NULL, 0, CAN_parser_std}, //TODO: needs special parser
+		{CAN_ID_OFFSET1+0x00, STD, 0, "1_Temp_1", TEMP1_map, 4, CAN_parser_std_Rinehart},
+		{CAN_ID_OFFSET1+0x01, STD, 0, "1_Temp_2", TEMP2_map, 4, CAN_parser_std_Rinehart},
+		{CAN_ID_OFFSET1+0x02, STD, 0, "1_Temp_3_Torque_Shudder", TEMP3_map, 4, CAN_parser_std_Rinehart},
+		{CAN_ID_OFFSET1+0x03, STD, 0, "1_Analog_Input_Volt", NULL, 0, CAN_parser_ANALOGVOLT},
+		{CAN_ID_OFFSET1+0x04, STD, 0, "1_Digital_Input_Stat", DIGI_map, 8, CAN_parser_std_Rinehart},
+		{CAN_ID_OFFSET1+0x05, STD, 0, "1_Motor_Position_Info", MOTORPOS_map, 4, CAN_parser_std_Rinehart},
+		{CAN_ID_OFFSET1+0x06, STD, 0, "1_Current_Info", CURRENTINF_map, 4, CAN_parser_std_Rinehart},
+		{CAN_ID_OFFSET1+0x07, STD, 0, "1_Voltage_Info", VOLTINF_map, 4, CAN_parser_std_Rinehart},
+		{CAN_ID_OFFSET1+0x08, STD, 0, "1_Flux_Info", FLUXINF_map, 4, CAN_parser_std_Rinehart},
+		{CAN_ID_OFFSET1+0x09, STD, 0, "1_Internal_Volt", INTVOLT_map, 4, CAN_parser_std_Rinehart},
+		{CAN_ID_OFFSET1+0x0A, STD, 0, "1_Internal_States", NULL, 0, CAN_parser_INTST},
+		{CAN_ID_OFFSET1+0x0B, STD, 0, "1_Fault_Codes", FAULTCODES_map, 4, CAN_parser_std_Rinehart},
+		{CAN_ID_OFFSET1+0x0C, STD, 0, "1_Torque_Timer_Info", TORQTIM_map, 3, CAN_parser_std_Rinehart},
+		{CAN_ID_OFFSET1+0x0D, STD, 0, "1_Mod_Indx_FluxWeak", MODFLUX_map, 4, CAN_parser_std_Rinehart},
+		{CAN_ID_OFFSET1+0x0E, STD, 0, "1_Firm_Info", FIRMINF_map, 4, CAN_parser_std_Rinehart},
+		{CAN_ID_OFFSET1+0x0F, STD, 0, "1_Diagnostic", NULL, 0, CAN_parser_DIAGNOSTIC},
 
 		//Rinehart pm-100 messages #2
-		{CAN_ID_OFFSET2+0x00, STD, 0, "2_Temp_1", TEMP1_map, 4, CAN_parser_std},
-		{CAN_ID_OFFSET2+0x01, STD, 0, "2_Temp_2", TEMP2_map, 4, CAN_parser_std},
-		{CAN_ID_OFFSET2+0x02, STD, 0, "2_Temp_3_Torque_Shudder", TEMP3_map, 4, CAN_parser_std},
-		{CAN_ID_OFFSET2+0x03, STD, 0, "2_Analog_Input_Volt", NULL, 0, CAN_parser_std}, //TODO: needs special parser
-		{CAN_ID_OFFSET2+0x04, STD, 0, "2_Digital_Input_Stat", DIGI_map, 8, CAN_parser_std},
-		{CAN_ID_OFFSET2+0x05, STD, 0, "2_Motor_Position_Info", MOTORPOS_map, 4, CAN_parser_std},
-		{CAN_ID_OFFSET2+0x06, STD, 0, "2_Current_Info", CURRENTINF_map, 4, CAN_parser_std},
-		{CAN_ID_OFFSET2+0x07, STD, 0, "2_Voltage_Info", VOLTINF_map, 4, CAN_parser_std},
-		{CAN_ID_OFFSET2+0x08, STD, 0, "2_Flux_Info", FLUXINF_map, 4, CAN_parser_std},
-		{CAN_ID_OFFSET2+0x09, STD, 0, "2_Internal_Volt", INTVOLT_map, 4, CAN_parser_std},
-		{CAN_ID_OFFSET2+0x0A, STD, 0, "2_Internal_States", NULL, 0, CAN_parser_std},//TODO: needs special parser
-		{CAN_ID_OFFSET2+0x0B, STD, 0, "2_Fault_Codes", FAULTCODES_map, 4, CAN_parser_std},
-		{CAN_ID_OFFSET2+0x0C, STD, 0, "2_Torque_Timer_Info", TORQTIM_map, 3, CAN_parser_std},
-		{CAN_ID_OFFSET2+0x0D, STD, 0, "2_Mod_Indx_FluxWeak", MODFLUX_map, 4, CAN_parser_std},
-		{CAN_ID_OFFSET2+0x0E, STD, 0, "2_Firm_Info", FIRMINF_map, 4, CAN_parser_std},
-		{CAN_ID_OFFSET2+0x0F, STD, 0, "2_Diagnostic", NULL, 0, CAN_parser_std}, //TODO: needs special parser
+		{CAN_ID_OFFSET2+0x00, STD, 0, "2_Temp_1", TEMP1_map, 4, CAN_parser_std_Rinehart},
+		{CAN_ID_OFFSET2+0x01, STD, 0, "2_Temp_2", TEMP2_map, 4, CAN_parser_std_Rinehart},
+		{CAN_ID_OFFSET2+0x02, STD, 0, "2_Temp_3_Torque_Shudder", TEMP3_map, 4, CAN_parser_std_Rinehart},
+		{CAN_ID_OFFSET2+0x03, STD, 0, "2_Analog_Input_Volt", NULL, 0, CAN_parser_ANALOGVOLT},
+		{CAN_ID_OFFSET2+0x04, STD, 0, "2_Digital_Input_Stat", DIGI_map, 8, CAN_parser_std_Rinehart},
+		{CAN_ID_OFFSET2+0x05, STD, 0, "2_Motor_Position_Info", MOTORPOS_map, 4, CAN_parser_std_Rinehart},
+		{CAN_ID_OFFSET2+0x06, STD, 0, "2_Current_Info", CURRENTINF_map, 4, CAN_parser_std_Rinehart},
+		{CAN_ID_OFFSET2+0x07, STD, 0, "2_Voltage_Info", VOLTINF_map, 4, CAN_parser_std_Rinehart},
+		{CAN_ID_OFFSET2+0x08, STD, 0, "2_Flux_Info", FLUXINF_map, 4, CAN_parser_std_Rinehart},
+		{CAN_ID_OFFSET2+0x09, STD, 0, "2_Internal_Volt", INTVOLT_map, 4, CAN_parser_std_Rinehart},
+		{CAN_ID_OFFSET2+0x0A, STD, 0, "2_Internal_States", NULL, 0, CAN_parser_INTST},
+		{CAN_ID_OFFSET2+0x0B, STD, 0, "2_Fault_Codes", FAULTCODES_map, 4, CAN_parser_std_Rinehart},
+		{CAN_ID_OFFSET2+0x0C, STD, 0, "2_Torque_Timer_Info", TORQTIM_map, 3, CAN_parser_std_Rinehart},
+		{CAN_ID_OFFSET2+0x0D, STD, 0, "2_Mod_Indx_FluxWeak", MODFLUX_map, 4, CAN_parser_std_Rinehart},
+		{CAN_ID_OFFSET2+0x0E, STD, 0, "2_Firm_Info", FIRMINF_map, 4, CAN_parser_std_Rinehart},
+		{CAN_ID_OFFSET2+0x0F, STD, 0, "2_Diagnostic", NULL, 0, CAN_parser_DIAGNOSTIC},
 
 };
 
@@ -290,11 +292,42 @@ void CAN_Send(queue_msg_t Tx_msg)
 }
 
 /**
- * @brief standard parser for unpacking CAN functions into CAN_inputs table (big endian)
+ * @brief standard parser for unpacking CAN functions into CAN_inputs table (big endian to big endian)
  * @param q_msg: incoming CAN message
  * @param CAN_msg: reference message from CAN_dict w/ message metadata
  */
 static void CAN_parser_std(queue_msg_t q_msg, uint8_t CAN_idx)
+{
+	volatile int FLAG = 0;
+	/* iterate over all inputs in data field */
+	for (int i = 0; i < CAN_dict[CAN_idx].num_inputs; i++)
+	{
+		uint32_t result = 0;
+		input_map_t input = CAN_dict[CAN_idx].input_map[i];
+
+		/* iterate over all bytes of input */
+		for (int j = 0; j < input.size; j++)
+		{
+			result = result << 8 | (uint32_t) (q_msg.data._8[input.start_byte + j] << input.start_bit);
+		}
+
+
+		xSemaphoreTake(CAN_Inputs_Vector_Mutex, portMAX_DELAY);	//get CAN inputs mutex
+
+		/* store result in CAN_inputs table */
+		CAN_inputs[input.index] = result;
+
+		xSemaphoreGive(CAN_Inputs_Vector_Mutex);	//give CAN inputs mutex
+	}
+}
+
+
+/**
+ * @brief standard parser for unpacking Rinehart messages (and other little endian messages) into CAN_inputs table (little endian to big endian)
+ * @param q_msg: incoming CAN message
+ * @param CAN_msg: reference message from CAN_dict w/ message metadata
+ */
+static void CAN_parser_std_Rinehart(queue_msg_t q_msg, uint8_t CAN_idx)
 {
 	volatile int FLAG = 0;
 	/* iterate over all inputs in data field */
@@ -308,13 +341,13 @@ static void CAN_parser_std(queue_msg_t q_msg, uint8_t CAN_idx)
 		if( (CAN_ID_OFFSET2 <= CAN_dict[CAN_idx].msg_ID) & (CAN_dict[CAN_idx].msg_ID <= (CAN_ID_OFFSET2 +0x0F)))
 		{
 			//Set the offset variable to the number of CAN inputs from one Rinehart
-			offset = DIAGNOSTIC_DATA - MODULE_A_TEMP + 1;
+			offset = DIAGNOSTIC_DATA_HI - MODULE_A_TEMP + 1;
 
 		}
 
 
 		/* iterate over all bytes of input */
-		for (int j = 0; j < input.size; j++)
+		for (int j = input.size - 1; j >=0; j++)
 		{
 			result = result << 8 | (uint32_t) (q_msg.data._8[input.start_byte + j] << input.start_bit);
 		}
@@ -328,6 +361,7 @@ static void CAN_parser_std(queue_msg_t q_msg, uint8_t CAN_idx)
 		xSemaphoreGive(CAN_Inputs_Vector_Mutex);	//give CAN inputs mutex
 	}
 }
+
 
 /**
  * @brief special parser for EMUS1 CAN message
@@ -346,8 +380,107 @@ static void CAN_parser_EMUS1(queue_msg_t q_msg, uint8_t CAN_idx)
 	xSemaphoreGive(CAN_Inputs_Vector_Mutex);	//give CAN inputs mutex
 }
 
+/**
+ * @brief special parser for Rinehart pm-100 Analog Input Voltages broadcast messages
+ * @param q_msg: incoming CAN message
+ * @param CAN_msg: reference message from CAN_dict w/ message metadata
+ */
+static void CAN_parser_ANALOGVOLT(queue_msg_t q_msg, uint8_t CAN_idx){
+
+	int offset = 0;
+	//Set a offset variable if the message is from Rinehart pm100 2
+	if( (CAN_ID_OFFSET2 <= CAN_dict[CAN_idx].msg_ID) & (CAN_dict[CAN_idx].msg_ID <= (CAN_ID_OFFSET2 +0x0F))){
+		//Set the offset variable to the number of CAN inputs from one Rinehart
+		offset = DIAGNOSTIC_DATA_HI - MODULE_A_TEMP + 1;
+
+	}
+
+	xSemaphoreTake(CAN_Inputs_Vector_Mutex, portMAX_DELAY);	//get CAN inputs mutex
 
 
+
+	//store individual analog inputs in CAN_inputs array
+
+	//seperate the inputs into the first 32 and second 32 bits
+	uint32_t first32bits = (uint32_t) q_msg.data._8[4] << 24 | (uint32_t) q_msg.data._8[5] << 16 | (uint32_t) q_msg.data._8[6] << 8 | (uint32_t) q_msg.data._8[7];
+	uint32_t second32bits = (uint32_t) q_msg.data._8[0] << 24 | (uint32_t) q_msg.data._8[1] << 16 | (uint32_t) q_msg.data._8[2] << 8 | (uint32_t) q_msg.data._8[3];
+
+
+	//do inputs 1 - 3
+	for(int i = 0; i<3; i++){
+		uint32_t temp = first32bits << 22;
+		ANALOG_INPUT_1 + offset + i = temp >> 22;
+		first32bits = first32bits >> 10;
+
+	}
+
+	//do inputs 4-7
+	for(int i = 0; i<3; i++){
+		uint32_t temp = second32bits << 22;
+		ANALOG_INPUT_4 + offset + i = temp >> 22;
+		second32bits = second32bits >> 10;
+
+	}
+
+	xSemaphoreGive(CAN_Inputs_Vector_Mutex);	//give CAN inputs mutex
+}
+/**
+ * @brief special parser for Rinehart pm-100 INTERNAL STATUS broadcast messages
+ * @param q_msg: incoming CAN message
+ * @param CAN_msg: reference message from CAN_dict w/ message metadata
+ */
+
+static void CAN_parser_INTST(queue_msg_t q_msg, uint8_t CAN_idx){
+
+	int offset = 0;
+	//Set a offset variable if the message is from Rinehart pm100 2
+	if( (CAN_ID_OFFSET2 <= CAN_dict[CAN_idx].msg_ID) & (CAN_dict[CAN_idx].msg_ID <= (CAN_ID_OFFSET2 +0x0F))){
+		//Set the offset variable to the number of CAN inputs from one Rinehart
+		offset = DIAGNOSTIC_DATA_HI - MODULE_A_TEMP + 1;
+
+	}
+
+	xSemaphoreTake(CAN_Inputs_Vector_Mutex, portMAX_DELAY);	//get CAN inputs mutex
+
+
+	CAN_inputs[VSM_STATE+offset] = (uint32_t) q_msg.data._8[1] << 8 | (uint32_t) q_msg.data._8[0];
+	CAN_inputs[INVERTER_STATE+offset] = (uint32_t) q_msg.data._8[2];
+	CAN_inputs[RELAY_STATE+offset] = (uint32_t) q_msg.data._8[3];
+	CAN_inputs[INVERTER_RUN_MODE + offset] = (uint32_t) (1 & q_msg.data._8[4]);
+	CAN_inputs[INVERTER_ACTIVE_DISCHARGE_STATE + offset] = (uint32_t) (0xE0 & q_msg.data._8[4]) >> 5; //TODO: ask leina if this works
+	CAN_inputs[INVERTER_COMMAND_MODE + offset] = (uint32_t) q_msg.data._8[5];
+	CAN_inputs[INVERTER_ENABLE_STATE + offset] = (uint32_t) (1 & q_msg.data._8[6]);
+	CAN_inputs[INVERTER_ENABLE_LOCKOUT + offset] = (uint32_t) (1 & (q_msg.data._8[6]>>7));
+	CAN_inputs[DIRECTION_COMMAND + offset] = (uint32_t) (1 & (q_msg.data._8[7]>>0));
+	CAN_inputs[BMS_ACTIVE + offset] = (uint32_t) (1 & (q_msg.data._8[7]>>1));
+	CAN_inputs[BMS_LIMITING_TORQUE + offset] = (uint32_t) (1 & (q_msg.data._8[7]>>2));
+
+	xSemaphoreGive(CAN_Inputs_Vector_Mutex);	//give CAN inputs mutex
+}
+
+
+/**
+ * @brief special parser for Rinehart pm-100 DIAGNOSTIC broadcast messages
+ * @param q_msg: incoming CAN message
+ * @param CAN_msg: reference message from CAN_dict w/ message metadata
+ */
+static void CAN_parser_DIAGNOSTIC(queue_msg_t q_msg, uint8_t CAN_idx){
+
+	int offset = 0;
+	//Set a offset variable if the message is from Rinehart pm100 2
+	if( (CAN_ID_OFFSET2 <= CAN_dict[CAN_idx].msg_ID) & (CAN_dict[CAN_idx].msg_ID <= (CAN_ID_OFFSET2 +0x0F))){
+		//Set the offset variable to the number of CAN inputs from one Rinehart
+		offset = DIAGNOSTIC_DATA_HI - MODULE_A_TEMP + 1;
+
+	}
+	xSemaphoreTake(CAN_Inputs_Vector_Mutex, portMAX_DELAY);	//get CAN inputs mutex
+
+	CAN_inputs[DIAGNOSTIC_DATA_LO+offset] = (uint32_t) q_msg.data._8[0] << 24 | (uint32_t) q_msg.data._8[1] << 16 |(uint32_t) q_msg.data._8[2] << 8 | (uint32_t) q_msg.data._8[3];
+
+	CAN_inputs[DIAGNOSTIC_DATA_LO+offset] = (uint32_t) q_msg.data._8[4] << 24 | (uint32_t) q_msg.data._8[5] << 16 |(uint32_t) q_msg.data._8[6] << 8 | (uint32_t) q_msg.data._8[7];
+
+	xSemaphoreGive(CAN_Inputs_Vector_Mutex);	//give CAN inputs mutex
+}
 
 
 
