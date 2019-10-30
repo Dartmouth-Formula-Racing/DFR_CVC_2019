@@ -67,6 +67,10 @@
 #define EXT							CAN_ID_EXT
 #define RTR							CAN_RTR_DATA
 
+//Definitions for pm100 inputs table offsets
+
+#define OFFSET_BEGIN				MODULE_A_TEMP
+#define OFFSET_END					PARAMETER_RESPONSE_DATA
 
 /* Type Definitions ------------------------------------------------------------------------*/
 
@@ -160,6 +164,9 @@ typedef enum CAN_input_e
 	DATE_CODE_YY,
 	DIAGNOSTIC_DATA_LO,
 	DIAGNOSTIC_DATA_HI,
+	PARAMETER_RESPONSE_ADDRESS, //address stores the address of the parameter and the success or not byte
+	PARAMETER_RESPONSE_DATA, //update the OFFSET_END macro when changing the var at this location
+
 	//second drive inverter, pm-100, Rinehart
 	MODULE_A_TEMP_2,
 	MODULE_B_TEMP_2,
@@ -235,6 +242,8 @@ typedef enum CAN_input_e
 	DATE_CODE_YY_2,
 	DIAGNOSTIC_DATA_LO_2,
 	DIAGNOSTIC_DATA_HI_2,
+	PARAMETER_RESPONSE_ADDRESS_2,
+	PARAMETER_RESPONSE_DATA_2,
 
 	NUM_INPUTS,			// 32, Must be last!
 

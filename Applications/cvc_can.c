@@ -165,6 +165,13 @@ input_map_t FIRMINF_map[] =
 		{DATE_CODE_YY, 6, 0,2},
 };
 
+input_map_t PARAMETER_RESPONSE_map[] =
+{
+
+		{PARAMETER_RESPONSE_ADDRESS, 0, 0 ,3},
+		{PARAMETER_RESPONSE_DATA, 4, 0,2},
+
+};
 /* CAN message dictionary */
 static CAN_msg_t CAN_dict[]	=
 {
@@ -193,6 +200,7 @@ static CAN_msg_t CAN_dict[]	=
 		{CAN_ID_OFFSET1+0x0D, STD, 0, "1_Mod_Indx_FluxWeak", MODFLUX_map, 4, CAN_parser_std_Rinehart},
 		{CAN_ID_OFFSET1+0x0E, STD, 0, "1_Firm_Info", FIRMINF_map, 4, CAN_parser_std_Rinehart},
 		{CAN_ID_OFFSET1+0x0F, STD, 0, "1_Diagnostic", NULL, 0, CAN_parser_DIAGNOSTIC},
+		{CAN_ID_OFFSET1+0x22, STD, 0, "1_Parameter_Response", PARAMETER_RESPONSE_map, 0, CAN_parser_std_Rinehart},
 
 		//Rinehart pm-100 messages #2
 		{CAN_ID_OFFSET2+0x00, STD, 0, "2_Temp_1", TEMP1_map, 4, CAN_parser_std_Rinehart},
@@ -211,6 +219,7 @@ static CAN_msg_t CAN_dict[]	=
 		{CAN_ID_OFFSET2+0x0D, STD, 0, "2_Mod_Indx_FluxWeak", MODFLUX_map, 4, CAN_parser_std_Rinehart},
 		{CAN_ID_OFFSET2+0x0E, STD, 0, "2_Firm_Info", FIRMINF_map, 4, CAN_parser_std_Rinehart},
 		{CAN_ID_OFFSET2+0x0F, STD, 0, "2_Diagnostic", NULL, 0, CAN_parser_DIAGNOSTIC},
+		{CAN_ID_OFFSET2+0x22, STD, 0, "2_Parameter_Response", PARAMETER_RESPONSE_map, 0, CAN_parser_std_Rinehart},
 
 };
 
@@ -341,7 +350,7 @@ static void CAN_parser_std_Rinehart(queue_msg_t q_msg, uint8_t CAN_idx)
 		if( (CAN_ID_OFFSET2 <= CAN_dict[CAN_idx].msg_ID) & (CAN_dict[CAN_idx].msg_ID <= (CAN_ID_OFFSET2 +0x0F)))
 		{
 			//Set the offset variable to the number of CAN inputs from one Rinehart
-			offset = DIAGNOSTIC_DATA_HI - MODULE_A_TEMP + 1;
+			offset = OFFSET_END - OFFSET_BEGIN + 1;
 
 		}
 
@@ -391,7 +400,7 @@ static void CAN_parser_ANALOGVOLT(queue_msg_t q_msg, uint8_t CAN_idx){
 	//Set a offset variable if the message is from Rinehart pm100 2
 	if( (CAN_ID_OFFSET2 <= CAN_dict[CAN_idx].msg_ID) & (CAN_dict[CAN_idx].msg_ID <= (CAN_ID_OFFSET2 +0x0F))){
 		//Set the offset variable to the number of CAN inputs from one Rinehart
-		offset = DIAGNOSTIC_DATA_HI - MODULE_A_TEMP + 1;
+		offset = OFFSET_END - OFFSET_BEGIN + 1;
 
 	}
 
@@ -436,7 +445,7 @@ static void CAN_parser_INTST(queue_msg_t q_msg, uint8_t CAN_idx){
 	//Set a offset variable if the message is from Rinehart pm100 2
 	if( (CAN_ID_OFFSET2 <= CAN_dict[CAN_idx].msg_ID) & (CAN_dict[CAN_idx].msg_ID <= (CAN_ID_OFFSET2 +0x0F))){
 		//Set the offset variable to the number of CAN inputs from one Rinehart
-		offset = DIAGNOSTIC_DATA_HI - MODULE_A_TEMP + 1;
+		offset = OFFSET_END - OFFSET_BEGIN + 1;
 
 	}
 
@@ -470,7 +479,7 @@ static void CAN_parser_DIAGNOSTIC(queue_msg_t q_msg, uint8_t CAN_idx){
 	//Set a offset variable if the message is from Rinehart pm100 2
 	if( (CAN_ID_OFFSET2 <= CAN_dict[CAN_idx].msg_ID) & (CAN_dict[CAN_idx].msg_ID <= (CAN_ID_OFFSET2 +0x0F))){
 		//Set the offset variable to the number of CAN inputs from one Rinehart
-		offset = DIAGNOSTIC_DATA_HI - MODULE_A_TEMP + 1;
+		offset = OFFSET_END - OFFSET_BEGIN + 1;
 
 	}
 	xSemaphoreTake(CAN_Inputs_Vector_Mutex, portMAX_DELAY);	//get CAN inputs mutex
