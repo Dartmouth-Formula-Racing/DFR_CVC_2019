@@ -418,7 +418,7 @@ static void CAN_parser_ANALOGVOLT(queue_msg_t q_msg, uint8_t CAN_idx){
 	//do inputs 1 - 3
 	for(int i = 0; i<3; i++){
 		uint32_t temp = first32bits << 22;
-		ANALOG_INPUT_1 + offset + i = temp >> 22;
+		CAN_inputs[ANALOG_INPUT_1 + offset + i] = temp >> 22;
 		first32bits = first32bits >> 10;
 
 	}
@@ -426,7 +426,7 @@ static void CAN_parser_ANALOGVOLT(queue_msg_t q_msg, uint8_t CAN_idx){
 	//do inputs 4-7
 	for(int i = 0; i<3; i++){
 		uint32_t temp = second32bits << 22;
-		ANALOG_INPUT_4 + offset + i = temp >> 22;
+		CAN_inputs[ANALOG_INPUT_4 + offset + i] = temp >> 22;
 		second32bits = second32bits >> 10;
 
 	}

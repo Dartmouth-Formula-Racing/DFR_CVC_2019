@@ -69,8 +69,8 @@
 
 //Definitions for pm100 inputs table offsets
 
-#define OFFSET_BEGIN				MODULE_A_TEMP
-#define OFFSET_END					PARAMETER_RESPONSE_DATA
+#define OFFSET_BEGIN				10 //MODULE_A_TEMP //TODO: ask leina whether this is good
+#define OFFSET_END					85 //PARAMETER_RESPONSE_DATA
 
 /* Type Definitions ------------------------------------------------------------------------*/
 

@@ -86,7 +86,7 @@ void parameter_write_command_2(uint16_t parameter_address, uint16_t data)
  * @param parameter_address the Parameter Address for the message
  *
  */
-void parameter_write_command_1(uint16_t parameter_address)
+void parameter_read_command_1(uint16_t parameter_address)
 {
 
 	pm100_parameter_read_msg_1.data._8[0] = (parameter_address & 0x00FF);
@@ -100,7 +100,7 @@ void parameter_write_command_1(uint16_t parameter_address)
  * @brief a way to send parameter read messages to rinehart 2
  * @param parameter_address the Parameter Address for the message
  */
-void parameter_write_command_2(uint16_t parameter_address)
+void parameter_read_command_2(uint16_t parameter_address)
 {
 
 	pm100_parameter_read_msg_2.data._8[0] = (parameter_address & 0x00FF);
@@ -159,3 +159,5 @@ void command_msg_2(uint16_t torque_command, uint16_t speed_command, uint8_t dire
 
 	CAN_Send(pm100_command_msg_2);
 }
+
+void pm100_torque_command(uint16_t torque_command, unint8_t direction_command,

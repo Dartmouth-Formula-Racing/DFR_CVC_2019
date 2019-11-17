@@ -26,24 +26,16 @@ static uint32_t rbytes; /* File read counts */
 static uint8_t n_outputs;	/* number of outputs to log */
 static uint32_t n_writes = 0;	/* number of writes since power cycle */
 
+//TODO: add logging for pm100s
 /* CAN inputs to log */
 CAN_input_t CAN_logging[] =
 {
-	BAMO_BUS_VOLTAGE,
-	MOTOR_RPM,
-	MOTOR_CURRENT,
-	MOTOR_TORQUE,
-	MOTOR_VOLTAGE,
-	MOTOR_TEMP,
-	ENG_RPM,
-	ENG_TPS,
-	ENG_TEMP,
-	AIR_TEMP,
+
 	BATT_VOLTAGE,
 	BATT_CURRENT
 };
 
-char * header = "TICKS,BAMO_BUS_VOLTAGE,MOTOR_RPM,MOTOR_CURRENT,MOTOR_TORQUE,MOTOR_VOLTAGE,MOTOR_TEMP,ENG_RPM,ENG_TPS,ENG_TEMP,AIR_TEMP,BATT_VOLTAGE,BATT_CURRENT\n";	/* labels for file contents (separate by commas for csv */
+char * header = "TICKS,BATT_VOLTAGE,BATT_CURRENT\n";	/* labels for file contents (separate by commas for csv */
 
 /* Functions ------------------------------------------------------------------*/
 
