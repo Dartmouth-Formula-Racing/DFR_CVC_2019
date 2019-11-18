@@ -410,9 +410,9 @@ static void CAN_parser_ANALOGVOLT(queue_msg_t q_msg, uint8_t CAN_idx){
 
 	//store individual analog inputs in CAN_inputs array
 
-	//seperate the inputs into the first 32 and second 32 bits
-	uint32_t first32bits = (uint32_t) q_msg.data._8[4] << 24 | (uint32_t) q_msg.data._8[5] << 16 | (uint32_t) q_msg.data._8[6] << 8 | (uint32_t) q_msg.data._8[7];
-	uint32_t second32bits = (uint32_t) q_msg.data._8[0] << 24 | (uint32_t) q_msg.data._8[1] << 16 | (uint32_t) q_msg.data._8[2] << 8 | (uint32_t) q_msg.data._8[3];
+	//seperate the inputs into the first 32 and second 32 bits in order (... 8 7 6 5 4 3 2 1 0) instead (7 6 5 4 3 2 1 0 8 ...)
+	uint32_t first32bits = (uint32_t) q_msg.data._8[3] << 24 | (uint32_t) q_msg.data._8[2] << 16 | (uint32_t) q_msg.data._8[1] << 8 | (uint32_t) q_msg.data._8[0];
+	uint32_t second32bits = (uint32_t) q_msg.data._8[7] << 24 | (uint32_t) q_msg.data._8[6] << 16 | (uint32_t) q_msg.data._8[5] << 8 | (uint32_t) q_msg.data._8[4];
 
 
 	//do inputs 1 - 3
