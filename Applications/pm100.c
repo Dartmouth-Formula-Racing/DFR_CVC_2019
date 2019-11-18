@@ -9,6 +9,7 @@
 #include "pm100.h"
 
 
+
 /* pm100 Command Message*/
 queue_msg_t pm100_command_msg_1 =
 {
@@ -160,4 +161,37 @@ void command_msg_2(uint16_t torque_command, uint16_t speed_command, uint8_t dire
 	CAN_Send(pm100_command_msg_2);
 }
 
-void pm100_torque_command(uint16_t torque_command, unint8_t direction_command,
+/* @brief a way to send torque messages to rinehart 1 (will disable lockout if lockout is enabled by sending empty message)
+ * @param torque_command the torque command to send in N*m times 10 (does parsing locally)
+ * @param direction_command either one or zero (see documentation for use with brake regen)
+ */
+void pm100_torque_command_1(uint16_t torque_command, uint8_t direction_command){
+	xSemaphoreTake(CAN_Inputs_Vector_Mutex, portMAX_DELAY);
+	if(CAN_inputs[INVERTER_ENABLE_LOCKOUT] == 1){
+		command_msg_1(0,0,0,0,0,0,0);
+	}
+	else{
+		command_msg_1(torque_command, 0, direction_command, 1, 0, 0, 0);
+	}
+	xSemaphoreGive(CAN_Inputs_Vector_Mutex);
+
+
+}
+
+
+/* @brief a way to send torque messages to rinehart 2 (will disable lockout if lockout is enabled by sending empty message)
+ * @param torque_command the torque command to send in N*m times 10 (does parsing locally)
+ * @param direction_command either one or zero (see documentation for use with brake regen)
+ */
+void pm100_torque_command_2(uint16_t torque_command, uint8_t direction_command){
+	xSemaphoreTake(CAN_Inputs_Vector_Mutex, portMAX_DELAY);
+	if(CAN_inputs[INVERTER_ENABLE_LOCKOUT_2] == 1){
+		command_msg_2(0,0,0,0,0,0,0);
+	}
+	else{
+		command_msg_2(torque_command, 0, direction_command, 1, 0, 0, 0);
+	}
+	xSemaphoreGive(CAN_Inputs_Vector_Mutex);
+
+
+}
