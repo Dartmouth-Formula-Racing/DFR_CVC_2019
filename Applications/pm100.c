@@ -160,4 +160,4 @@ void command_msg_2(uint16_t torque_command, uint16_t speed_command, uint8_t dire
 	CAN_Send(pm100_command_msg_2);
 }
 
-void pm100_torque_command(uint16_t torque_command, unint8_t direction_command,
+
