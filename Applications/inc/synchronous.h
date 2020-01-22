@@ -15,7 +15,6 @@
 #include "task.h"
 #include "cvc_spi.h"
 #include "semphr.h"
-#include "cvc_state_machine.h"
 #include "torque_command.h"
 #include "cvc_logging.h"
 

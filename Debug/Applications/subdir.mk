@@ -4,15 +4,12 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
-../Applications/bamocar.c \
 ../Applications/cvc_can.c \
 ../Applications/cvc_logging.c \
 ../Applications/cvc_sd.c \
 ../Applications/cvc_spi.c \
-../Applications/cvc_state_machine.c \
 ../Applications/cvc_tasks.c \
 ../Applications/demo.c \
-../Applications/ice.c \
 ../Applications/main.c \
 ../Applications/pm100.c \
 ../Applications/stm32f7xx_it.c \
@@ -22,15 +19,12 @@ C_SRCS += \
 ../Applications/torque_command.c 
 
 OBJS += \
-./Applications/bamocar.o \
 ./Applications/cvc_can.o \
 ./Applications/cvc_logging.o \
 ./Applications/cvc_sd.o \
 ./Applications/cvc_spi.o \
-./Applications/cvc_state_machine.o \
 ./Applications/cvc_tasks.o \
 ./Applications/demo.o \
-./Applications/ice.o \
 ./Applications/main.o \
 ./Applications/pm100.o \
 ./Applications/stm32f7xx_it.o \
@@ -40,15 +34,12 @@ OBJS += \
 ./Applications/torque_command.o 
 
 C_DEPS += \
-./Applications/bamocar.d \
 ./Applications/cvc_can.d \
 ./Applications/cvc_logging.d \
 ./Applications/cvc_sd.d \
 ./Applications/cvc_spi.d \
-./Applications/cvc_state_machine.d \
 ./Applications/cvc_tasks.d \
 ./Applications/demo.d \
-./Applications/ice.d \
 ./Applications/main.d \
 ./Applications/pm100.d \
 ./Applications/stm32f7xx_it.d \

@@ -16,23 +16,5 @@ float tps_percentage = 0.0f;
 
 void torque_command(void)
 {
-	ICE_tps = CAN_inputs[ENG_TPS];
-
-	tps_percentage = (ICE_tps - LOWER_TPS_LIMIT)/(UPPER_TPS_LIMIT - LOWER_TPS_LIMIT);
-
-	if (tps_percentage >= 1)
-	{
-		tps_percentage = 1;
-	}
-	else if (tps_percentage <= 0)
-	{
-		tps_percentage = 0;
-	}
-
-	calc_torque = tps_percentage*OFFSET_MAX*MULTIPLIER;
-
-	torque_cmd = calc_torque;
-
-	bamo_torque_command(torque_cmd);
 
 }

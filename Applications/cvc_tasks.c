@@ -11,7 +11,7 @@
 #include "cvc_can.h"
 #include "cvc_spi.h"
 #include "synchronous.h"
-#include "cvc_state_machine.h"
+
 #include "stm32f7xx_nucleo_144.h"
 
 /* Defines -------------------------------------------------------------------*/
@@ -41,7 +41,7 @@ void initTaskCreate(void)
 {
 	if (xTaskCreate(init.function, init.name, init.stackSize, init.parameters, init.priority, init.handle) != pdPASS)
 	{
-		init_fault_handler();
+
 	}
 }
 
@@ -66,12 +66,12 @@ void Init_Task(void *parameters)
 		/* Create functional tasks */
 		if (taskCreateAll() != pdPASS)
 		{
-			init_fault_handler();
+
 		}
 	}
 	else
 	{
-		init_fault_handler();
+
 	}
 
 	/* delete task */

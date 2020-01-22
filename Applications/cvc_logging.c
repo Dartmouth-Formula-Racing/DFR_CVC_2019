@@ -269,7 +269,7 @@ void log_data(void)
 	if(f_write(&LogFile, pbuff, i, (void *)&wbytes) != FR_OK)
 	{
 		f_close(&LogFile);
-		cvc_error_handler(CVC_WARNING, LOGGING_ERR);
+		BSP_LED_On(LED_RED);
 	}
 
 	/* increase number of writes */
@@ -319,13 +319,13 @@ void copy_file(void)
 			{
 				f_close(&LogFile);
 				f_close(&CopyFile);
-				cvc_error_handler(CVC_WARNING, LOGGING_ERR);
+				BSP_LED_On(LED_RED);
 			}
 			if(f_write(&CopyFile, pbuff, rbytes, (void *)&wbytes) != FR_OK)
 			{
 				f_close(&LogFile);
 				f_close(&CopyFile);
-				cvc_error_handler(CVC_WARNING, LOGGING_ERR);
+				BSP_LED_On(LED_RED);
 			}
 		}
 
@@ -336,7 +336,7 @@ void copy_file(void)
 	}
 	else
 	{
-		cvc_error_handler(CVC_WARNING, LOGGING_ERR);
+		BSP_LED_On(LED_RED);
 	}
 }
 

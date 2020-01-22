@@ -100,21 +100,7 @@ Applications/cvc_logging.o: ../Applications/cvc_logging.c \
  /Users/benjamin/git/DFR_CVC/Middlewares/FatFs/src/drivers/sd_diskio_dma.h \
  /Users/benjamin/git/DFR_CVC/Applications/inc/cvc_can.h \
  /Users/benjamin/git/DFR_CVC/Drivers/HAL_Driver/Inc/stm32f7xx_hal_can.h \
- /Users/benjamin/git/DFR_CVC/Applications/inc/cvc_config.h \
- /Users/benjamin/git/DFR_CVC/Applications/inc/cvc_state_machine.h \
- /Users/benjamin/git/DFR_CVC/Applications/inc/cvc_spi.h \
- /Users/benjamin/git/DFR_CVC/Drivers/HAL_Driver/Inc/stm32f7xx_ll_bus.h \
- /Users/benjamin/git/DFR_CVC/Drivers/HAL_Driver/Inc/stm32f7xx_ll_rcc.h \
- /Users/benjamin/git/DFR_CVC/Drivers/HAL_Driver/Inc/stm32f7xx_ll_system.h \
- /Users/benjamin/git/DFR_CVC/Drivers/HAL_Driver/Inc/stm32f7xx_ll_utils.h \
- /Users/benjamin/git/DFR_CVC/Drivers/HAL_Driver/Inc/stm32f7xx_ll_gpio.h \
- /Users/benjamin/git/DFR_CVC/Drivers/HAL_Driver/Inc/stm32f7xx_ll_exti.h \
- /Users/benjamin/git/DFR_CVC/Drivers/HAL_Driver/Inc/stm32f7xx_ll_spi.h \
- /Users/benjamin/git/DFR_CVC/Drivers/HAL_Driver/Inc/stm32f7xx_ll_pwr.h \
- /Users/benjamin/git/DFR_CVC/Applications/inc/stm32f7xx_it.h \
- /Users/benjamin/git/DFR_CVC/Applications/inc/bamocar.h \
- /Users/benjamin/git/DFR_CVC/Applications/inc/ice.h \
- /Users/benjamin/git/DFR_CVC/Applications/inc/cvc_logging.h
+ /Users/benjamin/git/DFR_CVC/Applications/inc/cvc_config.h
 
 /Users/benjamin/git/DFR_CVC/Applications/inc/cvc_logging.h:
 
@@ -319,31 +305,3 @@ Applications/cvc_logging.o: ../Applications/cvc_logging.c \
 /Users/benjamin/git/DFR_CVC/Drivers/HAL_Driver/Inc/stm32f7xx_hal_can.h:
 
 /Users/benjamin/git/DFR_CVC/Applications/inc/cvc_config.h:
-
-/Users/benjamin/git/DFR_CVC/Applications/inc/cvc_state_machine.h:
-
-/Users/benjamin/git/DFR_CVC/Applications/inc/cvc_spi.h:
-
-/Users/benjamin/git/DFR_CVC/Drivers/HAL_Driver/Inc/stm32f7xx_ll_bus.h:
-
-/Users/benjamin/git/DFR_CVC/Drivers/HAL_Driver/Inc/stm32f7xx_ll_rcc.h:
-
-/Users/benjamin/git/DFR_CVC/Drivers/HAL_Driver/Inc/stm32f7xx_ll_system.h:
-
-/Users/benjamin/git/DFR_CVC/Drivers/HAL_Driver/Inc/stm32f7xx_ll_utils.h:
-
-/Users/benjamin/git/DFR_CVC/Drivers/HAL_Driver/Inc/stm32f7xx_ll_gpio.h:
-
-/Users/benjamin/git/DFR_CVC/Drivers/HAL_Driver/Inc/stm32f7xx_ll_exti.h:
-
-/Users/benjamin/git/DFR_CVC/Drivers/HAL_Driver/Inc/stm32f7xx_ll_spi.h:
-
-/Users/benjamin/git/DFR_CVC/Drivers/HAL_Driver/Inc/stm32f7xx_ll_pwr.h:
-
-/Users/benjamin/git/DFR_CVC/Applications/inc/stm32f7xx_it.h:
-
-/Users/benjamin/git/DFR_CVC/Applications/inc/bamocar.h:
-
-/Users/benjamin/git/DFR_CVC/Applications/inc/ice.h:
-
-/Users/benjamin/git/DFR_CVC/Applications/inc/cvc_logging.h:

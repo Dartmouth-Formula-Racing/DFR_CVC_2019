@@ -31,7 +31,7 @@
 
 /* CVC Includes */
 #include "cvc_can.h"
-#include "cvc_state_machine.h"
+
 
 
 /* Defines ------------------------------------------------------------------*/

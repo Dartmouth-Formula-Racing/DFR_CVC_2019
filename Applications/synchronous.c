@@ -7,6 +7,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "synchronous.h"
+#include "pm100.h"
 
 /**
   * @brief Fast synchronous task (100 Hz)
@@ -37,7 +38,8 @@ void _20_ms_Task(void * parameters)
 	while(1)
 	{
 		vTaskDelayUntil(&LastWakeTime, (TickType_t) 20/portTICK_PERIOD_MS);
-
+		log_data();
+		parameter_read_command_1(143);
 
 	}
 

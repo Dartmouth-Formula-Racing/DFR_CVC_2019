@@ -91,31 +91,9 @@ Applications/cvc_spi.o: ../Applications/cvc_spi.c \
  /Users/benjamin/git/DFR_CVC/Middlewares/FreeRTOS/Source/include/semphr.h \
  /Users/benjamin/git/DFR_CVC/Middlewares/FreeRTOS/Source/include/queue.h \
  /Users/benjamin/git/DFR_CVC/Applications/inc/cvc_config.h \
- /Users/benjamin/git/DFR_CVC/Applications/inc/cvc_state_machine.h \
- /Users/benjamin/git/DFR_CVC/Applications/inc/cvc_spi.h \
- /Users/benjamin/git/DFR_CVC/Applications/inc/cvc_can.h \
- /Users/benjamin/git/DFR_CVC/Drivers/HAL_Driver/Inc/stm32f7xx_hal_can.h \
- /Users/benjamin/git/DFR_CVC/Applications/inc/bamocar.h \
- /Users/benjamin/git/DFR_CVC/Applications/inc/ice.h \
- /Users/benjamin/git/DFR_CVC/Drivers/BSP/STM32F7xx_Nucleo_144/stm32f7xx_nucleo_144.h \
- /Users/benjamin/git/DFR_CVC/Applications/inc/cvc_logging.h \
  /Users/benjamin/git/DFR_CVC/Middlewares/FreeRTOS/Source/include/task.h \
  /Users/benjamin/git/DFR_CVC/Middlewares/FreeRTOS/Source/include/list.h \
- /Users/benjamin/git/DFR_CVC/Middlewares/FatFs/test/ff_test.h \
- /Users/benjamin/git/DFR_CVC/Middlewares/FatFs/src/diskio.h \
- /Users/benjamin/git/DFR_CVC/Middlewares/FatFs/src/integer.h \
- /Users/benjamin/git/DFR_CVC/Middlewares/FatFs/src/ff_gen_drv.h \
- /Users/benjamin/git/DFR_CVC/Middlewares/FatFs/src/diskio.h \
- /Users/benjamin/git/DFR_CVC/Middlewares/FatFs/src/ff.h \
- /Users/benjamin/git/DFR_CVC/Middlewares/FatFs/src/ffconf.h \
- /Users/benjamin/git/DFR_CVC/Middlewares/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.h \
- /Users/benjamin/git/DFR_CVC/Middlewares/FreeRTOS/Source/include/timers.h \
- /Users/benjamin/git/DFR_CVC/Middlewares/FreeRTOS/Source/include/task.h \
- /Users/benjamin/git/DFR_CVC/Middlewares/FreeRTOS/Source/include/queue.h \
- /Users/benjamin/git/DFR_CVC/Middlewares/FreeRTOS/Source/include/event_groups.h \
- /Users/benjamin/git/DFR_CVC/Middlewares/FreeRTOS/Source/include/timers.h \
- /Users/benjamin/git/DFR_CVC/Middlewares/FatFs/src/drivers/sd_diskio_dma.h \
- /Users/benjamin/git/DFR_CVC/Applications/inc/cvc_state_machine.h
+ /Users/benjamin/git/DFR_CVC/Middlewares/FreeRTOS/Source/include/queue.h
 
 /Users/benjamin/git/DFR_CVC/Applications/inc/cvc_spi.h:
 
@@ -301,52 +279,8 @@ Applications/cvc_spi.o: ../Applications/cvc_spi.c \
 
 /Users/benjamin/git/DFR_CVC/Applications/inc/cvc_config.h:
 
-/Users/benjamin/git/DFR_CVC/Applications/inc/cvc_state_machine.h:
-
-/Users/benjamin/git/DFR_CVC/Applications/inc/cvc_spi.h:
-
-/Users/benjamin/git/DFR_CVC/Applications/inc/cvc_can.h:
-
-/Users/benjamin/git/DFR_CVC/Drivers/HAL_Driver/Inc/stm32f7xx_hal_can.h:
-
-/Users/benjamin/git/DFR_CVC/Applications/inc/bamocar.h:
-
-/Users/benjamin/git/DFR_CVC/Applications/inc/ice.h:
-
-/Users/benjamin/git/DFR_CVC/Drivers/BSP/STM32F7xx_Nucleo_144/stm32f7xx_nucleo_144.h:
-
-/Users/benjamin/git/DFR_CVC/Applications/inc/cvc_logging.h:
-
 /Users/benjamin/git/DFR_CVC/Middlewares/FreeRTOS/Source/include/task.h:
 
 /Users/benjamin/git/DFR_CVC/Middlewares/FreeRTOS/Source/include/list.h:
 
-/Users/benjamin/git/DFR_CVC/Middlewares/FatFs/test/ff_test.h:
-
-/Users/benjamin/git/DFR_CVC/Middlewares/FatFs/src/diskio.h:
-
-/Users/benjamin/git/DFR_CVC/Middlewares/FatFs/src/integer.h:
-
-/Users/benjamin/git/DFR_CVC/Middlewares/FatFs/src/ff_gen_drv.h:
-
-/Users/benjamin/git/DFR_CVC/Middlewares/FatFs/src/diskio.h:
-
-/Users/benjamin/git/DFR_CVC/Middlewares/FatFs/src/ff.h:
-
-/Users/benjamin/git/DFR_CVC/Middlewares/FatFs/src/ffconf.h:
-
-/Users/benjamin/git/DFR_CVC/Middlewares/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.h:
-
-/Users/benjamin/git/DFR_CVC/Middlewares/FreeRTOS/Source/include/timers.h:
-
-/Users/benjamin/git/DFR_CVC/Middlewares/FreeRTOS/Source/include/task.h:
-
 /Users/benjamin/git/DFR_CVC/Middlewares/FreeRTOS/Source/include/queue.h:
-
-/Users/benjamin/git/DFR_CVC/Middlewares/FreeRTOS/Source/include/event_groups.h:
-
-/Users/benjamin/git/DFR_CVC/Middlewares/FreeRTOS/Source/include/timers.h:
-
-/Users/benjamin/git/DFR_CVC/Middlewares/FatFs/src/drivers/sd_diskio_dma.h:
-
-/Users/benjamin/git/DFR_CVC/Applications/inc/cvc_state_machine.h:

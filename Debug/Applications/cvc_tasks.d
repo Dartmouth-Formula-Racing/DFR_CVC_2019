@@ -104,7 +104,8 @@ Applications/cvc_tasks.o: ../Applications/cvc_tasks.c \
  /Users/benjamin/git/DFR_CVC/Applications/inc/cvc_can.h \
  /Users/benjamin/git/DFR_CVC/Drivers/HAL_Driver/Inc/stm32f7xx_hal_can.h \
  /Users/benjamin/git/DFR_CVC/Applications/inc/cvc_config.h \
- /Users/benjamin/git/DFR_CVC/Applications/inc/cvc_state_machine.h \
+ /Users/benjamin/git/DFR_CVC/Applications/inc/demo.h \
+ /Users/benjamin/git/DFR_CVC/Applications/inc/cvc_can.h \
  /Users/benjamin/git/DFR_CVC/Applications/inc/cvc_spi.h \
  /Users/benjamin/git/DFR_CVC/Drivers/HAL_Driver/Inc/stm32f7xx_ll_bus.h \
  /Users/benjamin/git/DFR_CVC/Drivers/HAL_Driver/Inc/stm32f7xx_ll_rcc.h \
@@ -115,14 +116,9 @@ Applications/cvc_tasks.o: ../Applications/cvc_tasks.c \
  /Users/benjamin/git/DFR_CVC/Drivers/HAL_Driver/Inc/stm32f7xx_ll_spi.h \
  /Users/benjamin/git/DFR_CVC/Drivers/HAL_Driver/Inc/stm32f7xx_ll_pwr.h \
  /Users/benjamin/git/DFR_CVC/Applications/inc/stm32f7xx_it.h \
- /Users/benjamin/git/DFR_CVC/Applications/inc/bamocar.h \
- /Users/benjamin/git/DFR_CVC/Applications/inc/ice.h \
- /Users/benjamin/git/DFR_CVC/Applications/inc/demo.h \
- /Users/benjamin/git/DFR_CVC/Applications/inc/cvc_can.h \
- /Users/benjamin/git/DFR_CVC/Applications/inc/cvc_spi.h \
  /Users/benjamin/git/DFR_CVC/Applications/inc/synchronous.h \
- /Users/benjamin/git/DFR_CVC/Applications/inc/torque_command.h \
- /Users/benjamin/git/DFR_CVC/Applications/inc/cvc_state_machine.h
+ /Users/benjamin/git/DFR_CVC/Applications/inc/cvc_spi.h \
+ /Users/benjamin/git/DFR_CVC/Applications/inc/torque_command.h
 
 /Users/benjamin/git/DFR_CVC/Applications/inc/cvc_tasks.h:
 
@@ -334,7 +330,9 @@ Applications/cvc_tasks.o: ../Applications/cvc_tasks.c \
 
 /Users/benjamin/git/DFR_CVC/Applications/inc/cvc_config.h:
 
-/Users/benjamin/git/DFR_CVC/Applications/inc/cvc_state_machine.h:
+/Users/benjamin/git/DFR_CVC/Applications/inc/demo.h:
+
+/Users/benjamin/git/DFR_CVC/Applications/inc/cvc_can.h:
 
 /Users/benjamin/git/DFR_CVC/Applications/inc/cvc_spi.h:
 
@@ -356,18 +354,8 @@ Applications/cvc_tasks.o: ../Applications/cvc_tasks.c \
 
 /Users/benjamin/git/DFR_CVC/Applications/inc/stm32f7xx_it.h:
 
-/Users/benjamin/git/DFR_CVC/Applications/inc/bamocar.h:
-
-/Users/benjamin/git/DFR_CVC/Applications/inc/ice.h:
-
-/Users/benjamin/git/DFR_CVC/Applications/inc/demo.h:
-
-/Users/benjamin/git/DFR_CVC/Applications/inc/cvc_can.h:
+/Users/benjamin/git/DFR_CVC/Applications/inc/synchronous.h:
 
 /Users/benjamin/git/DFR_CVC/Applications/inc/cvc_spi.h:
 
-/Users/benjamin/git/DFR_CVC/Applications/inc/synchronous.h:
-
 /Users/benjamin/git/DFR_CVC/Applications/inc/torque_command.h:
-
-/Users/benjamin/git/DFR_CVC/Applications/inc/cvc_state_machine.h:
