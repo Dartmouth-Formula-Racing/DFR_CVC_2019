@@ -255,8 +255,10 @@ void CAN_Rx_Task(void * parameters)
 		/* search through CAN dictionary until message is found */
 		while(i < sizeof(CAN_dict)/sizeof(CAN_msg_t) && !done)
 		{
+
 			if (Rx_msg.Rx_header.StdId == CAN_dict[i].msg_ID)
 			{
+
 					CAN_dict[i].parser(Rx_msg, i);	// call message parser
 					done = 1;
 
@@ -294,6 +296,7 @@ void CAN_Send(queue_msg_t Tx_msg)
 	/* TODO: check that CAN message is valid */
 	if (xQueueSend(TxQueue, &Tx_msg, portMAX_DELAY) != pdPASS)
 	{
+
 		BSP_LED_On(LED_RED);
 	}
 }
@@ -338,8 +341,11 @@ static void CAN_parser_std_Rinehart(queue_msg_t q_msg, uint8_t CAN_idx)
 {
 	volatile int FLAG = 0;
 	/* iterate over all inputs in data field */
+
+
 	for (int i = 0; i < CAN_dict[CAN_idx].num_inputs; i++)
 	{
+
 		uint32_t result = 0;
 		input_map_t input = CAN_dict[CAN_idx].input_map[i];
 		int offset = 0;
@@ -347,6 +353,7 @@ static void CAN_parser_std_Rinehart(queue_msg_t q_msg, uint8_t CAN_idx)
 		//Set a offset variable if the message is from Rinehart pm100 2
 		if( (CAN_ID_OFFSET2 <= CAN_dict[CAN_idx].msg_ID) & (CAN_dict[CAN_idx].msg_ID <= (CAN_ID_OFFSET2 +0x0F)))
 		{
+
 			//Set the offset variable to the number of CAN inputs from one Rinehart
 			offset = OFFSET_END - OFFSET_BEGIN + 1;
 
@@ -354,19 +361,19 @@ static void CAN_parser_std_Rinehart(queue_msg_t q_msg, uint8_t CAN_idx)
 
 
 		/* iterate over all bytes of input */
-		for (int j = input.size - 1; j >=0; j++)
+		for (int j = input.size - 1; j >=0; j--)
 		{
+
 			result = result << 8 | (uint32_t) (q_msg.data._8[input.start_byte + j] << input.start_bit);
 		}
 
-
-		xSemaphoreTake(CAN_Inputs_Vector_Mutex, portMAX_DELAY);	//get CAN inputs mutex
-
+		xSemaphoreTake(CAN_Inputs_Vector_Mutex, portMAX_DELAY);
 		/* store result in CAN_inputs table */
 		CAN_inputs[input.index + offset] = result;
 
 		xSemaphoreGive(CAN_Inputs_Vector_Mutex);	//give CAN inputs mutex
 	}
+
 }
 
 
@@ -610,6 +617,7 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 	/* Get RX message */
 	if (HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &(RxHeader), RxData) != HAL_OK)
 	{
+
 		BSP_LED_On(LED_RED);
 	}
 
@@ -620,6 +628,7 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 	}
 	if (xQueueSendFromISR(RxQueue, &Rx_msg, NULL) != pdPASS)
 	{
+
 		BSP_LED_On(LED_RED);
 	}
 

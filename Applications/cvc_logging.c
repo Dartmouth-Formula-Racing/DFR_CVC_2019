@@ -11,11 +11,11 @@
 
 /* Global Variables ------------------------------------------------------------------*/
 
-uint8_t LOG_FLAG = 1;
+uint8_t LOG_FLAG = 0;
 
 /* Private Global Variables ------------------------------------------------------------------*/
 
-static uint32_t buff[100U];
+static uint32_t buff[3000U];
 static FATFS SD_FatFs; /* File system object for User logical drive */
 static FIL LogFile; /* File object */
 static FIL CopyFile;
@@ -225,15 +225,19 @@ int logging_init()
 
 void log_data(void)
 {
+
 	char *pbuff = (char *) buff;
 
 	TickType_t ticks = xTaskGetTickCount();
+
 	uint8_t i = 0;
 
 	/* add header to buffer */
-	if (n_writes == 0)
-	{
+	if (n_writes == 0){
+
 		strcpy(pbuff+i, header);
+
+
 		i+=strlen(pbuff+i);
 	}
 
@@ -246,8 +250,10 @@ void log_data(void)
 	/* loop through logging outputs and add to buffer */
 	for (uint8_t j = 0; j < n_outputs; j++)
 	{
+
 		xSemaphoreTake(CAN_Inputs_Vector_Mutex, portMAX_DELAY);
 		utoa(CAN_inputs[CAN_logging[j]], pbuff+i, 10);
+
 		xSemaphoreGive(CAN_Inputs_Vector_Mutex);
 
 		i+=strlen(pbuff+i);
@@ -268,8 +274,10 @@ void log_data(void)
 	/* write data to file */
 	if(f_write(&LogFile, pbuff, i, (void *)&wbytes) != FR_OK)
 	{
+
 		f_close(&LogFile);
 		BSP_LED_On(LED_RED);
+
 	}
 
 	/* increase number of writes */

@@ -112,6 +112,7 @@ BaseType_t taskCreateAll()
 void vApplicationStackOverflowHook( TaskHandle_t xTask,
                                     signed char *pcTaskName )
 {
+
 	BSP_LED_On(LED_RED);
 	for(;;);
 }
