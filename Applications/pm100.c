@@ -61,8 +61,8 @@ void parameter_write_command_1(uint16_t parameter_address, uint16_t data)
 	pm100_parameter_write_msg_1.data._8[0] = (parameter_address & 0x00FF);
 	pm100_parameter_write_msg_1.data._8[1] = ((parameter_address & 0xFF00) >> 8);
 
-	pm100_parameter_write_msg_1.data._8[4] = ((parameter_address & 0xFF00) >> 8);
-	pm100_parameter_write_msg_1.data._8[5] = (parameter_address & 0x00FF);
+	pm100_parameter_write_msg_1.data._8[5] = ((data & 0xFF00) >> 8);
+	pm100_parameter_write_msg_1.data._8[4] = (data & 0x00FF);
 	CAN_Send(pm100_parameter_write_msg_1);
 }
 
@@ -77,8 +77,8 @@ void parameter_write_command_2(uint16_t parameter_address, uint16_t data)
 	pm100_parameter_write_msg_2.data._8[0] = (parameter_address & 0x00FF);
 	pm100_parameter_write_msg_2.data._8[1] = ((parameter_address & 0xFF00) >> 8);
 
-	pm100_parameter_write_msg_2.data._8[4] = ((parameter_address & 0xFF00) >> 8);
-	pm100_parameter_write_msg_2.data._8[5] = (parameter_address & 0x00FF);
+	pm100_parameter_write_msg_2.data._8[5] = ((data & 0xFF00) >> 8);
+	pm100_parameter_write_msg_2.data._8[4] = (data & 0x00FF);
 	CAN_Send(pm100_parameter_write_msg_2);
 }
 
@@ -168,12 +168,12 @@ void command_msg_2(uint16_t torque_command, uint16_t speed_command, uint8_t dire
  */
 void pm100_torque_command_1(uint16_t torque_command, uint8_t direction_command){
 	xSemaphoreTake(CAN_Inputs_Vector_Mutex, portMAX_DELAY);
-	if(CAN_inputs[INVERTER_ENABLE_LOCKOUT] == 1){
-		command_msg_1(0,0,0,0,0,0,0);
-	}
-	else{
+	//if(CAN_inputs[INVERTER_ENABLE_LOCKOUT] == 1){
+		//command_msg_1(0,0,0,0,0,0,0);
+	//}
+	//else{
 		command_msg_1(torque_command, 0, direction_command, 1, 0, 0, 0);
-	}
+	//}
 	xSemaphoreGive(CAN_Inputs_Vector_Mutex);
 
 

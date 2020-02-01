@@ -39,8 +39,8 @@ void _20_ms_Task(void * parameters)
 	{
 		vTaskDelayUntil(&LastWakeTime, (TickType_t) 20/portTICK_PERIOD_MS);
 
-		log_data();
-		parameter_read_command_1(143);
+
+		pm100_torque_command_1(100, 1);
 
 	}
 
