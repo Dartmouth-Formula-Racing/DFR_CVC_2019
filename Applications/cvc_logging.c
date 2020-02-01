@@ -15,7 +15,7 @@ uint8_t LOG_FLAG = 1;
 
 /* Private Global Variables ------------------------------------------------------------------*/
 
-static uint32_t buff[100U];
+static uint32_t buff[3000U];
 static FATFS SD_FatFs; /* File system object for User logical drive */
 static FIL LogFile; /* File object */
 static FIL CopyFile;

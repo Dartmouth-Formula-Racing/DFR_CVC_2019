@@ -356,7 +356,7 @@ static void CAN_parser_std_Rinehart(queue_msg_t q_msg, uint8_t CAN_idx)
 
 
 		/* iterate over all bytes of input */
-		for (int j = input.size - 1; j >=0; j++)
+		for (int j = input.size - 1; j >=0; j--)
 		{
 			result = result << 8 | (uint32_t) (q_msg.data._8[input.start_byte + j] << input.start_bit);
 		}
