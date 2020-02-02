@@ -285,6 +285,7 @@ void CAN_Tx_Task(void * parameters)
 		{
 			cvc_error_handler(CVC_HARD_FAULT, CAN_ERR);
 		}
+
 	}
 }
 
@@ -367,7 +368,7 @@ static void CAN_parser_std_Rinehart(queue_msg_t q_msg, uint8_t CAN_idx)
 		/* store result in CAN_inputs table */
 		CAN_inputs[input.index + offset] = result;
 
-		xSemaphoreGive(CAN_Inputs_Vector_Mutex);	//give CAN inputs mutex
+		xSemaphoreGive(CAN_Inputs_Vector_Mutex); //give CAN inputs mutex
 	}
 }
 

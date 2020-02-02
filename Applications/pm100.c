@@ -61,8 +61,8 @@ void parameter_write_command_1(uint16_t parameter_address, uint16_t data)
 	pm100_parameter_write_msg_1.data._8[0] = (parameter_address & 0x00FF);
 	pm100_parameter_write_msg_1.data._8[1] = ((parameter_address & 0xFF00) >> 8);
 
-	pm100_parameter_write_msg_1.data._8[4] = ((parameter_address & 0xFF00) >> 8);
-	pm100_parameter_write_msg_1.data._8[5] = (parameter_address & 0x00FF);
+	pm100_parameter_write_msg_1.data._8[5] = ((data & 0xFF00) >> 8);
+	pm100_parameter_write_msg_1.data._8[4] = (data & 0x00FF);
 	CAN_Send(pm100_parameter_write_msg_1);
 }
 
@@ -77,8 +77,8 @@ void parameter_write_command_2(uint16_t parameter_address, uint16_t data)
 	pm100_parameter_write_msg_2.data._8[0] = (parameter_address & 0x00FF);
 	pm100_parameter_write_msg_2.data._8[1] = ((parameter_address & 0xFF00) >> 8);
 
-	pm100_parameter_write_msg_2.data._8[4] = ((parameter_address & 0xFF00) >> 8);
-	pm100_parameter_write_msg_2.data._8[5] = (parameter_address & 0x00FF);
+	pm100_parameter_write_msg_2.data._8[5] = ((data & 0xFF00) >> 8);
+	pm100_parameter_write_msg_2.data._8[4] = (data & 0x00FF);
 	CAN_Send(pm100_parameter_write_msg_2);
 }
 
