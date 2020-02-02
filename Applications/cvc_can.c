@@ -267,6 +267,8 @@ void CAN_Rx_Task(void * parameters)
 			i++;
 		}
 
+
+
 	}
 }
 
@@ -299,6 +301,7 @@ void CAN_Send(queue_msg_t Tx_msg)
 
 		BSP_LED_On(LED_RED);
 	}
+
 }
 
 /**
@@ -337,7 +340,7 @@ static void CAN_parser_std(queue_msg_t q_msg, uint8_t CAN_idx)
  * @param q_msg: incoming CAN message
  * @param CAN_msg: reference message from CAN_dict w/ message metadata
  */
-static void CAN_parser_std_Rinehart(queue_msg_t q_msg, uint8_t CAN_idx)
+static void CAN_parser_std_Rinehart(queue_msg_t q_msg, uint8_t CAN_idx) //verified good
 {
 	volatile int FLAG = 0;
 	/* iterate over all inputs in data field */
@@ -373,6 +376,7 @@ static void CAN_parser_std_Rinehart(queue_msg_t q_msg, uint8_t CAN_idx)
 
 		xSemaphoreGive(CAN_Inputs_Vector_Mutex);	//give CAN inputs mutex
 	}
+
 
 }
 
