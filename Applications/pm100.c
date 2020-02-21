@@ -122,15 +122,15 @@ void parameter_read_command_2(uint16_t parameter_address)
  */
 void command_msg_1(uint16_t torque_command, uint16_t speed_command, uint8_t direction_command, uint8_t inverter_enable, uint8_t inverter_discharge, uint8_t speed_mode_enable, uint16_t commanded_torque_limit){
 	pm100_command_msg_1.data._8[0] = (torque_command & 0x00FF);
-	pm100_command_msg_1.data._8[1] = (torque_command & 0xFF00 >> 8);
-	pm100_command_msg_1.data._8[2] = (speed_command & 0x00FF);
-	pm100_command_msg_1.data._8[3] = (speed_command & 0xFF00 >> 8);
+	pm100_command_msg_1.data._8[1] = ((torque_command & 0xFF00) >> 8);
+	pm100_command_msg_1.data._8[2] = (speed_command & 0xFF00);
+	pm100_command_msg_1.data._8[3] = ((speed_command & 0xFF00) >> 8);
 	pm100_command_msg_1.data._8[4] = direction_command;
 	pm100_command_msg_1.data._8[5] = inverter_enable;
 	pm100_command_msg_1.data._8[5] |= inverter_discharge << 1;
 	pm100_command_msg_1.data._8[5] |= speed_mode_enable << 2;
 	pm100_command_msg_1.data._8[6] = (commanded_torque_limit & 0x00FF);
-	pm100_command_msg_1.data._8[7] = (commanded_torque_limit & 0xFF00 >> 8);
+	pm100_command_msg_1.data._8[7] = ((commanded_torque_limit & 0xFF00) >> 8);
 
 	CAN_Send(pm100_command_msg_1);
 }
@@ -148,15 +148,15 @@ void command_msg_1(uint16_t torque_command, uint16_t speed_command, uint8_t dire
  */
 void command_msg_2(uint16_t torque_command, uint16_t speed_command, uint8_t direction_command, uint8_t inverter_enable, uint8_t inverter_discharge, uint8_t speed_mode_enable, uint16_t commanded_torque_limit){
 	pm100_command_msg_2.data._8[0] = (torque_command & 0x00FF);
-	pm100_command_msg_2.data._8[1] = (torque_command & 0xFF00 >> 8);
-	pm100_command_msg_2.data._8[2] = (speed_command & 0x00FF);
-	pm100_command_msg_2.data._8[3] = (speed_command & 0xFF00 >> 8);
+	pm100_command_msg_2.data._8[1] = ((torque_command & 0xFF00) >> 8);
+	pm100_command_msg_2.data._8[2] = (speed_command & 0xFF00);
+	pm100_command_msg_2.data._8[3] = ((speed_command & 0xFF00) >> 8);
 	pm100_command_msg_2.data._8[4] = direction_command;
 	pm100_command_msg_2.data._8[5] = inverter_enable;
 	pm100_command_msg_2.data._8[5] |= inverter_discharge << 1;
 	pm100_command_msg_2.data._8[5] |= speed_mode_enable << 2;
 	pm100_command_msg_2.data._8[6] = (commanded_torque_limit & 0x00FF);
-	pm100_command_msg_2.data._8[7] = (commanded_torque_limit & 0xFF00 >> 8);
+	pm100_command_msg_2.data._8[7] = ((commanded_torque_limit & 0xFF00) >> 8);
 
 	CAN_Send(pm100_command_msg_2);
 }
@@ -167,11 +167,11 @@ void command_msg_2(uint16_t torque_command, uint16_t speed_command, uint8_t dire
  */
 void pm100_torque_command_1(uint16_t torque_command, uint8_t direction_command){
 	xSemaphoreTake(CAN_Inputs_Vector_Mutex, portMAX_DELAY);
-	if(CAN_inputs[INVERTER_ENABLE_LOCKOUT] == 1){
-		command_msg_1(0,0,0,0,0,0,0);
+	if(HAL_GPIO_ReadPin(B1_GPIO_PORT, B1_PIN)){
+		command_msg_1(torque_command, 0, direction_command, 1, 0, 0, 0);
 	}
 	else{
-		command_msg_1(torque_command, 0, direction_command, 1, 0, 0, 0);
+		command_msg_1(0,0,0,0,0,0,0);
 	}
 	xSemaphoreGive(CAN_Inputs_Vector_Mutex);
 

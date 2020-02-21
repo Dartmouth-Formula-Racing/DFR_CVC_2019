@@ -35,6 +35,9 @@
 #define CANx_RX_AF					GPIO_AF9_CAN1
 
 #define CANx_GPIO_CLK_ENABLE()		__HAL_RCC_GPIOB_CLK_ENABLE()
+
+#define B1_PIN						GPIO_PIN_13
+#define B1_GPIO_PORT				GPIOC
 #else
 
 #define CANx_TX_PIN					GPIO_PIN_1
@@ -50,6 +53,7 @@
 
 #define CANx_GPIO_CLK_ENABLE()		__HAL_RCC_GPIOD_CLK_ENABLE();\
 									__HAL_RCC_GPIOE_CLK_ENABLE()
+
 
 
 #endif /* CVC_PROTOTYPE ==1 */

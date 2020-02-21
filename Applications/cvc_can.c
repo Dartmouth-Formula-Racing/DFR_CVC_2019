@@ -667,6 +667,16 @@ void HAL_CAN_MspInit(CAN_HandleTypeDef *hcan)
 
   HAL_GPIO_Init(CANx_RX_GPIO_PORT, &GPIO_InitStruct);
 
+  /* USER push button 1 pin config */
+
+  __HAL_RCC_GPIOC_CLK_ENABLE();
+
+  GPIO_InitStruct.Pin = B1_PIN;
+  GPIO_InitStruct.Mode = GPIO_MODE_EVT_RISING;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(B1_GPIO_PORT, &GPIO_InitStruct);
+
+
 
 #if CVC_PROTOTYPE == 0
 
@@ -680,6 +690,7 @@ void HAL_CAN_MspInit(CAN_HandleTypeDef *hcan)
 
 
 #endif /* CVC_PROTOTYPE == 0 */
+
 
 
   /*##-3- Configure the NVIC (Interrupt) #################################################*/
