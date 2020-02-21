@@ -29,16 +29,15 @@ queue_msg_t charger_reset =
 		.data._8 = {0x45, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
 };
 
-void start_charger(){
+void start_charger(void){
 	CAN_Send(charger_enable);
 	CAN_Send(charger_start);
 }
 
-void disable_charger(){
+void disable_charger(void){
 	CAN_Send(charger_disable);
 }
 
-void reset_charger(){
+void reset_charger(void){
 	CAN_Send(charger_reset);
 }
-
