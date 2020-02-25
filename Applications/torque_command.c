@@ -16,6 +16,6 @@ float tps_percentage = 0.0f;
 
 void torque_command(void)
 {
-	pm100_torque_command_1(1,1);
+	pm100_torque_command_1(50,1);
 
 }
