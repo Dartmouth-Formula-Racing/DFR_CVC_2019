@@ -22,13 +22,11 @@ void _10_ms_Task(void * parameters)
 
 
 		TickType_t start = xTaskGetTickCount();
-		if(HAL_GPIO_ReadPin(B1_GPIO_PORT, B1_PIN)){
-			pm100_relay_command_1(1);
+		state_machine();
+
+		if(cvc_state==DRIVE){
+			torque_command();
 		}
-		else{
-			pm100_relay_command_1(0);
-		}
-		//torque_command();
 
 
 		TickType_t end = xTaskGetTickCount();

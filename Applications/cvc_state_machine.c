@@ -52,13 +52,15 @@ void state_machine()
 		/* get batt & bamo voltages */
 		xSemaphoreTake(CAN_Inputs_Vector_Mutex, portMAX_DELAY);
 
-		pack_voltage = (float) 50.0;
+		pack_voltage = (float) 40.0;
 		bus_voltage = (float) ((int)CAN_inputs[DC_BUS_VOLTAGE])/10.0;	//*96.0f/3600.0f;
 
 		xSemaphoreGive(CAN_Inputs_Vector_Mutex);
 
+		pm100_relay_command_1(0);
+
 		/* wait for 90% precharge */
-		if (bus_voltage >= pack_voltage * 0.9f)
+		if (bus_voltage >= pack_voltage * 0.95f)
 		{
 			precharge_90p_voltage = 1;
 		}
@@ -87,6 +89,7 @@ void state_machine()
 			precharge_90p_voltage = 0;
 			precharge_timer_started = 0;
 			precharge_complete = 0;
+			pm100_relay_command_1(1);
 		}
 		else
 		{
@@ -103,12 +106,11 @@ void state_machine()
 		/* set SPI outputs */
 
 		cvc_state = DRIVE;
-
-		pack_voltage = (float) 50.0;
+		pack_voltage = (float) 40.0;
 		bus_voltage = (float) ((int)CAN_inputs[DC_BUS_VOLTAGE])/10.0;
 
 		/* check for open Tractive System Master Switch */
-		if (bus_voltage <= 0.9 * pack_voltage)
+		if (bus_voltage <= 0.95 * pack_voltage)
 		{
 			cvc_state = PRECHARGE;
 		}
