@@ -12,7 +12,6 @@
 #include "demo.h"
 #include "queue.h"
 #include "semphr.h"
-#include "bamocar.h"
 #include "cvc_state_machine.h"
 #include "pm100.h"
 
@@ -302,7 +301,7 @@ void CAN_Send(queue_msg_t Tx_msg)
 }
 
 /**
- * @brief standard parser for unpacking CAN functions into CAN_inputs table (big endian to big endian)
+ * @brief standard parser for unpacking CAN functions into CAN_inputs table (big endian messages)
  * @param q_msg: incoming CAN message
  * @param CAN_msg: reference message from CAN_dict w/ message metadata
  */
@@ -318,7 +317,7 @@ static void CAN_parser_std(queue_msg_t q_msg, uint8_t CAN_idx)
 		/* iterate over all bytes of input */
 		for (int j = 0; j < input.size; j++)
 		{
-			result = result << 8 | (uint32_t) (q_msg.data._8[input.start_byte + j] << input.start_bit);
+			result = (result << 8) | (uint32_t) (q_msg.data._8[input.start_byte + j] << input.start_bit);
 		}
 
 
