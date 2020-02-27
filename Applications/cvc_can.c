@@ -12,7 +12,6 @@
 #include "demo.h"
 #include "queue.h"
 #include "semphr.h"
-#include "bamocar.h"
 #include "cvc_state_machine.h"
 #include "pm100.h"
 

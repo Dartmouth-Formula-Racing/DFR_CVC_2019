@@ -88,7 +88,6 @@ Applications/cvc_can.o: ../Applications/cvc_can.c \
  /Users/benjamin/git/DFR_CVC/Applications/inc/demo.h \
  /Users/benjamin/git/DFR_CVC/Drivers/BSP/STM32F7xx_Nucleo_144/stm32f7xx_nucleo_144.h \
  /Users/benjamin/git/DFR_CVC/Middlewares/FreeRTOS/Source/include/queue.h \
- /Users/benjamin/git/DFR_CVC/Applications/inc/bamocar.h \
  /Users/benjamin/git/DFR_CVC/Applications/inc/cvc_state_machine.h \
  /Users/benjamin/git/DFR_CVC/Applications/inc/cvc_spi.h \
  /Users/benjamin/git/DFR_CVC/Drivers/HAL_Driver/Inc/stm32f7xx_ll_bus.h \
@@ -101,8 +100,6 @@ Applications/cvc_can.o: ../Applications/cvc_can.c \
  /Users/benjamin/git/DFR_CVC/Drivers/HAL_Driver/Inc/stm32f7xx_ll_pwr.h \
  /Users/benjamin/git/DFR_CVC/Applications/inc/stm32f7xx_it.h \
  /Users/benjamin/git/DFR_CVC/Applications/inc/cvc_can.h \
- /Users/benjamin/git/DFR_CVC/Applications/inc/bamocar.h \
- /Users/benjamin/git/DFR_CVC/Applications/inc/ice.h \
  /Users/benjamin/git/DFR_CVC/Applications/inc/cvc_logging.h \
  /Users/benjamin/git/DFR_CVC/Middlewares/FatFs/test/ff_test.h \
  /Users/benjamin/git/DFR_CVC/Middlewares/FatFs/src/diskio.h \
@@ -298,8 +295,6 @@ Applications/cvc_can.o: ../Applications/cvc_can.c \
 
 /Users/benjamin/git/DFR_CVC/Middlewares/FreeRTOS/Source/include/queue.h:
 
-/Users/benjamin/git/DFR_CVC/Applications/inc/bamocar.h:
-
 /Users/benjamin/git/DFR_CVC/Applications/inc/cvc_state_machine.h:
 
 /Users/benjamin/git/DFR_CVC/Applications/inc/cvc_spi.h:
@@ -323,10 +318,6 @@ Applications/cvc_can.o: ../Applications/cvc_can.c \
 /Users/benjamin/git/DFR_CVC/Applications/inc/stm32f7xx_it.h:
 
 /Users/benjamin/git/DFR_CVC/Applications/inc/cvc_can.h:
-
-/Users/benjamin/git/DFR_CVC/Applications/inc/bamocar.h:
-
-/Users/benjamin/git/DFR_CVC/Applications/inc/ice.h:
 
 /Users/benjamin/git/DFR_CVC/Applications/inc/cvc_logging.h:
 

@@ -10,7 +10,6 @@
 
 #include <stdint.h>
 #include "cvc_can.h"
-#include "bamocar.h"
 
 #define OFFSET_MAX (16384.0f)
 #define LOWER_TPS_LIMIT (16.0f)

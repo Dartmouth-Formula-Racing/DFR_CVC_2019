@@ -13,8 +13,6 @@
 #include <stdint.h>
 #include "cvc_spi.h"
 #include "cvc_can.h"
-#include "bamocar.h"
-#include "ice.h"
 #include "stm32f7xx_nucleo_144.h"
 #include "cvc_logging.h"
 
@@ -33,13 +31,8 @@
 typedef enum cvc_state_e
 {
 
-	BAMO_INIT = 0,
-	VOLTAGE_CHECK = 1,
-	PRECHARGE = 2,
-	READY_TO_DRIVE = 3,
-	DRIVE = 4,
-	FAULT = 5,
-	DASH_BRB = 6,
+	PRECHARGE = 0,
+	DRIVE = 1,
 
 } cvc_state_t;
 
