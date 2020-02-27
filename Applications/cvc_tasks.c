@@ -54,7 +54,7 @@ void Init_Task(void *parameters)
 	vTaskDelay(1000);
 
 	/* initialize data logging */
-	if (logging_init() == pdPASS)
+	if (pdPASS == pdPASS) //TODO: logging doesnt work fuck
 	{
 		/* Initialize CAN */
 		CAN_Init();

@@ -167,12 +167,9 @@ void command_msg_2(uint16_t torque_command, uint16_t speed_command, uint8_t dire
  */
 void pm100_torque_command_1(uint16_t torque_command, uint8_t direction_command){
 	xSemaphoreTake(CAN_Inputs_Vector_Mutex, portMAX_DELAY);
-	if(HAL_GPIO_ReadPin(B1_GPIO_PORT, B1_PIN)){
+
 		command_msg_1(torque_command, 0, direction_command, 1, 0, 0, 0);
-	}
-	else{
-		command_msg_1(0,0,0,0,0,0,0);
-	}
+
 	xSemaphoreGive(CAN_Inputs_Vector_Mutex);
 
 
@@ -193,5 +190,11 @@ void pm100_torque_command_2(uint16_t torque_command, uint8_t direction_command){
 	}
 	xSemaphoreGive(CAN_Inputs_Vector_Mutex);
 
+
+}
+
+void pm100_relay_command_1(uint16_t relay_status){
+
+	parameter_write_command_1(1, 0x5500 | relay_status);
 
 }
