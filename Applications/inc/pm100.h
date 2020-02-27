@@ -11,6 +11,6 @@
 
 //Defines
 #define CAN_ID_OFFSET1 0xA0
-#define CAN_ID_OFFSET2 0xA0 //TODO: fix Offset for pm100 controllers
+#define CAN_ID_OFFSET2 0xFF //TODO: fix Offset for pm100 controllers
 
 #endif
