@@ -14,6 +14,13 @@ queue_msg_t charger_start =
 		.data._8 = {0x80, CHARGER_ID, 0x00, 0x0B, 0xB8, 0x00, 0x64, 0x00}
 };
 
+//starts charger at 12v??? NEEDS TO BE TESTED
+queue_msg_t charger_precharge =
+{
+		.Tx_header = {618, 0, STD, RTR, 0x8 },													// (0)
+		.data._8 = {0x80, CHARGER_ID, 0x00, 0x0B, 0x0B, 0x00, 0x64, 0x00}
+};
+
 
 
 //these are from spreadsheet, 50/50 chance
