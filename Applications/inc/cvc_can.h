@@ -67,14 +67,11 @@
 #define EXT							CAN_ID_EXT
 #define RTR							CAN_RTR_DATA
 
-//Definitions for pm100 inputs table offsets
-
-#define OFFSET_BEGIN				10 //MODULE_A_TEMP //TODO: ask leina whether this is good
-#define OFFSET_END					85 //PARAMETER_RESPONSE_DATA
 
 /* Type Definitions ------------------------------------------------------------------------*/
 
 /* enum for inputs vector index */
+
 typedef enum CAN_input_e
 {
 
@@ -89,7 +86,51 @@ typedef enum CAN_input_e
 	BATT_CHARGE,		// 8
 	BATT_SOC,
 
-	//First Drive inverter, pm-100, rinehart !!PRESERVE ORDER!! if changing any of this, remember to change standard parser
+	//individual cell temps read and sent by monitor with first number corresponding to individual cell, and second corresponding to transmitter
+	CELL_TEMP_1_1,
+	CELL_TEMP_2_1,
+	CELL_TEMP_3_1,
+	CELL_TEMP_4_1,
+	CELL_TEMP_5_1,
+	CELL_TEMP_6_1,
+
+	CELL_TEMP_1_2,
+	CELL_TEMP_2_2,
+	CELL_TEMP_3_2,
+	CELL_TEMP_4_2,
+	CELL_TEMP_5_2,
+	CELL_TEMP_6_2,
+
+	CELL_TEMP_1_3,
+	CELL_TEMP_2_3,
+	CELL_TEMP_3_3,
+	CELL_TEMP_4_3,
+	CELL_TEMP_5_3,
+	CELL_TEMP_6_3,
+
+	CELL_TEMP_1_4,
+	CELL_TEMP_2_4,
+	CELL_TEMP_3_4,
+	CELL_TEMP_4_4,
+	CELL_TEMP_5_4,
+	CELL_TEMP_6_4,
+
+	CELL_TEMP_1_5,
+	CELL_TEMP_2_5,
+	CELL_TEMP_3_5,
+	CELL_TEMP_4_5,
+	CELL_TEMP_5_5,
+	CELL_TEMP_6_5,
+
+	CELL_TEMP_1_6,
+	CELL_TEMP_2_6,
+	CELL_TEMP_3_6,
+	CELL_TEMP_4_6,
+	CELL_TEMP_5_6,
+	CELL_TEMP_6_6,
+
+
+	//First Drive inverter, pm-100, rinehart !!PRESERVE ORDER!! if changing any of this, remember to change parsers
 	MODULE_A_TEMP,
 	MODULE_B_TEMP,
 	MODULE_C_TEMP,
@@ -245,7 +286,7 @@ typedef enum CAN_input_e
 	PARAMETER_RESPONSE_ADDRESS_2,
 	PARAMETER_RESPONSE_DATA_2,
 
-	NUM_INPUTS,			// 32, Must be last!
+	NUM_INPUTS,			// Must be last!
 
 } CAN_input_t;
 
