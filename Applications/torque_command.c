@@ -18,7 +18,7 @@ void torque_command(void)
 {
 
 	if(HAL_GPIO_ReadPin(B1_GPIO_PORT, B1_PIN)&& CAN_inputs[INVERTER_ENABLE_LOCKOUT] == 0){
-		command_msg_1(50, 0, 1, 1, 0, 0, 0);
+		command_msg_1(200, 0, 1, 1, 0, 0, 0);
 	}
 	else{
 		command_msg_1(0,0,0,0,0,0,0);

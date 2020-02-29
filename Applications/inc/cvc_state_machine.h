@@ -33,6 +33,7 @@ typedef enum cvc_state_e
 
 	PRECHARGE = 0,
 	DRIVE = 1,
+	FAULT = 2,
 
 } cvc_state_t;
 

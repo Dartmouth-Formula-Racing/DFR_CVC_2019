@@ -98,7 +98,7 @@ volatile typedef struct SPI_inputs_vector_s
 
 volatile typedef struct SPI_outputs_vector_s
 {
-	uint8_t	safety;					// PLC output 1
+	uint8_t	cvcgood;			// PLC output 1
 	uint8_t	ready_to_drive;			// PLC output 2
 	uint8_t	rfg;					// PLC output 3
 	uint8_t ignition_kill;			// PLC output 4

@@ -46,7 +46,12 @@ void state_machine()
 	switch(cvc_state)
 	{
 	case PRECHARGE:
+		xSemaphoreTake(SPI_Outputs_Vector_Mutex, portMAX_DELAY);
 
+		/* set safety-out pin */
+		SPI_outputs_vector.cvcgood = 1;
+
+		xSemaphoreGive(SPI_Outputs_Vector_Mutex);
 
 
 		/* get batt & bamo voltages */
@@ -110,16 +115,33 @@ void state_machine()
 		bus_voltage = (float) ((int)CAN_inputs[DC_BUS_VOLTAGE])/10.0;
 
 		/* check for open Tractive System Master Switch */
-		if (bus_voltage <= 0.95 * pack_voltage)
+		if (bus_voltage <= 0.1 * pack_voltage)
 		{
-			cvc_state = PRECHARGE;
+			cvc_state = FAULT;
 		}
 
 		break;
+	case FAULT:
 
+
+		xSemaphoreTake(SPI_Outputs_Vector_Mutex, portMAX_DELAY);
+
+		/* set safety-out pin */
+		SPI_outputs_vector.cvcgood = 0;
+		pm100_relay_command_1(0);
+		command_msg_1(0,0,0,0,0,0,0);
+
+		xSemaphoreGive(SPI_Outputs_Vector_Mutex);
+
+
+
+
+
+		break;
 	default:
 		break;
 	}
+
 
 }
 
@@ -140,10 +162,22 @@ void cvc_error_handler(cvc_fault_status_t fault, cvc_error_code_t error)
 	BSP_LED_On(LED_RED);
 	cvc_fault = fault;
 	cvc_error = error;
+	xSemaphoreTake(SPI_Outputs_Vector_Mutex, portMAX_DELAY);
+
+	/* set safety-out pin */
+	SPI_outputs_vector.cvcgood = 0;
+
+	xSemaphoreGive(SPI_Outputs_Vector_Mutex);
 }
 
 void init_fault_handler(void)
 {
 	BSP_LED_On(LED_RED);
+	xSemaphoreTake(SPI_Outputs_Vector_Mutex, portMAX_DELAY);
+
+	/* set safety-out pin */
+	SPI_outputs_vector.cvcgood = 0;
+
+	xSemaphoreGive(SPI_Outputs_Vector_Mutex);
 	while(1);
 }
