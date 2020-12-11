@@ -137,7 +137,7 @@ void command_msg_1(uint16_t torque_command, uint16_t speed_command, uint8_t dire
 
 
 /**
- * @brief a way to send command messages to rinehart 1
+ * @brief a way to send command messages to rinehart 2
  * @param torque_command the torque command to send in N*m times 10 (does parsing locally)
  * @param speed_command the angular speed to send in RPM
  * @param direction_command either one or zero (see documentation for use with brake regen)
