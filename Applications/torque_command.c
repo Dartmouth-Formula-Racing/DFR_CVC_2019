@@ -6,10 +6,10 @@
  */
 
 #include "torque_command.h"
-
+#include "pm100.h"
 
 uint8_t ICE_tps = 0;
-float calc_torque = 0.0f;
+uint16_t calc_torque = 0;
 uint16_t torque_cmd = 0;
 float tps_percentage = 0.0f;
 
@@ -19,30 +19,26 @@ float tps_percentage = 0.0f;
 */
 void torque_command(char mode[2])
 {
-    if(HAL_GPIO_ReadPin(B1_GPIO_PORT, B1_PIN)&& CAN_inputs[INVERTER_ENABLE_LOCKOUT] == 0)
+	switch (mode)
     {
-		switch (mode)
-        {
-            case 'LA':                   // linear acceleration mode
-                calc_torque = linear_acceleration();
-                break;
-                
-            default:
-                break;
-        }
-    } else {
-        calc_torque = 0;
+        case 'LA':                   // linear acceleration mode
+            calc_torque = linear_acceleration();
+            break;
+            
+        default:
+            calc_torque = 0;
+            break;
     }
 
-    command_msg_1(calc_torque, 0, 1, 1, 0, 0, 0);       // send to rinehart 1
-    command_msg_2(calc_torque, 0, 1, 1, 0, 0, 0);       // send to rinehart 2
+    pm100_torque_command_1(calc_torque, 1);
+    pm100_torque_command_2(calc_torque, 1);
 
 }
 
 /**
  * @brief the way to calculate torque for the car acceleration in a straight line
  */
-double linear_acceleration(void)
+uint16_t linear_acceleration(void)
 {
     tps = CAN_inputs[ENG_TPS];
 
@@ -57,7 +53,7 @@ double linear_acceleration(void)
 		tps_percentage = 0;
 	}
 
-	calc_torque = (tps_percentage * OFFSET_MAX * MULTIPLIER) / 100;
+	calc_torque = (tps_percentage * OFFSET_MAX * MULTIPLIER) / 100 * 10;
     
     return calc_torque;
 }
