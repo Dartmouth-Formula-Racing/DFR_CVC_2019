@@ -355,6 +355,50 @@ input_map_t CELL_TEMP_6_map[] =
 		{CELL_TEMP_5_6,4,0,1},
 		{CELL_TEMP_6_6,5,0,1},
 };
+
+//Vehicle Dynamics Module Maps
+input_map_t VEHICLE_DYNAMICS_0_map[] =
+{
+		{GPS_LATITUDE,0,0,4},
+		{GPS_LONGITUDE,4,0,4},
+
+};
+input_map_t VEHICLE_DYNAMICS_1_map[] =
+{
+		{GPS_SPEED,0,0,2},
+		{GPS_ALTITUDE,2,0,2},
+		{GPS_TRUE_COURSE,4,0,2},
+		{GPS_SATELLITES_IN_USE,6,0,1},
+		{GPS_VALID_0,7,0,1},
+
+};
+input_map_t VEHICLE_DYNAMICS_2_map[] =
+{
+		{GPS_VALID_1,0,0,1},
+		{UTC_DATE_YEAR,1,0,1},
+		{UTC_DATE_MONTH,2,0,1},
+		{UTC_DATE_DAY,3,0,1},
+		{UTC_TIME_HOURS,5,0,1},
+		{UTC_TIME_MINUTES,6,0,1},
+		{UTC_TIME_SECONDS,7,0,1},
+
+};
+input_map_t VEHICLE_DYNAMICS_3_map[] =
+{
+		{X_AXIS_ACCELERATION,0,0,2},
+		{Y_AXIS_ACCELERATION,2,0,2},
+		{Z_AXIS_ACCELERATION,4,0,2},
+
+
+};
+input_map_t VEHICLE_DYNAMICS_4_map[] =
+{
+		{X_AXIS_YAW_RATE,0,0,2},
+		{Y_AXIS_YAW_RATE,2,0,2},
+		{Z_AXIS_YAW_RATE,4,0,2},
+
+
+};
 /* CAN message dictionary */
 static CAN_msg_t CAN_dict[]	=
 {
@@ -383,7 +427,7 @@ static CAN_msg_t CAN_dict[]	=
 		{CAN_ID_OFFSET1+0x0D, STD, 0, "1_Mod_Indx_FluxWeak", MODFLUX_map, 4, CAN_parser_std_little_endian},
 		{CAN_ID_OFFSET1+0x0E, STD, 0, "1_Firm_Info", FIRMINF_map, 4, CAN_parser_std_little_endian},
 		{CAN_ID_OFFSET1+0x0F, STD, 0, "1_Diagnostic", NULL, 0, CAN_parser_DIAGNOSTIC},
-		{CAN_ID_OFFSET1+0x22, STD, 0, "1_Parameter_Response", PARAMETER_RESPONSE_map, 0, CAN_parser_std_little_endian},
+		{CAN_ID_OFFSET1+0x22, STD, 0, "1_Parameter_Response", PARAMETER_RESPONSE_map, 2, CAN_parser_std_little_endian},
 
 		//Rinehart pm-100 messages #2
 		{CAN_ID_OFFSET2+0x00, STD, 0, "2_Temp_1", TEMP1_2_map, 4, CAN_parser_std_little_endian},
@@ -402,7 +446,7 @@ static CAN_msg_t CAN_dict[]	=
 		{CAN_ID_OFFSET2+0x0D, STD, 0, "2_Mod_Indx_FluxWeak", MODFLUX_2_map, 4, CAN_parser_std_little_endian},
 		{CAN_ID_OFFSET2+0x0E, STD, 0, "2_Firm_Info", FIRMINF_2_map, 4, CAN_parser_std_little_endian},
 		{CAN_ID_OFFSET2+0x0F, STD, 0, "2_Diagnostic", NULL, 0, CAN_parser_DIAGNOSTIC},
-		{CAN_ID_OFFSET2+0x22, STD, 0, "2_Parameter_Response", PARAMETER_RESPONSE_2_map, 0, CAN_parser_std_little_endian},
+		{CAN_ID_OFFSET2+0x22, STD, 0, "2_Parameter_Response", PARAMETER_RESPONSE_2_map, 2, CAN_parser_std_little_endian},
 
 		//Cell Pack Temp Reader Messages
 
@@ -412,6 +456,13 @@ static CAN_msg_t CAN_dict[]	=
 		{0x53, STD, 0, "Cell_Temp_4", CELL_TEMP_4_map, 6, CAN_parser_std_little_endian},
 		{0x54, STD, 0, "Cell_Temp_5", CELL_TEMP_5_map, 6, CAN_parser_std_little_endian},
 		{0x55, STD, 0, "Cell_Temp_6", CELL_TEMP_6_map, 6, CAN_parser_std_little_endian},
+
+		//Vehicle Dynamics Module Messages
+		{0xA0000, EXT, 0, "Vehicle_Dynamics_Module_0", VEHICLE_DYNAMICS_0_map, 2, CAN_parser_std},
+		{0xA0001, EXT, 0, "Vehicle_Dynamics_Module_1", VEHICLE_DYNAMICS_1_map,5, CAN_parser_std},
+		{0xA0002, EXT, 0, "Vehicle_Dynamics_Module_2", VEHICLE_DYNAMICS_2_map, 7, CAN_parser_std},
+		{0xA0003, EXT, 0, "Vehicle_Dynamics_Module_3", VEHICLE_DYNAMICS_3_map, 3, CAN_parser_std},
+		{0xA0004, EXT, 0, "Vehicle_Dynamics_Module_4", VEHICLE_DYNAMICS_4_map, 3, CAN_parser_std},
 };
 
 
