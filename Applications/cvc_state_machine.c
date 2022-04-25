@@ -14,8 +14,8 @@
 
 //volatile cvc_state_t cvc_state = PRECHARGE;
 volatile cvc_state_t cvc_state = DRIVE;
-static cvc_fault_status_t cvc_fault = CVC_OK;
-static cvc_error_code_t cvc_error = NONE;
+volatile cvc_fault_status_t cvc_fault = CVC_OK;
+volatile cvc_error_code_t cvc_error = NONE;
 
 static int Dash_BRB_Pressed = 0;
 static int TSMS_closed = 1;
