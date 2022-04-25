@@ -7,6 +7,7 @@
 
 
 #include "torque_command.h"
+#include "cvc_spi.h"
 
 
 uint8_t ICE_tps = 0;
@@ -18,7 +19,7 @@ void torque_command(char* mode, float tps, uint8_t direction)
 {
 	// Motor spinup test mode (hardcoded torque)
 	if (!strcmp(mode, "TEST")) {
-		if(HAL_GPIO_ReadPin(B1_GPIO_PORT, B1_PIN)&& CAN_inputs[INVERTER_ENABLE_LOCKOUT] == 0){
+		if(HAL_GPIO_ReadPin(B1_GPIO_PORT, B1_PIN)){//&& CAN_inputs[INVERTER_ENABLE_LOCKOUT] == 0){
 			command_msg_1(200, 0, 1, 1, 0, 0, 0);
 		} else {
 			command_msg_1(0,0,0,0,0,0,0);
