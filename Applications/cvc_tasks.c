@@ -54,8 +54,8 @@ void Init_Task(void *parameters)
 	vTaskDelay(1000);
 
 	/* initialize data logging */
-	if (logging_init() == pdPASS)
-	{
+//	if (logging_init() == pdPASS)
+//	{
 		/* Initialize CAN */
 		CAN_Init();
 
@@ -68,11 +68,11 @@ void Init_Task(void *parameters)
 		{
 			init_fault_handler();
 		}
-	}
-	else
-	{
-		init_fault_handler();
-	}
+//	}
+//	else
+//	{
+//		init_fault_handler();
+//	}
 
 	/* delete task */
 	vTaskDelete(NULL);

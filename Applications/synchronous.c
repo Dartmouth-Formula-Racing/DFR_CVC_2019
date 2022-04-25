@@ -7,6 +7,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "synchronous.h"
+#include "dash.h"
 
 /**
   * @brief Fast synchronous task (100 Hz)
@@ -25,7 +26,7 @@ void _10_ms_Task(void * parameters)
 
 		if (cvc_state == DRIVE)
 		{
-			torque_command();
+			torque_command("TEST", 20.0, 1);
 			safety_monitor();
 		}
 
@@ -52,8 +53,7 @@ void _20_ms_Task(void * parameters)
 	while(1)
 	{
 		vTaskDelayUntil(&LastWakeTime, (TickType_t) 20/portTICK_PERIOD_MS);
-
-
+		dash_update();
 	}
 
 }
