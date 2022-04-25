@@ -26,10 +26,10 @@ static task_t init = {Init_Task, "init", 2*configMINIMAL_STACK_SIZE, NULL, tskID
 /* list of all program tasks */
 static task_t taskList[] = {
 //		{demoTask, "demo", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 1, NULL},		/* demo blinky task */
-		{CAN_Rx_Task,"canRx", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 2, NULL},		/* CAN Rx task */
-		{CAN_Tx_Task,"canTx", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 2, NULL},		/* CAN Tx task */
-		{_10_ms_Task,"10ms", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 1, NULL},
-		{_20_ms_Task,"20ms", 2*configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 1, NULL},
+		// {CAN_Rx_Task,"canRx", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 2, NULL},		/* CAN Rx task */
+		// {CAN_Tx_Task,"canTx", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 2, NULL},		/* CAN Tx task */
+		// {_10_ms_Task,"10ms", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 1, NULL},
+		// {_20_ms_Task,"20ms", 2*configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 1, NULL},
 		{PLC_Routine_Task, "plc_task", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 3, NULL },
 };
 
@@ -54,25 +54,25 @@ void Init_Task(void *parameters)
 	vTaskDelay(1000);
 
 	/* initialize data logging */
-	if (logging_init() == pdPASS)
-	{
-		/* Initialize CAN */
-		CAN_Init();
+	// if (logging_init() == pdPASS)
+	// {
+	// 	/* Initialize CAN */
+	// 	CAN_Init();
 
-		/* Initialize SPI */
-		Configure_SPI();
-		Activate_SPI();
+	/* Initialize SPI */
+	Configure_SPI();
+	Activate_SPI();
 
-		/* Create functional tasks */
-		if (taskCreateAll() != pdPASS)
-		{
-			init_fault_handler();
-		}
-	}
-	else
+	/* Create functional tasks */
+	if (taskCreateAll() != pdPASS)
 	{
 		init_fault_handler();
 	}
+	// }
+	// else
+	// {
+	// 	init_fault_handler();
+	// }
 
 	/* delete task */
 	vTaskDelete(NULL);
