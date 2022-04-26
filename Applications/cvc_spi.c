@@ -211,7 +211,7 @@ CLT_Read_u_t debounce_SPI_input(void)
 
 	debounced_data.word = (all_ones.word & (~all_zeroes.word)) | ((~all_zeroes.word) & debounced_data.word);
 
-	return debounced_data;
+	return all_ones;//debounced_data;
 }
 
 
@@ -223,7 +223,7 @@ CLT_Read_u_t debounce_SPI_input(void)
 void SPI_PLC_Set_Inputs(void)
 {
 
-#if CVC_PROTOTYPE == 0
+#if CVC_PROTOTYPE == 1
 
 	SPI_inputs_vector.ICE_enable 					= CLT_Read.bit.IN3;
 	SPI_inputs_vector.Motor_enable 					= CLT_Read.bit.IN4;
@@ -242,7 +242,7 @@ void SPI_PLC_Set_Inputs(void)
   */
 void SPI_PLC_Set_Outputs(void)
 {
-#if CVC_PROTOTYPE == 0
+#if CVC_PROTOTYPE == 1
 
 	VNI_Write.bit.IN3 = SPI_outputs_vector.safety;
 	VNI_Write.bit.IN4 = SPI_outputs_vector.cvc_err;

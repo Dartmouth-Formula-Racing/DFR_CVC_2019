@@ -499,12 +499,11 @@ void CAN_Rx_Task(void * parameters)
 		/* search through CAN dictionary until message is found */
 		while(i < sizeof(CAN_dict)/sizeof(CAN_msg_t) && !done)
 		{
-			if (Rx_msg.Rx_header.StdId == CAN_dict[i].msg_ID)
+			if ((Rx_msg.Rx_header.IDE == CAN_ID_STD && Rx_msg.Rx_header.StdId == CAN_dict[i].msg_ID)
+				|| Rx_msg.Rx_header.ExtId == CAN_dict[i].msg_ID)
 			{
 					CAN_dict[i].parser(Rx_msg, i);	// call message parser
 					done = 1;
-
-
 			}
 			i++;
 		}

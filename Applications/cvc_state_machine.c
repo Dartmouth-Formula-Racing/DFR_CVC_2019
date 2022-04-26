@@ -44,6 +44,14 @@ void state_machine()
 {
 	// add any checks that must be done in all states here
 
+	int16_t xBuffer = (CAN_inputs[X_AXIS_ACCELERATION]);
+	int16_t yBuffer = (CAN_inputs[Y_AXIS_ACCELERATION]);
+	int16_t zBuffer = (CAN_inputs[Z_AXIS_ACCELERATION]);
+
+	float xAccel = ((float)xBuffer)*0.000244141;
+	float yAccel = ((float)yBuffer)*0.000244141;
+	float zAccel = ((float)zBuffer)*0.000244141;
+
 	switch(cvc_state)
 	{
 	case PRECHARGE:
@@ -109,8 +117,8 @@ void state_machine()
 		xSemaphoreTake(SPI_Outputs_Vector_Mutex, portMAX_DELAY);
 
 		/* set safety-out pin */
-		SPI_outputs_vector.cvc_err = 1;
-		SPI_outputs_vector.cvc_warn = 1;
+		SPI_outputs_vector.cvc_err = 0;
+		SPI_outputs_vector.cvc_warn = 0;
 
 		xSemaphoreGive(SPI_Outputs_Vector_Mutex);
 
@@ -127,7 +135,7 @@ void state_machine()
 		xSemaphoreTake(CAN_Inputs_Vector_Mutex, portMAX_DELAY);
 
 
-		if (CAN_inputs[Z_AXIS_ACCELERATION] > 0) {
+		if (zAccel <= 0) {
 			cvc_state = DRIVE;
 		}
 
@@ -139,31 +147,26 @@ void state_machine()
 	case DRIVE:
 
 		xSemaphoreTake(SPI_Outputs_Vector_Mutex, portMAX_DELAY);
+		xSemaphoreGive(CAN_Inputs_Vector_Mutex);
 
 		/* set safety-out pin */
-		SPI_outputs_vector.cvc_err = 0;
+		SPI_outputs_vector.cvc_err = 1;
 		SPI_outputs_vector.cvc_warn = 0;
 
-		xSemaphoreGive(SPI_Outputs_Vector_Mutex);
-
-		xSemaphoreTake(CAN_Inputs_Vector_Mutex, portMAX_DELAY);
-
-
-		if (CAN_inputs[Z_AXIS_ACCELERATION] <= 0) {
+		if (zAccel > 0) {
 			cvc_state = PRECHARGE;
 		}
 
-		xSemaphoreGive(CAN_Inputs_Vector_Mutex);
-
 		/* get push button state */
-//		xSemaphoreTake(SPI_Inputs_Vector_Mutex, portMAX_DELAY);
-//
-//		push_button = SPI_inputs_vector.Ready_to_drive;
-//		if (!push_button) {
-//			cvc_state = PRECHARGE;
-//		}
-//
-//		xSemaphoreGive(SPI_Inputs_Vector_Mutex);
+		xSemaphoreTake(SPI_Inputs_Vector_Mutex, portMAX_DELAY);
+
+		push_button = SPI_inputs_vector.Ready_to_drive;
+		if (push_button) {
+			SPI_outputs_vector.cvc_warn = 1;
+		}
+
+		xSemaphoreGive(SPI_Outputs_Vector_Mutex);
+		xSemaphoreGive(SPI_Inputs_Vector_Mutex);
 
 		/* set SPI outputs */
 
