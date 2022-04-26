@@ -150,7 +150,7 @@ void state_machine()
 
 
 		if (CAN_inputs[Z_AXIS_ACCELERATION] <= 0) {
-			cvc_state = DRIVE;
+			cvc_state = PRECHARGE;
 		}
 
 		xSemaphoreGive(CAN_Inputs_Vector_Mutex);

@@ -475,8 +475,8 @@ volatile SemaphoreHandle_t CAN_Inputs_Vector_Mutex;
 volatile SemaphoreHandle_t CAN_Outputs_Vector_Mutex;
 
 /* CAN Inputs Vector ----------------------------------------------------------------*/
-volatile uint32_t CAN_inputs[NUM_INPUTS];
 
+volatile uint32_t CAN_inputs[NUM_INPUTS];
 /* Task Functions ---------------------------------------------------------------*/
 
 /**
