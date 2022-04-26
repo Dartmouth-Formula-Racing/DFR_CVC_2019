@@ -53,7 +53,7 @@ void _20_ms_Task(void * parameters)
 	while(1)
 	{
 		vTaskDelayUntil(&LastWakeTime, (TickType_t) 20/portTICK_PERIOD_MS);
-		//dash_update();
+		dash_update();
 	}
 
 }

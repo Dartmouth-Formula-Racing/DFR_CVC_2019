@@ -8,6 +8,7 @@
 /* Includes ------------------------------------------------------------------------*/
 
 #include "cvc_state_machine.h"
+#include "cvc_can.h"
 
 
 /* Private Variables ------------------------------------------------------------------------*/
@@ -113,15 +114,24 @@ void state_machine()
 
 		xSemaphoreGive(SPI_Outputs_Vector_Mutex);
 
-		/* get push button state */
-		xSemaphoreTake(SPI_Inputs_Vector_Mutex, portMAX_DELAY);
+//		/* get push button state */
+//		xSemaphoreTake(SPI_Inputs_Vector_Mutex, portMAX_DELAY);
+//
+//		push_button = SPI_inputs_vector.Ready_to_drive;
+//		if (push_button) {
+//			cvc_state = DRIVE;
+//		}
+//
+//		xSemaphoreGive(SPI_Inputs_Vector_Mutex);
 
-		push_button = SPI_inputs_vector.Ready_to_drive;
-		if (push_button) {
+		xSemaphoreTake(CAN_Inputs_Vector_Mutex, portMAX_DELAY);
+
+
+		if (CAN_inputs[Z_AXIS_ACCELERATION] > 0) {
 			cvc_state = DRIVE;
 		}
 
-		xSemaphoreGive(SPI_Inputs_Vector_Mutex);
+		xSemaphoreGive(CAN_Inputs_Vector_Mutex);
 
 		break;
 
@@ -136,15 +146,24 @@ void state_machine()
 
 		xSemaphoreGive(SPI_Outputs_Vector_Mutex);
 
-		/* get push button state */
-		xSemaphoreTake(SPI_Inputs_Vector_Mutex, portMAX_DELAY);
+		xSemaphoreTake(CAN_Inputs_Vector_Mutex, portMAX_DELAY);
 
-		push_button = SPI_inputs_vector.Ready_to_drive;
-		if (!push_button) {
-			cvc_state = PRECHARGE;
+
+		if (CAN_inputs[Z_AXIS_ACCELERATION] <= 0) {
+			cvc_state = DRIVE;
 		}
 
-		xSemaphoreGive(SPI_Inputs_Vector_Mutex);
+		xSemaphoreGive(CAN_Inputs_Vector_Mutex);
+
+		/* get push button state */
+//		xSemaphoreTake(SPI_Inputs_Vector_Mutex, portMAX_DELAY);
+//
+//		push_button = SPI_inputs_vector.Ready_to_drive;
+//		if (!push_button) {
+//			cvc_state = PRECHARGE;
+//		}
+//
+//		xSemaphoreGive(SPI_Inputs_Vector_Mutex);
 
 		/* set SPI outputs */
 
