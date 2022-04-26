@@ -189,3 +189,11 @@ void init_fault_handler(void)
 	BSP_LED_On(LED_RED);
 	while(1);
 }
+
+cvc_state_t get_cvc_state() {
+	return cvc_state;
+}
+
+cvc_fault_status_t get_cvc_fault() {
+	return cvc_fault;
+}

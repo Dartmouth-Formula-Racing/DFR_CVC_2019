@@ -68,6 +68,8 @@ void state_machine();
 void cvc_error_handler(cvc_fault_status_t fault, cvc_error_code_t error);
 void safety_monitor(void);
 void init_fault_handler(void);
+cvc_state_t get_cvc_state();
+cvc_fault_status_t get_cvc_fault();
 
 
 #endif /* INC_CVC_STATE_MACHINE_H_ */
