@@ -26,8 +26,13 @@ queue_msg_t dash_msg_2 =
  * Sends information about the car's current state to the dashboard
  */
 void dash_update() {
+	cvc_state_t cvc_state = get_cvc_state();
+	if (cvc_state == DRIVE) {
+		dash_msg_1.data._8[0] = (uint8_t)get_drive_state();
+	} else {
+		dash_msg_1.data._8[0] = (uint8_t)cvc_state;
+	}
 	dash_msg_1.data._8[1] = (uint8_t)get_cvc_fault();
-	dash_msg_1.data._8[0] = (uint8_t)get_cvc_state();
 	// TODO: Pack state and fault into one byte
 	dash_msg_1.data._8[2] = (uint8_t)((CAN_inputs[BATT_VOLTAGE] & 0xFF000000) >> 24);
 	dash_msg_1.data._8[3] = (uint8_t)((CAN_inputs[BATT_VOLTAGE] & 0x00FF0000) >> 16);

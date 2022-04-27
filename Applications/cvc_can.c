@@ -25,6 +25,7 @@ static void CAN_parser_EMUS1(queue_msg_t q_msg, uint8_t CAN_idx);
 static void CAN_parser_ANALOGVOLT(queue_msg_t q_msg, uint8_t CAN_idx);
 static void CAN_parser_INTST(queue_msg_t q_msg, uint8_t CAN_idx);
 static void CAN_parser_DIAGNOSTIC(queue_msg_t q_msg, uint8_t CAN_idx);
+static void CAN_parser_DASH1(queue_msg_t q_msg, uint8_t CAN_idx);
 
 /* Private Variables ---------------------------------------------------------------*/
 CAN_HandleTypeDef		CanHandle;
@@ -34,6 +35,16 @@ uint32_t 				TxMailbox;
 /* CAN message input maps */
 /* INPUT_INDEX, START BYTE, START BIT, BYTE SIZE */
 
+
+// Dash maps
+input_map_t DASH1_map[] = {
+		{DASH_DRIVE_BUTTON, 0, 0, 1},
+		{DASH_NEUTRAL_BUTTON, 1, 0, 1},
+		{DASH_REVERSE_BUTTON, 2, 0, 1},
+		{DASH_TOGGLE_1, 3, 0, 1},
+		{DASH_TOGGLE_2, 4, 0, 1},
+		{DASH_ALIVE, 5, 0, 1},
+};
 
 input_map_t EMUS2_map[] =
 {
@@ -403,9 +414,11 @@ input_map_t VEHICLE_DYNAMICS_4_map[] =
 static CAN_msg_t CAN_dict[]	=
 {
 
+		// Dash messages
+		{0x400, EXT, 0, "DASH1", DASH1_map, 6, CAN_parser_DASH1},
 
 		// EMUS BMS messages
-		{0x1B6, STD, 0, "EMUS1", NULL, 0, CAN_parser_EMUS1}, 		// EMUS BMS 1 (3)
+		{0x1B6, STD, 0, "EMUS1", NULL, 0, CAN_parser_EMUS1}, 			// EMUS BMS 1 (3)
 		{0x1B7, STD, 0, "EMUS2", EMUS2_map, 3, CAN_parser_std}, 		// EMSU BMS 2 (4)
 		{0x1BA, STD, 0, "EMUS3", EMUS3_map, 3, CAN_parser_std}, 		// EMSU BMS 3 (5)
 
@@ -746,7 +759,16 @@ static void CAN_parser_DIAGNOSTIC(queue_msg_t q_msg, uint8_t CAN_idx){
 	xSemaphoreGive(CAN_Inputs_Vector_Mutex);	//give CAN inputs mutex
 }
 
-
+static void CAN_parser_DASH1(queue_msg_t q_msg, uint8_t CAN_idx) {
+	xSemaphoreTake(CAN_Inputs_Vector_Mutex, portMAX_DELAY);
+	CAN_inputs[DASH_DRIVE_BUTTON] 	= (uint32_t) q_msg.data._8[0];
+	CAN_inputs[DASH_NEUTRAL_BUTTON] = (uint32_t) q_msg.data._8[1];
+	CAN_inputs[DASH_REVERSE_BUTTON] = (uint32_t) q_msg.data._8[2];
+	CAN_inputs[DASH_TOGGLE_1] 		= (uint32_t) q_msg.data._8[3];
+	CAN_inputs[DASH_TOGGLE_2] 		= (uint32_t) q_msg.data._8[4];
+	CAN_inputs[DASH_ALIVE] 			= (uint32_t) q_msg.data._8[5];
+	xSemaphoreGive(CAN_Inputs_Vector_Mutex);
+}
 
 /**
  * @brief	Initialize CAN

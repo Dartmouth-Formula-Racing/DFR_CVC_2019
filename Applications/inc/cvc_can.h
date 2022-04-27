@@ -311,6 +311,14 @@ typedef enum CAN_input_e
 	Y_AXIS_YAW_RATE,
 	Z_AXIS_YAW_RATE,
 
+	//Dash inputs
+	DASH_DRIVE_BUTTON,
+	DASH_NEUTRAL_BUTTON,
+	DASH_REVERSE_BUTTON,
+	DASH_TOGGLE_1,
+	DASH_TOGGLE_2,
+	DASH_ALIVE,
+
 
 
 	NUM_INPUTS,			// Must be last!

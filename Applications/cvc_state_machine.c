@@ -15,6 +15,7 @@
 
 //volatile cvc_state_t cvc_state = PRECHARGE;
 volatile cvc_state_t cvc_state = DRIVE;
+volatile cvc_state_t drive_state = NEUTRAL;
 volatile cvc_fault_status_t cvc_fault = CVC_OK;
 volatile cvc_error_code_t cvc_error = NONE;
 
@@ -52,8 +53,8 @@ void state_machine()
 	float yAccel = ((float)yBuffer)*0.000244141;
 	float zAccel = ((float)zBuffer)*0.000244141;
 
-	switch(cvc_state)
-	{
+	switch(cvc_state) {
+
 	case PRECHARGE:
 
 
@@ -153,8 +154,14 @@ void state_machine()
 		SPI_outputs_vector.cvc_err = 1;
 		SPI_outputs_vector.cvc_warn = 0;
 
-		if (zAccel > 0) {
-			cvc_state = PRECHARGE;
+		if (CAN_inputs[DASH_REVERSE_BUTTON] != 0) {
+			drive_state = REVERSE;
+		} else if (CAN_inputs[DASH_REVERSE_BUTTON] != 0) {
+			drive_state = REVERSE;
+		} else if (CAN_inputs[DASH_REVERSE_BUTTON] != 0) {
+			drive_state = REVERSE;
+		} else {
+			drive_state = NEUTRAL;
 		}
 
 		/* get push button state */
@@ -189,7 +196,6 @@ void state_machine()
 	}
 }
 
-
 void safety_monitor(void)
 {
 	//monitor_bamocar()
@@ -214,6 +220,10 @@ void init_fault_handler(void)
 
 cvc_state_t get_cvc_state() {
 	return cvc_state;
+}
+
+cvc_state_t get_drive_state() {
+	return drive_state;
 }
 
 cvc_fault_status_t get_cvc_fault() {
