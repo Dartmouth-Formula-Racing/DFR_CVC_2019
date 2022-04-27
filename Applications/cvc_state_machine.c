@@ -156,14 +156,11 @@ void state_machine()
 
 		if (CAN_inputs[DASH_REVERSE_BUTTON] != 0) {
 			drive_state = REVERSE;
-		} else if (CAN_inputs[DASH_REVERSE_BUTTON] != 0) {
-			drive_state = REVERSE;
-		} else if (CAN_inputs[DASH_REVERSE_BUTTON] != 0) {
-			drive_state = REVERSE;
-		} else {
+		} else if (CAN_inputs[DASH_DRIVE_BUTTON] != 0) {
+			drive_state = DRIVE;
+		} else if (CAN_inputs[DASH_NEUTRAL_BUTTON] != 0) {
 			drive_state = NEUTRAL;
 		}
-
 		/* get push button state */
 		xSemaphoreTake(SPI_Inputs_Vector_Mutex, portMAX_DELAY);
 

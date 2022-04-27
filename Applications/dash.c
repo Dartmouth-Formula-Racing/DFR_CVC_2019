@@ -44,11 +44,11 @@ void dash_update() {
 	CAN_Send(dash_msg_1);
 
 
-	dash_msg_2.data._8[0] = (uint8_t)((CAN_inputs[Z_AXIS_ACCELERATION] & 0xFF00) >> 8);
-	dash_msg_2.data._8[1] = (uint8_t)(CAN_inputs[Z_AXIS_ACCELERATION] & 0x00FF);
-	dash_msg_2.data._8[2] = (uint8_t)1;
-	dash_msg_2.data._8[3] = (uint8_t)0;
-	dash_msg_2.data._8[4] = (uint8_t)0;
+	dash_msg_2.data._8[0] = (uint8_t)CAN_inputs[AVG_CELL_TEMP];
+	dash_msg_2.data._8[1] = (uint8_t)((CAN_inputs[MOTOR_TEMP] & 0xFF00) >> 8);
+	dash_msg_2.data._8[2] = (uint8_t)(CAN_inputs[MOTOR_TEMP] & 0x00FF);
+	dash_msg_2.data._8[3] = (uint8_t)((CAN_inputs[RTD_5_TEMP] & 0xFF00) >> 8);
+	dash_msg_2.data._8[4] = (uint8_t)(CAN_inputs[RTD_5_TEMP] & 0x00FF);
 	dash_msg_2.data._8[5] = (uint8_t)0;
 	dash_msg_2.data._8[6] = (uint8_t)0;
 	dash_msg_2.data._8[7] = (uint8_t)0;
