@@ -8,6 +8,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "synchronous.h"
 #include "dash.h"
+#include "torque_command.h"
 
 /**
   * @brief Fast synchronous task (100 Hz)
@@ -24,11 +25,9 @@ void _10_ms_Task(void * parameters)
 		TickType_t start = xTaskGetTickCount();
 		state_machine();
 
-		if (cvc_state == DRIVE)
-		{
-			torque_command("TEST", 20.0, 1);
-			safety_monitor();
-		}
+
+		torque_command();
+		safety_monitor();
 
 		TickType_t end = xTaskGetTickCount();
 

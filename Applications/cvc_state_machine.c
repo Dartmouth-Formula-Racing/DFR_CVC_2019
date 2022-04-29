@@ -195,6 +195,7 @@ void state_machine()
 
 void safety_monitor(void)
 {
+	// haha what safety
 	//monitor_bamocar()
 	//monitor_bms()
 }

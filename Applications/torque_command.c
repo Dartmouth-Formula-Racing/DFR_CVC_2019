@@ -8,37 +8,45 @@
 
 #include "torque_command.h"
 #include "cvc_spi.h"
+#include "cvc_state_machine.h"
 
+#define TESTMODE 0
 
 uint8_t ICE_tps = 0;
 float calc_torque = 0.0f;
 uint16_t torque_cmd = 0;
 float tps_percentage = 0.0f;
 
-void torque_command(char* mode, float tps, uint8_t direction)
+void torque_command()
 {
-	// Motor spinup test mode (hardcoded torque)
-	if (!strcmp(mode, "TEST")) {
-		if(HAL_GPIO_ReadPin(B1_GPIO_PORT, B1_PIN)){//&& CAN_inputs[INVERTER_ENABLE_LOCKOUT] == 0){
-			command_msg_1(200, 0, 1, 1, 0, 0, 0);
-		} else {
-			command_msg_1(0,0,0,0,0,0,0);
-		}
+	if (get_cvc_state() == DRIVE && !CAN_inputs[INVERTER_ENABLE_LOCKOUT]) {
 		// Linear tps to torque
-	} else if (!strcmp(mode, "LINE")) {
-		if (!CAN_inputs[INVERTER_ENABLE_LOCKOUT]) {
-			tps_percentage = floatmap(tps, LOWER_TPS_LIMIT, UPPER_TPS_LIMIT, 0.0, 100.0);
-			// Add 0.5 and cast as int to round
-			torque_cmd = (uint16_t)(floatmap(tps_percentage, 0.0, 100.0, LOWER_TORQUE_LIMIT, UPPER_TORQUE_LIMIT) + 0.5);
-			command_msg_1(torque_cmd, 0, direction, 1, 0, 0, 0);
-			command_msg_2(torque_cmd, 0, direction, 1, 0, 0, 0);
+		tps_percentage = floatmap(16.0, LOWER_TPS_LIMIT, UPPER_TPS_LIMIT, 0.0, 100.0);
+		// Add 0.5 and cast as int to round
+		torque_cmd = (uint16_t)(floatmap(tps_percentage, 0.0, 100.0, LOWER_TORQUE_LIMIT, UPPER_TORQUE_LIMIT) + 0.5);
+
+
+		if (TESTMODE) {
+			// Motor spinup test mode (hardcoded torque)
+			if(HAL_GPIO_ReadPin(B1_GPIO_PORT, B1_PIN)){
+				command_msg_1(200, 0, 1, 1, 0, 0, 0);
+			} else {
+				command_msg_1(0,0,0,0,0,0,0);
+			}
+
+		} else if (get_drive_state() == DRIVE) {
+			command_msg_1(torque_cmd, 0, 1, 1, 0, 0, 0);
+			command_msg_2(torque_cmd, 0, 1, 1, 0, 0, 0);
+		} else if (get_drive_state() == NEUTRAL) {
+			command_msg_1(0, 0, 1, 1, 0, 0, 0);
+			command_msg_2(0, 0, 1, 1, 0, 0, 0);
+		} else if (get_drive_state() == REVERSE) {
+			command_msg_1(torque_cmd, 0, 0, 1, 0, 0, 0);
+			command_msg_2(torque_cmd, 0, 0, 1, 0, 0, 0);
 		} else {
 			command_msg_1(0,0,0,0,0,0,0);
 			command_msg_2(0,0,0,0,0,0,0);
 		}
-	} else {
-		command_msg_1(0,0,0,0,0,0,0);
-		command_msg_2(0,0,0,0,0,0,0);
 	}
 }
 
