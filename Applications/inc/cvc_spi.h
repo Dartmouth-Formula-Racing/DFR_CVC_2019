@@ -85,28 +85,27 @@
 
 volatile typedef struct SPI_inputs_vector_s
 {
-	uint8_t ICE_enable;						// PLC input 1
-	uint8_t Motor_enable;					// PLC input 2
-	uint8_t BMS_safety_circuit_fault;					// PLC input 3
-	uint8_t Dash_BRB_press;					// PLC input 4
-	uint8_t	IMD_safety_circuit_fault;		// PLC input 5
-	uint8_t Ready_to_drive;		// PLC input 6
-	uint8_t Bamocar_safety_circuit_fault;	// PLC input 7
-	uint8_t TSMS_closed;					// PLC input 8
+	uint8_t BMS_OK;						// PLC input 1
+	uint8_t IMD_OK;					// PLC input 2
+	uint8_t RESET;					// PLC input 3
+	uint8_t DASH_BRB;					// PLC input 4
+	uint8_t	TSMS;		// PLC input 5
+	uint8_t RTD;		// PLC input 6
+	uint8_t BOT;	// PLC input 7
+	uint8_t AIR_1;					// PLC input 8
 
 } SPI_inputs_vector_t;
 
 volatile typedef struct SPI_outputs_vector_s
 {
-	uint8_t	safety;					// PLC output 1
-	uint8_t	ready_to_drive;			// PLC output 2
-	uint8_t	rfg;					// PLC output 3
-	uint8_t ignition_kill;			// PLC output 4
-	uint8_t	cvc_err;		// PLC output 5
-	uint8_t cvc_warn;		// PLC output 6
-	uint8_t ic_fan_enable;
-	//extra output					// PLC output 7
-	//extra output					// PLC output 8
+	uint8_t	FANS;					// PLC output 1
+	uint8_t	PUMPS;			// PLC output 2
+	uint8_t	BUZZER;					// PLC output 3
+	uint8_t CVC_ERROR;			// PLC output 4
+	uint8_t	CVC_WARN;		// PLC output 5
+	uint8_t AIR_2;		// PLC output 6
+	uint8_t BRAKE_LIGHT;	// PLC output 7
+	uint8_t CHARGE_ENABLE;				// PLC output 8
 
 } SPI_outputs_vector_t;
 

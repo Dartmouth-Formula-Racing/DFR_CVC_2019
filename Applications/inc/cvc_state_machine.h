@@ -21,7 +21,7 @@
 //#define PRE_CHARGE_TIMER_LOAD 50 // 2.5 seconds --> (2.5 s)/(0.05 s) = 50 ticks
 
 #define BUZZER_TIMER_LOAD 200 // 2 seconds --> (2 s)/(0.01 s) = 200 ticks
-#define PRE_CHARGE_TIMER_LOAD 250 // 2.5 seconds --> (2.5 s)/(0.01 s) = 250 ticks
+#define PRE_CHARGE_TIMER_LOAD 1000 // 2.5 seconds --> (2.5 s)/(0.01 s) = 250 ticks
 
 #define VOLTAGE_CHECK_TIMEOUT_LOAD 1000 // 10 seconds --> (10 s)/(0.01 s) = 1000 ticks
 #define MIN_BATTERY_VOLTAGE_THRESHOLD	240 // 240 V minimum for battery to pre-charge
@@ -30,11 +30,17 @@
 /* Type Defines ------------------------------------------------------------------------*/
 typedef enum cvc_state_e
 {
-
-	PRECHARGE = 0,
-	DRIVE = 1,
-	NEUTRAL = 2,
-	REVERSE = 3,
+	CVC_ERROR,
+	GLV_FAULT,
+	READY,
+	PRECHARGE,
+	BUZZER,
+	DRIVE,
+	NEUTRAL,
+	REVERSE,
+	CHARGING,
+	CHARGE_ERROR,
+	CHARGE_DONE
 
 } cvc_state_t;
 

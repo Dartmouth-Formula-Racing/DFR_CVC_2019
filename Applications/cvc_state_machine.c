@@ -45,150 +45,177 @@ void state_machine()
 {
 	// add any checks that must be done in all states here
 
-	int16_t xBuffer = (CAN_inputs[X_AXIS_ACCELERATION]);
-	int16_t yBuffer = (CAN_inputs[Y_AXIS_ACCELERATION]);
-	int16_t zBuffer = (CAN_inputs[Z_AXIS_ACCELERATION]);
+	/* set safety-out pins */
+	xSemaphoreTake(SPI_Outputs_Vector_Mutex, portMAX_DELAY);
 
-	float xAccel = ((float)xBuffer)*0.000244141;
-	float yAccel = ((float)yBuffer)*0.000244141;
-	float zAccel = ((float)zBuffer)*0.000244141;
+	SPI_outputs_vector.CVC_ERROR = 1;
+	SPI_outputs_vector.CVC_WARN = 1;
 
+	xSemaphoreGive(SPI_Outputs_Vector_Mutex);
+
+	// check for faults
+	xSemaphoreTake(SPI_Inputs_Vector_Mutex, portMAX_DELAY);
+	if (!SPI_inputs_vector.AIR_1) {
+		cvc_state = READY;
+	}
+	if (!SPI_inputs_vector.RESET) {
+		cvc_state = GLV_FAULT;
+	}
+	xSemaphoreGive(SPI_Inputs_Vector_Mutex);
+
+	// states
 	switch(cvc_state) {
 
-	case PRECHARGE:
+		case CVC_ERROR:
+			cvc_state = GLV_FAULT;
+			// make sure 2nd air is off
+			xSemaphoreTake(SPI_Outputs_Vector_Mutex, portMAX_DELAY);
 
+			SPI_outputs_vector.AIR_2 = 0;
 
+			xSemaphoreGive(SPI_Outputs_Vector_Mutex);
+		break;
 
-//		/* get batt & bamo voltages */
-//		xSemaphoreTake(CAN_Inputs_Vector_Mutex, portMAX_DELAY);
-//
-//		pack_voltage = (float) 50.0;
-//		bus_voltage = (float) ((int)CAN_inputs[DC_BUS_VOLTAGE])/10.0;	//*96.0f/3600.0f;
-//
-//		xSemaphoreGive(CAN_Inputs_Vector_Mutex);
-//
-//		/* wait for 90% precharge */
-//		if (bus_voltage >= pack_voltage * 0.9f)
-//		{
-//			precharge_90p_voltage = 1;
-//		}
-//
-//		/* start precharge timer and wait */
-//		if (precharge_90p_voltage && !precharge_timer_started)
-//		{
-//			precharge_timer = PRE_CHARGE_TIMER_LOAD;
-//			precharge_timer_started = 1;
-//		}
-//		else if (precharge_90p_voltage && precharge_timer_started)
-//		{
-//			precharge_timer--;
-//		}
-//
-//		if (precharge_timer_started && precharge_timer == 0)
-//		{
-//			precharge_complete = 1;
-//		}
-//
-//		/* send Bamocar set message when precharge complete to close second AIR */
-//		if (precharge_complete)
-//		{
-//
-//			cvc_state = DRIVE;
-//			precharge_90p_voltage = 0;
-//			precharge_timer_started = 0;
-//			precharge_complete = 0;
-//		}
-//		else
-//		{
-//			cvc_state = PRECHARGE;
-//		}
-//
-//		/* get push button state */
-//		xSemaphoreTake(SPI_Inputs_Vector_Mutex, portMAX_DELAY);
-//
-//		push_button = SPI_inputs_vector.Ready_to_drive;
-//		if (push_button) {
-//			cvc_state = DRIVE;
-//		}
-//
-//		xSemaphoreGive(SPI_Inputs_Vector_Mutex);
+		case GLV_FAULT:
+			// make sure 2nd air is off
+			xSemaphoreTake(SPI_Outputs_Vector_Mutex, portMAX_DELAY);
 
-		/* TODO: alert driver AIRs are closed (MOTEC alert) */
+			SPI_outputs_vector.AIR_2 = 0;
 
-		xSemaphoreTake(SPI_Outputs_Vector_Mutex, portMAX_DELAY);
+			xSemaphoreGive(SPI_Outputs_Vector_Mutex);
 
-		/* set safety-out pin */
-		SPI_outputs_vector.cvc_err = 0;
-		SPI_outputs_vector.cvc_warn = 0;
-
-		xSemaphoreGive(SPI_Outputs_Vector_Mutex);
-
-//		/* get push button state */
-//		xSemaphoreTake(SPI_Inputs_Vector_Mutex, portMAX_DELAY);
-//
-//		push_button = SPI_inputs_vector.Ready_to_drive;
-//		if (push_button) {
-//			cvc_state = DRIVE;
-//		}
-//
-//		xSemaphoreGive(SPI_Inputs_Vector_Mutex);
-
-		xSemaphoreTake(CAN_Inputs_Vector_Mutex, portMAX_DELAY);
-
-
-		if (zAccel <= 0) {
-			cvc_state = DRIVE;
-		}
-
-		xSemaphoreGive(CAN_Inputs_Vector_Mutex);
+			// check if faults have cleared
+			xSemaphoreTake(SPI_Inputs_Vector_Mutex, portMAX_DELAY);
+			if (SPI_inputs_vector.RESET) {
+				cvc_state = READY;
+			}
+			xSemaphoreGive(SPI_Inputs_Vector_Mutex);
 
 		break;
 
+		case READY:
+			// make sure 2nd air is off
+			xSemaphoreTake(SPI_Outputs_Vector_Mutex, portMAX_DELAY);
 
-	case DRIVE:
+			SPI_outputs_vector.AIR_2 = 0;
 
-		xSemaphoreTake(SPI_Outputs_Vector_Mutex, portMAX_DELAY);
-		xSemaphoreGive(CAN_Inputs_Vector_Mutex);
+			xSemaphoreGive(SPI_Outputs_Vector_Mutex);
 
-		/* set safety-out pin */
-		SPI_outputs_vector.cvc_err = 1;
-		SPI_outputs_vector.cvc_warn = 0;
+			// check if 1st AIR is closed - precharge has started
+			xSemaphoreTake(SPI_Inputs_Vector_Mutex, portMAX_DELAY);
+			if (SPI_inputs_vector.AIR_1) {
+				cvc_state = PRECHARGE;
+			}
+			xSemaphoreGive(SPI_Inputs_Vector_Mutex);
+		break;
 
-		if (CAN_inputs[DASH_REVERSE_BUTTON] != 0) {
-			drive_state = REVERSE;
-		} else if (CAN_inputs[DASH_DRIVE_BUTTON] != 0) {
-			drive_state = DRIVE;
-		} else if (CAN_inputs[DASH_NEUTRAL_BUTTON] != 0) {
-			drive_state = NEUTRAL;
-		}
-		/* get push button state */
-		xSemaphoreTake(SPI_Inputs_Vector_Mutex, portMAX_DELAY);
+		case PRECHARGE:
 
-		push_button = SPI_inputs_vector.Ready_to_drive;
-		if (push_button) {
-			SPI_outputs_vector.cvc_warn = 1;
-		}
+			xSemaphoreTake(SPI_Outputs_Vector_Mutex, portMAX_DELAY);
 
-		xSemaphoreGive(SPI_Outputs_Vector_Mutex);
-		xSemaphoreGive(SPI_Inputs_Vector_Mutex);
+			/* start precharge timer and wait */
+			if (!precharge_timer_started)
+			{
+				precharge_timer = PRE_CHARGE_TIMER_LOAD;
+				precharge_timer_started = 1;
+			}
+			else if (precharge_timer_started)
+			{
+				precharge_timer--;
+				SPI_outputs_vector.AIR_2 = 0;
+			}
 
-		/* set SPI outputs */
+			if (precharge_timer_started && precharge_timer <= 0)
+			{
+				precharge_complete = 1;
+			}
 
-//		cvc_state = DRIVE;
-//
-//		pack_voltage = (float) 50.0;
-//		bus_voltage = (float) ((int)CAN_inputs[DC_BUS_VOLTAGE])/10.0;
-//
-//		/* check for open Tractive System Master Switch */
-//		if (bus_voltage <= 0.9 * pack_voltage)
-//		{
-//			cvc_state = PRECHARGE;
-//		}
+			/* close 2nd air and increment state */
+			if (precharge_complete)
+			{
+				cvc_state = BUZZER;
+				precharge_timer_started = 0;
+				precharge_complete = 0;
 
+				SPI_outputs_vector.AIR_2 = 1;
+			}
+			else
+			{
+				cvc_state = PRECHARGE;
+			}
+
+			xSemaphoreGive(SPI_Outputs_Vector_Mutex);
+		break;
+
+		case BUZZER:
+			xSemaphoreTake(SPI_Outputs_Vector_Mutex, portMAX_DELAY);
+
+			if (!buzzer_timer_started)
+			{
+				buzzer_timer = BUZZER_TIMER_LOAD;
+				buzzer_timer_started = 1;
+			}
+			else if (buzzer_timer_started)
+			{
+				/* buzzer sound ON */
+				SPI_outputs_vector.BUZZER = 1;
+
+				/* decrement counter */
+				buzzer_timer--;
+			}
+
+			/* check buzzer timer */
+			if (buzzer_timer_started && buzzer_timer == 0)
+			{
+				ready_to_drive = 0;
+				buzzer_timer_started = 0;
+				cvc_state = DRIVE;
+			}
+			else
+			{
+				cvc_state = BUZZER;
+			}
+
+			xSemaphoreGive(SPI_Outputs_Vector_Mutex);
+		break;
+
+		case DRIVE:
+
+			xSemaphoreTake(CAN_Inputs_Vector_Mutex, portMAX_DELAY);
+
+			if (CAN_inputs[DASH_REVERSE_BUTTON]) {
+				drive_state = REVERSE;
+			} else if (CAN_inputs[DASH_DRIVE_BUTTON]) {
+				drive_state = DRIVE;
+			} else if (CAN_inputs[DASH_NEUTRAL_BUTTON]) {
+				drive_state = NEUTRAL;
+			}
+
+			xSemaphoreGive(CAN_Inputs_Vector_Mutex);
+
+			// Turn on cooling pumps
+			xSemaphoreTake(SPI_Outputs_Vector_Mutex, portMAX_DELAY);
+
+			SPI_outputs_vector.PUMPS = 1;
+
+			xSemaphoreGive(SPI_Outputs_Vector_Mutex);
 
 		break;
 
-	default:
+		case CHARGING:
+			cvc_state = GLV_FAULT;
+		break;
+
+		case CHARGE_ERROR:
+			cvc_state = GLV_FAULT;
+		break;
+
+		case CHARGE_DONE:
+			cvc_state = GLV_FAULT;
+		break;
+
+		default:
+			cvc_state = GLV_FAULT;
 		break;
 	}
 }

@@ -225,11 +225,14 @@ void SPI_PLC_Set_Inputs(void)
 
 #if CVC_PROTOTYPE == 1
 
-	SPI_inputs_vector.ICE_enable 					= CLT_Read.bit.IN3;
-	SPI_inputs_vector.Motor_enable 					= CLT_Read.bit.IN4;
-	SPI_inputs_vector.Dash_BRB_press 				= CLT_Read.bit.IN5;
-	SPI_inputs_vector.Ready_to_drive 				= CLT_Read.bit.IN6;
-	SPI_inputs_vector.TSMS_closed					= CLT_Read.bit.IN8;
+	SPI_inputs_vector.BMS_OK 					= CLT_Read.bit.IN1;
+	SPI_inputs_vector.IMD_OK 					= CLT_Read.bit.IN2;
+	SPI_inputs_vector.RESET 					= CLT_Read.bit.IN3;
+	SPI_inputs_vector.DASH_BRB 					= CLT_Read.bit.IN4;
+	SPI_inputs_vector.TSMS 				= CLT_Read.bit.IN5;
+	SPI_inputs_vector.RTD 				= CLT_Read.bit.IN6;
+	SPI_inputs_vector.BOT 				= CLT_Read.bit.IN6;
+	SPI_inputs_vector.AIR_1					= CLT_Read.bit.IN8;
 
 #endif /* CVC_PROTOTYPE == 0 */
 }
@@ -244,14 +247,14 @@ void SPI_PLC_Set_Outputs(void)
 {
 #if CVC_PROTOTYPE == 1
 
-	VNI_Write.bit.IN3 = SPI_outputs_vector.safety;
-	VNI_Write.bit.IN4 = SPI_outputs_vector.cvc_err;
-	VNI_Write.bit.IN5 = SPI_outputs_vector.cvc_warn;
-	VNI_Write.bit.IN6 = SPI_outputs_vector.ready_to_drive;
-	VNI_Write.bit.IN7 = SPI_outputs_vector.rfg;
-	VNI_Write.bit.IN8 = 1;						//ignition kill
-	VNI_Write.bit.IN1 = 1;		// ic fan enable
-	VNI_Write.bit.IN2 = 0;
+	VNI_Write.bit.IN1 = SPI_outputs_vector.FANS;
+	VNI_Write.bit.IN2 = SPI_outputs_vector.PUMPS;
+	VNI_Write.bit.IN3 = SPI_outputs_vector.BUZZER;
+	VNI_Write.bit.IN4 = SPI_outputs_vector.CVC_ERROR;
+	VNI_Write.bit.IN5 = SPI_outputs_vector.CVC_WARN;
+	VNI_Write.bit.IN6 = SPI_outputs_vector.AIR_2;
+	VNI_Write.bit.IN7 = SPI_outputs_vector.BRAKE_LIGHT;
+	VNI_Write.bit.IN8 = SPI_outputs_vector.CHARGE_ENABLE;
 
 #endif /* CVC_PROTOTYPE == 0 */
 
