@@ -15,7 +15,7 @@
 #define THROTTLE_ZERO_2 (0) // ADC counts
 #define THROTTLE_ONE_1 (4096) // ADC counts
 #define THROTTLE_ONE_2 (4096) // ADC counts
-#define MAX_THROTTLE_ERROR (200) // ADC counts
+#define MAX_THROTTLE_ERROR (0.1f) // 0-1
 #define UPPER_TORQUE_LIMIT (90.0f) // Max torque Nm
 #define LOWER_TORQUE_LIMIT (0.0f)
 #define TORQUE_MULTIPLIER_FORWARD (1.0f) // Throttle percentage. 1 = 100%
@@ -29,6 +29,8 @@ float floatmap(float x, float in_min, float in_max, float out_min, float out_max
 void torque_command();
 
 void process_throttle();
+
+uint32_t clamp_throttle(uint32_t d, uint32_t min, uint32_t max);
 
 uint16_t torque_int(float torque);
 

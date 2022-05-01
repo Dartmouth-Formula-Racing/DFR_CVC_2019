@@ -231,7 +231,7 @@ void SPI_PLC_Set_Inputs(void)
 	SPI_inputs_vector.DASH_BRB 					= CLT_Read.bit.IN4;
 	SPI_inputs_vector.TSMS 				= CLT_Read.bit.IN5;
 	SPI_inputs_vector.RTD 				= CLT_Read.bit.IN6;
-	SPI_inputs_vector.BOT 				= CLT_Read.bit.IN6;
+	SPI_inputs_vector.BOT 				= CLT_Read.bit.IN7;
 	SPI_inputs_vector.AIR_1					= CLT_Read.bit.IN8;
 
 #endif /* CVC_PROTOTYPE == 0 */
