@@ -11,11 +11,12 @@
 #include <stdint.h>
 #include "cvc_can.h"
 
-#define THROTTLE_ZERO_1 (100) // Volts * 100
-#define THROTTLE_ZERO_2 (0) // Volts * 100
-#define THROTTLE_ONE_1 (490) // Volts * 100
-#define THROTTLE_ONE_2 (4096) // Volts * 100
+#define THROTTLE_ZERO_1 (97) // Volts * 100
+#define THROTTLE_ZERO_2 (90) // Volts * 100
+#define THROTTLE_ONE_1 (486) // Volts * 100
+#define THROTTLE_ONE_2 (485) // Volts * 100
 #define MAX_THROTTLE_ERROR (0.1f) // 0-1
+#define MAX_ERROR_COUNT (50) // x10ms
 #define UPPER_TORQUE_LIMIT (121.0f) // Max torque Nm
 #define LOWER_TORQUE_LIMIT (0.0f)
 #define TORQUE_MULTIPLIER_FORWARD (0.1f) // Throttle percentage. 1 = 100%

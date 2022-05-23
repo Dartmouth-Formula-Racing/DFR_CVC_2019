@@ -18,6 +18,7 @@ float calc_torque_2 = 0.0f;
 uint16_t torque_cmd_1 = 0;
 uint16_t torque_cmd_2 = 0;
 float tps_percentage = 0.0f;
+int errcount = 0;
 
 void torque_command()
 {
@@ -60,13 +61,28 @@ void process_throttle()
 {
 	xSemaphoreTake(CAN_Inputs_Vector_Mutex, portMAX_DELAY);
 
-	uint32_t throttle_1 = clamp_throttle(CAN_inputs[ANALOG_INPUT_6_2], THROTTLE_ZERO_1, THROTTLE_ONE_1);
-	//uint32_t throttle_2 = clamp_throttle(CAN_inputs[ANALOG_INPUT_6_2], THROTTLE_ONE_2, THROTTLE_ZERO_2);
+	uint32_t throttle_1 = clamp_throttle(CAN_inputs[ANALOG_INPUT_6], THROTTLE_ZERO_1, THROTTLE_ONE_1);
+	uint32_t throttle_2 = clamp_throttle(CAN_inputs[ANALOG_INPUT_6_2], THROTTLE_ZERO_2, THROTTLE_ONE_2);
 
 	float tps_1 = ((float)(throttle_1 - THROTTLE_ZERO_1))/((float)(THROTTLE_ONE_1 - THROTTLE_ZERO_1));
-	//float tps_2 = ((float)(THROTTLE_ZERO_2 - throttle_2))/((float)(THROTTLE_ZERO_2 - THROTTLE_ONE_2));
+	float tps_2 = ((float)(throttle_2 - THROTTLE_ZERO_2))/((float)(THROTTLE_ONE_2 - THROTTLE_ZERO_2));
 
-	tps_percentage = (tps_1);// + tps_2)/2; // TODO: Incorporate 2nd tps
+	tps_percentage = (tps_1 + tps_2)/2;
+
+	if ((tps_1 - tps_2) > MAX_THROTTLE_ERROR || (tps_2 - tps_1) > MAX_THROTTLE_ERROR)
+	{
+		errcount++;
+	}
+	else
+	{
+		errcount = 0;
+	}
+	if (errcount > MAX_ERROR_COUNT)
+	{
+		init_fault_handler();
+		tps_percentage = 0;
+	}
+
 
 	xSemaphoreGive(CAN_Inputs_Vector_Mutex);
 }
