@@ -15,7 +15,7 @@
 
 //volatile cvc_state_t cvc_state = PRECHARGE;
 volatile cvc_state_t cvc_state = DRIVE;
-volatile cvc_state_t drive_state = NEUTRAL;
+volatile cvc_state_t drive_state = DRIVE;
 volatile cvc_fault_status_t cvc_fault = CVC_OK;
 volatile cvc_error_code_t cvc_error = NONE;
 
@@ -56,10 +56,10 @@ void state_machine()
 	// check for faults
 	xSemaphoreTake(SPI_Inputs_Vector_Mutex, portMAX_DELAY);
 	if (!SPI_inputs_vector.AIR_1) {
-		cvc_state = READY;
+		//cvc_state = READY;
 	}
 	if (!SPI_inputs_vector.RESET) {
-		cvc_state = GLV_FAULT;
+		//cvc_state = GLV_FAULT;
 	}
 	xSemaphoreGive(SPI_Inputs_Vector_Mutex);
 
@@ -183,20 +183,20 @@ void state_machine()
 
 			xSemaphoreTake(CAN_Inputs_Vector_Mutex, portMAX_DELAY);
 
-			if (CAN_inputs[DASH_REVERSE_BUTTON]) {
+			/*if (CAN_inputs[DASH_REVERSE_BUTTON]) {
 				drive_state = REVERSE;
 			} else if (CAN_inputs[DASH_DRIVE_BUTTON]) {
 				drive_state = DRIVE;
 			} else if (CAN_inputs[DASH_NEUTRAL_BUTTON]) {
 				drive_state = NEUTRAL;
-			}
+			}*/
 
 			xSemaphoreGive(CAN_Inputs_Vector_Mutex);
 
 			// Turn on cooling pumps
 			xSemaphoreTake(SPI_Outputs_Vector_Mutex, portMAX_DELAY);
 
-			SPI_outputs_vector.PUMPS = 1;
+			//SPI_outputs_vector.PUMPS = 1;
 
 			xSemaphoreGive(SPI_Outputs_Vector_Mutex);
 

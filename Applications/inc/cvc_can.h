@@ -366,7 +366,7 @@ typedef struct CAN_msg_s
 	uint32_t		msg_ID;			// Message ID
 	uint32_t		msg_type;		// STD or EXT
 	CAN_data_t		data;			// Message data
-	char 			name[20];		// internal message name
+	char 			name[64];		// internal message name
 	input_map_t *   input_map;		// input_map for data
 	uint8_t			num_inputs;		// number of inputs
 	CAN_parser_t	parser;			// parser function

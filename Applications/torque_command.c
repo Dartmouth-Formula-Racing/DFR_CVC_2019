@@ -21,7 +21,7 @@ float tps_percentage = 0.0f;
 
 void torque_command()
 {
-	if (get_cvc_state() == DRIVE && !CAN_inputs[INVERTER_ENABLE_LOCKOUT]) {
+	if (get_cvc_state() == DRIVE) {
 		// Read throttle pots
 		process_throttle();
 		// Convert torque command value
@@ -37,7 +37,7 @@ void torque_command()
 			command_msg_2(0,0,0,0,0,0,0);
 		} else if (get_drive_state() == REVERSE) {
 			torque_linear(TORQUE_MULTIPLIER_REVERSE);
-			pm100_torque_command_1(torque_int(calc_torque_1), 0);
+			pm100_torque_command_1(torque_int(calc_torque_1), 1);
 			pm100_torque_command_2(torque_int(calc_torque_2), 0);
 		} else {
 			command_msg_1(0,0,0,0,0,0,0);
@@ -60,13 +60,13 @@ void process_throttle()
 {
 	xSemaphoreTake(CAN_Inputs_Vector_Mutex, portMAX_DELAY);
 
-	uint32_t throttle_1 = clamp_throttle(CAN_inputs[ANALOG_INPUT_6], THROTTLE_ZERO_1, THROTTLE_ONE_1);
-	uint32_t throttle_2 = clamp_throttle(CAN_inputs[ANALOG_INPUT_6_2], THROTTLE_ONE_2, THROTTLE_ZERO_2);
+	uint32_t throttle_1 = clamp_throttle(CAN_inputs[ANALOG_INPUT_6_2], THROTTLE_ZERO_1, THROTTLE_ONE_1);
+	//uint32_t throttle_2 = clamp_throttle(CAN_inputs[ANALOG_INPUT_6_2], THROTTLE_ONE_2, THROTTLE_ZERO_2);
 
 	float tps_1 = ((float)(throttle_1 - THROTTLE_ZERO_1))/((float)(THROTTLE_ONE_1 - THROTTLE_ZERO_1));
-	float tps_2 = ((float)(THROTTLE_ZERO_2 - throttle_2))/((float)(THROTTLE_ZERO_2 - THROTTLE_ONE_2));
+	//float tps_2 = ((float)(THROTTLE_ZERO_2 - throttle_2))/((float)(THROTTLE_ZERO_2 - THROTTLE_ONE_2));
 
-	tps_percentage = (tps_1 + tps_2)/2;
+	tps_percentage = (tps_1);// + tps_2)/2; // TODO: Incorporate 2nd tps
 
 	xSemaphoreGive(CAN_Inputs_Vector_Mutex);
 }
