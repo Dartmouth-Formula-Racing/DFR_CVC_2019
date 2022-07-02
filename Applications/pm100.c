@@ -185,7 +185,7 @@ void pm100_torque_command_1(uint16_t torque_command, uint8_t direction_command){
  */
 void pm100_torque_command_2(uint16_t torque_command, uint8_t direction_command){
 	xSemaphoreTake(CAN_Inputs_Vector_Mutex, portMAX_DELAY);
-	if(CAN_inputs[INVERTER_ENABLE_LOCKOUT_2] == 0){
+	if(CAN_inputs[INVERTER_ENABLE_LOCKOUT_2] == 1){
 		command_msg_2(0,0,0,0,0,0,0);
 	}
 	else{

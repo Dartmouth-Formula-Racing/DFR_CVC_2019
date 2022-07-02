@@ -13,8 +13,8 @@
 
 /* Private Variables ------------------------------------------------------------------------*/
 
-//volatile cvc_state_t cvc_state = PRECHARGE;
-volatile cvc_state_t cvc_state = DRIVE;
+volatile cvc_state_t cvc_state = PRECHARGE;
+//volatile cvc_state_t cvc_state = DRIVE;
 volatile cvc_state_t drive_state = DRIVE;
 volatile cvc_fault_status_t cvc_fault = CVC_OK;
 volatile cvc_error_code_t cvc_error = NONE;
@@ -33,8 +33,11 @@ static uint8_t buzzer_timer_started = 0;
 static uint8_t push_button = 0;
 static uint8_t ready_to_drive = 0;
 
-static float pack_voltage;
-static float bus_voltage;
+static float pack_voltage = 204;
+static float bus_voltage_1;
+static float bus_voltage_2;
+static int undervolt_count = 0;
+static int undervolt_timeout = 10;
 
 static uint8_t log_disable_prev = 0xFF;
 static uint8_t log_disable_temp = 0xFF;
@@ -53,73 +56,34 @@ void state_machine()
 
 	xSemaphoreGive(SPI_Outputs_Vector_Mutex);
 
-	// check for faults
-	xSemaphoreTake(SPI_Inputs_Vector_Mutex, portMAX_DELAY);
-	if (!SPI_inputs_vector.AIR_1) {
-		//cvc_state = READY;
-	}
-	if (!SPI_inputs_vector.RESET) {
-		//cvc_state = GLV_FAULT;
-	}
-	xSemaphoreGive(SPI_Inputs_Vector_Mutex);
-
 	// states
 	switch(cvc_state) {
 
-		case CVC_ERROR:
-			cvc_state = GLV_FAULT;
-			// make sure 2nd air is off
-			xSemaphoreTake(SPI_Outputs_Vector_Mutex, portMAX_DELAY);
-
-			SPI_outputs_vector.AIR_2 = 0;
-
-			xSemaphoreGive(SPI_Outputs_Vector_Mutex);
-		break;
-
-		case GLV_FAULT:
-			// make sure 2nd air is off
-			xSemaphoreTake(SPI_Outputs_Vector_Mutex, portMAX_DELAY);
-
-			SPI_outputs_vector.AIR_2 = 0;
-
-			xSemaphoreGive(SPI_Outputs_Vector_Mutex);
-
-			// check if faults have cleared
-			xSemaphoreTake(SPI_Inputs_Vector_Mutex, portMAX_DELAY);
-			if (SPI_inputs_vector.RESET) {
-				cvc_state = READY;
-			}
-			xSemaphoreGive(SPI_Inputs_Vector_Mutex);
-
-		break;
-
-		case READY:
-			// make sure 2nd air is off
-			xSemaphoreTake(SPI_Outputs_Vector_Mutex, portMAX_DELAY);
-
-			SPI_outputs_vector.AIR_2 = 0;
-
-			xSemaphoreGive(SPI_Outputs_Vector_Mutex);
-
-			// check if 1st AIR is closed - precharge has started
-			xSemaphoreTake(SPI_Inputs_Vector_Mutex, portMAX_DELAY);
-			if (SPI_inputs_vector.AIR_1) {
-				cvc_state = PRECHARGE;
-			}
-			xSemaphoreGive(SPI_Inputs_Vector_Mutex);
-		break;
-
 		case PRECHARGE:
 
+			// make sure 2nd air is off
 			xSemaphoreTake(SPI_Outputs_Vector_Mutex, portMAX_DELAY);
 
-			/* start precharge timer and wait */
-			if (!precharge_timer_started)
+			SPI_outputs_vector.AIR_2 = 0;
+			SPI_outputs_vector.PUMPS = 0;
+
+			/* get inverter voltages */
+			xSemaphoreTake(CAN_Inputs_Vector_Mutex, portMAX_DELAY);
+
+			bus_voltage_1 = (float) ((int)CAN_inputs[DC_BUS_VOLTAGE])/10.0;	//*96.0f/3600.0f;
+			bus_voltage_2 = (float) ((int)CAN_inputs[DC_BUS_VOLTAGE_2])/10.0;
+
+			/* wait for 90% precharge */
+			if (bus_voltage_1 >= pack_voltage * 0.9f && bus_voltage_2 >= pack_voltage * 0.9f && !precharge_timer_started)
 			{
 				precharge_timer = PRE_CHARGE_TIMER_LOAD;
 				precharge_timer_started = 1;
 			}
-			else if (precharge_timer_started)
+
+			xSemaphoreGive(CAN_Inputs_Vector_Mutex);
+
+			/* start precharge timer and wait */
+			if (precharge_timer_started)
 			{
 				precharge_timer--;
 				SPI_outputs_vector.AIR_2 = 0;
@@ -133,7 +97,7 @@ void state_machine()
 			/* close 2nd air and increment state */
 			if (precharge_complete)
 			{
-				cvc_state = BUZZER;
+				cvc_state = DRIVE;
 				precharge_timer_started = 0;
 				precharge_complete = 0;
 
@@ -142,38 +106,6 @@ void state_machine()
 			else
 			{
 				cvc_state = PRECHARGE;
-			}
-
-			xSemaphoreGive(SPI_Outputs_Vector_Mutex);
-		break;
-
-		case BUZZER:
-			xSemaphoreTake(SPI_Outputs_Vector_Mutex, portMAX_DELAY);
-
-			if (!buzzer_timer_started)
-			{
-				buzzer_timer = BUZZER_TIMER_LOAD;
-				buzzer_timer_started = 1;
-			}
-			else if (buzzer_timer_started)
-			{
-				/* buzzer sound ON */
-				SPI_outputs_vector.BUZZER = 1;
-
-				/* decrement counter */
-				buzzer_timer--;
-			}
-
-			/* check buzzer timer */
-			if (buzzer_timer_started && buzzer_timer == 0)
-			{
-				ready_to_drive = 0;
-				buzzer_timer_started = 0;
-				cvc_state = DRIVE;
-			}
-			else
-			{
-				cvc_state = BUZZER;
 			}
 
 			xSemaphoreGive(SPI_Outputs_Vector_Mutex);
@@ -191,12 +123,30 @@ void state_machine()
 				drive_state = NEUTRAL;
 			}*/
 
+			/* get inverter voltages */
+			bus_voltage_1 = (float) ((int)CAN_inputs[DC_BUS_VOLTAGE])/10.0;	//*96.0f/3600.0f;
+			bus_voltage_2 = (float) ((int)CAN_inputs[DC_BUS_VOLTAGE_2])/10.0;
+
+			/* check for <10% of pack voltage */
+			if (bus_voltage_1 <= pack_voltage * 0.1f || bus_voltage_2 <= pack_voltage * 0.1f)
+			{
+				undervolt_count++;
+			}
+			else
+			{
+				undervolt_count = 0;
+			}
+			if (undervolt_count >= undervolt_timeout)
+			{
+				cvc_state = PRECHARGE;
+			}
 			xSemaphoreGive(CAN_Inputs_Vector_Mutex);
 
 			// Turn on cooling pumps
 			xSemaphoreTake(SPI_Outputs_Vector_Mutex, portMAX_DELAY);
 
-			//SPI_outputs_vector.PUMPS = 1;
+			SPI_outputs_vector.PUMPS = 1;
+			SPI_outputs_vector.AIR_2 = 1;
 
 			xSemaphoreGive(SPI_Outputs_Vector_Mutex);
 

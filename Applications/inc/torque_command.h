@@ -19,7 +19,7 @@
 #define MAX_ERROR_COUNT (50) // x10ms
 #define UPPER_TORQUE_LIMIT (121.0f) // Max torque Nm
 #define LOWER_TORQUE_LIMIT (0.0f)
-#define TORQUE_MULTIPLIER_FORWARD (0.1f) // Throttle percentage. 1 = 100%
+#define TORQUE_MULTIPLIER_FORWARD (0.25f) // Throttle percentage. 1 = 100%
 #define TORQUE_MULTIPLIER_REVERSE (0.1f) // Throttle percentage. 1 = 100%
 
 

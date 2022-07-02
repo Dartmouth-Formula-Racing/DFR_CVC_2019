@@ -31,7 +31,7 @@ void torque_command()
 		// TODO: get drive state only once for efficiency?
 		if (get_drive_state() == DRIVE) {
 			torque_linear(TORQUE_MULTIPLIER_FORWARD);
-			pm100_torque_command_1(torque_int(calc_torque_1), 1);
+			pm100_torque_command_1(torque_int(calc_torque_1), 0);
 			pm100_torque_command_2(torque_int(calc_torque_2), 1);
 		} else if (get_drive_state() == NEUTRAL) {
 			command_msg_1(0,0,0,0,0,0,0);
@@ -44,6 +44,10 @@ void torque_command()
 			command_msg_1(0,0,0,0,0,0,0);
 			command_msg_2(0,0,0,0,0,0,0);
 		}
+	}
+	else {
+		command_msg_1(0,0,0,0,0,0,0);
+		command_msg_2(0,0,0,0,0,0,0);
 	}
 }
 
