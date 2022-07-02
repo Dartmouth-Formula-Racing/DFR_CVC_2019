@@ -79,7 +79,7 @@
  * the BSP_SD_Init() call in the SD_Initialize().
  */
 
-/* #define DISABLE_SD_INIT */
+#define DISABLE_SD_INIT
 
 /*
  * when using cachable memory region, it may be needed to maintain the cache

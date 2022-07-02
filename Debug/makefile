@@ -41,10 +41,10 @@ endif
 all: dfr_cvc.elf
 
 # Tool invocations
-dfr_cvc.elf: $(OBJS) $(USER_OBJS) /Users/benjamin/git/DFR_CVC/LinkerScript.ld
+dfr_cvc.elf: $(OBJS) $(USER_OBJS) C:\Users\bridg\Documents\DFR\DFR_CVC/LinkerScript.ld
 	@echo 'Building target: $@'
 	@echo 'Invoking: MCU GCC Linker'
-	arm-none-eabi-gcc -mcpu=cortex-m7 -mthumb -mfloat-abi=hard -mfpu=fpv5-d16 -T"/Users/benjamin/git/DFR_CVC/LinkerScript.ld" -Wl,-Map=output.map -Wl,--gc-sections -lm -o "dfr_cvc.elf" @"objects.list" $(USER_OBJS) $(LIBS)
+	arm-none-eabi-gcc -mcpu=cortex-m7 -mthumb -mfloat-abi=hard -mfpu=fpv5-d16 -T"C:/Users/bridg/Documents/DFR/DFR_CVC/LinkerScript.ld" -Wl,-Map=output.map -Wl,--gc-sections -o "dfr_cvc.elf" @"objects.list" $(USER_OBJS) $(LIBS) -lm
 	@echo 'Finished building target: $@'
 	@echo ' '
 	$(MAKE) --no-print-directory post-build

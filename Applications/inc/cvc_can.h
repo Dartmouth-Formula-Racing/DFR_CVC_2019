@@ -35,6 +35,9 @@
 #define CANx_RX_AF					GPIO_AF9_CAN1
 
 #define CANx_GPIO_CLK_ENABLE()		__HAL_RCC_GPIOB_CLK_ENABLE()
+
+#define B1_PIN						GPIO_PIN_13
+#define B1_GPIO_PORT				GPIOC
 #else
 
 #define CANx_TX_PIN					GPIO_PIN_1
@@ -308,6 +311,14 @@ typedef enum CAN_input_e
 	Y_AXIS_YAW_RATE,
 	Z_AXIS_YAW_RATE,
 
+	//Dash inputs
+	DASH_DRIVE_BUTTON,
+	DASH_NEUTRAL_BUTTON,
+	DASH_REVERSE_BUTTON,
+	DASH_TOGGLE_1,
+	DASH_TOGGLE_2,
+	DASH_ALIVE,
+
 
 
 	NUM_INPUTS,			// Must be last!
@@ -355,7 +366,7 @@ typedef struct CAN_msg_s
 	uint32_t		msg_ID;			// Message ID
 	uint32_t		msg_type;		// STD or EXT
 	CAN_data_t		data;			// Message data
-	char 			name[20];		// internal message name
+	char 			name[64];		// internal message name
 	input_map_t *   input_map;		// input_map for data
 	uint8_t			num_inputs;		// number of inputs
 	CAN_parser_t	parser;			// parser function

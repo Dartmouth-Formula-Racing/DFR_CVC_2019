@@ -4,6 +4,7 @@
 "Applications/cvc_spi.o"
 "Applications/cvc_state_machine.o"
 "Applications/cvc_tasks.o"
+"Applications/dash.o"
 "Applications/demo.o"
 "Applications/main.o"
 "Applications/pm100.o"
