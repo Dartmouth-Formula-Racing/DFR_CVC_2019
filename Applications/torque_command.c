@@ -104,8 +104,8 @@ uint16_t torque_int(float torque)
 
 void torque_linear(float multiplier)
 {
-	calc_torque_1 = tps_percentage * UPPER_TORQUE_LIMIT * multiplier;
-	calc_torque_2 = tps_percentage * UPPER_TORQUE_LIMIT * multiplier;
+	calc_torque_1 = (tps_percentage - 0.25) * UPPER_TORQUE_LIMIT * multiplier;
+	calc_torque_2 = (tps_percentage - 0.25) * UPPER_TORQUE_LIMIT * multiplier;
 }
 
 //int16_t xBuffer = (CAN_inputs[X_AXIS_ACCELERATION]);
